@@ -1,0 +1,205 @@
+#*
+ * This file is part of Maven Deployit plugin.
+ *
+ * Maven Deployit plugin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Maven Deployit plugin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Maven Deployit plugin.  If not, see <http://www.gnu.org/licenses/>.
+ *#
+
+ ------
+ Deploy and run performance tests
+ ------
+ Benoit Moussaud
+ ------
+ 30 September 2010
+ ------
+
+Deploy and run performance tests
+
+ A sample showing how to deploy an applicaiton and perform performance tests with JMeter
+
+------
+<profile>
+	<id>performance</id>
+	<build>
+		<plugins>
+			<!-- DEPLOYIT-->
+			<plugin>
+				<groupId>com.xebialabs.deployit</groupId>
+				<artifactId>maven-deployit-plugin</artifactId>
+				<version>${project.version}</version>
+				<executions>
+					<execution>
+						<id>deploy-id</id>
+						<phase>pre-integration-test</phase>
+						<goals>
+							<goal>deploy</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>clean-id</id>
+						<phase>post-integration-test</phase>
+						<goals>
+							<goal>clean</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<testmode>false</testmode>
+					<environment>
+						<ConfigurationItem>
+							<type>Host</type>
+							<label>Host Production Weblogic</label>
+							<address>weblogic.vm</address>
+							<username>ubuntu</username>
+							<password>ubuntu</password>
+							<operatingSystemFamily>UNIX</operatingSystemFamily>
+							<accessMethod>SSH_SFTP</accessMethod>
+						</ConfigurationItem>
+
+						<ConfigurationItem>
+							<type>WlsDomain</type>
+							<label>Domain WLS Petshop</label>
+							<name>mydomain</name>
+							<activehost>Host Production Weblogic</activehost>
+							<port>7001</port>
+							<username>weblogic</username>
+							<password>weblogic10</password>
+							<adminservername>myserver</adminservername>
+							<wlhome>/home/ubuntu/oracle/wls1033/wlserver</wlhome>
+							<usenodemanager>true</usenodemanager>
+						</ConfigurationItem>
+
+						<ConfigurationItem>
+							<type>WlsServer</type>
+							<label>Petshop Server 1</label>
+							<name>Server-1</name>
+							<host>Host Production Weblogic</host>
+							<domain>Domain WLS Petshop</domain>
+							<port>8001</port>
+							<addedToEnvironment>false</addedToEnvironment>
+						</ConfigurationItem>
+
+						<ConfigurationItem>
+							<type>WlsServer</type>
+							<label>Petshop Server 2</label>
+							<name>Server-2</name>
+							<host>Host Production Weblogic</host>
+							<domain>Domain WLS Petshop</domain>
+							<port>9001</port>
+							<addedToEnvironment>false</addedToEnvironment>
+						</ConfigurationItem>
+
+						<ConfigurationItem>
+							<type>WlsCluster</type>
+							<label>Petshop Cluster</label>
+							<domain>Domain WLS Petshop</domain>
+							<name>MyCluster</name>
+							<servers>[Petshop Server 1,Petshop Server 2]</servers>
+						</ConfigurationItem>
+
+
+						<ConfigurationItem>
+							<type>Host</type>
+							<label>Host Production Apache</label>
+							<address>apache2.vm</address>
+							<username>ubuntu</username>
+							<password>ubuntu</password>
+							<sudoUsername>root</sudoUsername>
+							<operatingSystemFamily>UNIX</operatingSystemFamily>
+							<accessMethod>SSH_SUDO</accessMethod>
+						</ConfigurationItem>
+
+						<ConfigurationItem>
+							<type>ApacheHttpdServer</type>
+							<label>ApacheWeb Server</label>
+							<host>Host Production Apache</host>
+							<htdocsLocation>/home/ubuntu/wwww</htdocsLocation>
+							<errorLogLocation>/var/log/apache2/error.log</errorLogLocation>
+							<configurationLocation>/etc/apache2/mods-enabled</configurationLocation>
+							<apachectlPath>/usr/sbin/apache2ctl</apachectlPath>
+							<accessLogLocation>/var/log/apache2/access.log</accessLogLocation>
+						</ConfigurationItem>
+					</environment>
+
+					<middlewareResources>
+						<ConfigurationItem>
+							<type>ApacheHttpdWlsPluginConfiguration</type>
+							<label>ApacheWlsplugin Configuration</label>
+							<mimeMatchExpressions>*</mimeMatchExpressions>
+						</ConfigurationItem>
+					</middlewareResources>
+
+					<mappings>
+						<MappingItem>
+							<type>ApacheHttpdWlsPluginConfigurationMapping</type>
+							<label>MyApacheWlsPlugin</label>
+							<source>ApacheWlsplugin Configuration</source>
+							<target>ApacheWeb Server</target>
+							<clusters>[Petshop Cluster]</clusters>
+							<virtualHost>my.remote.host:8888</virtualHost>
+							<sourcePropertyOverrides>[]</sourcePropertyOverrides>
+						</MappingItem>
+					</mappings>
+
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>com.xebialabs.deployit</groupId>
+						<artifactId>wls-plugin</artifactId>
+						<version>1.3-beta-3-SNAPSHOT</version>
+					</dependency>
+					<dependency>
+						<groupId>com.xebialabs.deployit</groupId>
+						<artifactId>apache-httpd-plugin</artifactId>
+						<version>1.3-beta-3-SNAPSHOT</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+
+			<!-- JMeter plugin  -->
+			<plugin>
+				<groupId>org.apache.jmeter</groupId>
+				<artifactId>maven-jmeter-plugin</artifactId>
+				<version>1.0</version>
+				<executions>
+					<execution>
+						<id>jmeter-tests</id>
+						<phase>integration-test</phase>
+						<goals>
+							<goal>jmeter</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<reportDir>${project.build.directory}/jmeter-reports</reportDir>
+					<jmeterUserProperties>
+
+					</jmeterUserProperties>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>commons-logging</groupId>
+						<artifactId>commons-logging</artifactId>
+						<version>1.0.4</version>
+					</dependency>
+
+				</dependencies>
+			</plugin>
+
+		</plugins>
+	</build>
+</profile>
+------
+
+
+

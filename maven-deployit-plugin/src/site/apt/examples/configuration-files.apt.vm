@@ -44,27 +44,26 @@ Include configuration files to the deployment
             </execution>
         </executions>
         <configuration>
-            
-            <environment>
-                <ConfigurationItem>
-                    <type>Host</type>
-                    <label>APBIVM02-VM06</label>
-                    <address>ip-address</address>
-                    <username>username</username>
-                    <password>password</password>
-                    <operatingSystemFamily>UNIX</operatingSystemFamily>
-                    <accessMethod>SSH_SCP</accessMethod>
-                </ConfigurationItem>
-                
-                <ConfigurationItem>
-                    <type>JbossasServer</type>
-                    <label>AS02-VM06-JBOSS5</label>
-                    <host>APBIVM02-VM06</host>
-                    <version>JBOSSAS_50</version>
-                    <home>/usr/local/bin/jboss-5.1.0.GA/</home>
-                    <name>autotest</name>
-                </ConfigurationItem>
-            </environment>
+			<environment>
+				<ConfigurationItem>
+					<type>Host</type>
+					<label>APBIVM02-VM06</label>
+					<address>ip-address</address>
+					<username>username</username>
+					<password>password</password>
+					<operatingSystemFamily>UNIX</operatingSystemFamily>
+					<accessMethod>SSH_SCP</accessMethod>
+				</ConfigurationItem>
+
+				<ConfigurationItem>
+					<type>JbossasServer</type>
+					<label>AS02-VM06-JBOSS5</label>
+					<host>APBIVM02-VM06</host>
+					<version>JBOSSAS_50</version>
+					<home>/usr/local/bin/jboss-5.1.0.GA/</home>
+					<name>autotest</name>
+				</ConfigurationItem>
+			</environment>
 
 			<deployableArtifacts>
 				<DeployableArtifactItem>
@@ -82,7 +81,6 @@ Include configuration files to the deployment
 					<targetdirectory>/data/autotest</targetdirectory>
 				</MappingItem>
 			</mappings>
-
         </configuration>
         <dependencies>
             <dependency>

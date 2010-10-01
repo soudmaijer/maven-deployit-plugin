@@ -30,31 +30,6 @@
 			<username>personaleduser</username>
 			<password>Gr3zFd8R</password>
 		</server>
-		<server>
-			<id>xebialabs-releases</id>
-			<username>personaleduser</username>
-			<password>Gr3zFd8R</password>
-		</server>
-		<server>
-			<id>snapshots</id>
-			<username>personaleduser</username>
-			<password>Gr3zFd8R</password>
-		</server>
-		<server>
-			<id>releases</id>
-			<username>personaleduser</username>
-			<password>Gr3zFd8R</password>
-		</server>
-		<server>
-			<id>nexus-dexter-thirdparty</id>
-			<username>personaleduser</username>
-			<password>Gr3zFd8R</password>
-		</server>
-		<server>
-			<id>third-party</id>
-			<username>personaleduser</username>
-			<password>Gr3zFd8R</password>
-		</server>
 	</servers>
 
 	<profiles>

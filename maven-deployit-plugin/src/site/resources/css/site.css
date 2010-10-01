@@ -1,0 +1,28 @@
+#xnavcolumn h51 {
+	font-size: smaller;
+	border: 1px solid #aaaaaa;
+	background-color: #ddd;
+	margin-top: 7px;
+	margin-bottom: 2px;
+	padding-top: 2px;
+	padding-left: 2px;
+	color: #000;
+}
+
+h2 {
+	background-color: #fff;
+	border: 1px solid #999999;
+	color: #6FB42B;
+	font-size: x-large;
+	font-weight: 900;
+	padding: 4px 4px 4px 6px;
+}
+
+h3 {
+	background-color: #fff;
+	border: 1px solid #AAAAAA;
+	color: #6FB42B;
+	font-size: large;
+	font-weight: normal;
+	padding: 4px 4px 4px 6px;
+}

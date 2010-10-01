@@ -22,33 +22,39 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/DECORATION/1.0.0 http://maven.apache.org/xsd/decoration-1.0.0.xsd"
          name="Deployit Plugin">
-    <body>
-        <links>
-            <item name="Deployit" href="http://www.xebialabs.com/"/>
-        </links>
+	<bannerLeft>
+		<name>XebiaLabs</name>
+		<src>images/logo.png</src>
+		<href>http://www.xebialabs.com</href>
+	</bannerLeft>
+	<body>
+		<links>
+			<item name="XebiaLabs" href="http://www.xebialabs.com/"/>
+		</links>
 
-        <menu name="Overview">
-            <item name="Introduction" href="index.html"/>
-            <item name="Usage" href="usage.html"/>
-            <item name="Goals" href="plugin-info.html"/>
+		<menu name="Overview">
+			<item name="Introduction" href="index.html"/>
+			<item name="Usage" href="usage.html"/>
+			<item name="Goals" href="plugin-info.html"/>
 
-	        <!--
-            <item name="FAQ" href="faq.html"/>
-            -->
-        </menu>
+			<!--
+						<item name="FAQ" href="faq.html"/>
+						-->
+		</menu>
 
-        <menu name="Examples">
-	        <item name="Simple deployment" href="examples/simple-deployment.html"/>
-	        <item name="Generate DAR" href="examples/generate-dar.html"/>
-	        <item name="Simple deployment and clean" href="examples/simple-deployment-and-clean.html"/>
-            <item name="Define middleware resources" href="examples/middleware-resources.html"/>
-            <item name="Generate Manifest based deployment packages" href="examples/manifest.html"/>
-            <item name="Testing the configuration" href="examples/test-configuration.html"/>
-            <item name="Adding configuration files" href="examples/configuration-files.html"/>
-        </menu>
+		<menu name="Examples">
+			<item name="Simple deployment" href="examples/simple-deployment.html"/>
+			<item name="Generate DAR" href="examples/generate-dar.html"/>
+			<item name="Simple deployment and clean" href="examples/simple-deployment-and-clean.html"/>
+			<item name="Define middleware resources" href="examples/middleware-resources.html"/>
+			<item name="Testing the configuration" href="examples/test-configuration.html"/>
+			<item name="Deploy configuration files" href="examples/configuration-files.html"/>
+			<item name="Deploy and Run functional tests " href="examples/functional-tests.html"/>
+			<item name="Deploy and Run performance tests " href="examples/performance-tests.html"/>
+		</menu>
 
 
-        <menu ref="reports"/>
-        
-    </body>
+		<menu ref="reports"/>
+
+	</body>
 </project>

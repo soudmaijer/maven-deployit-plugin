@@ -20,14 +20,61 @@
  ------
  Benoit Moussaud
  ------
- 2010-04-30
+ 2010-09-30
  ------
 
 Usage
 
-  This page provides general usage information along with a basic example.  The plugin
-  is used to deploy a set of artifacts (war, ear, static contents, sql files ...) to an environment in order to
+  This page provides general usage information.  The Deployit Maven plugin has two main usages:
+
+  * to create a Deployit Deployment package including artefacts, managed in pom.xml file or a maven repository, and file sets corresponding
+  to configuration files, SQL Files, static contents... A new packaging type has been added, <dar>, to provide a dedicated lifecycle
+   and to produce new kind of archive, dar files - Deployment Archive. These dar files could be used to be deployed within the maven plugin or
+   to be imported into a Deployit server directly from a enterprise maven repository (eg. Artifactory, Nexus,....)
+   
+  * to deploy Deployit Deployment package to an environment in order to, for example,
   run a set of tests (functional tests, technical tests, performance tests). This is done during the
   pre-integration-test and pre-integration-test phase.  This is done using <<<{{{deploy-mojo.html} deployit:deploy }}>>> goal.
   The  <<<{{{clean-mojo.html} deployit:clean }}>>> undeploys all what has been deployed in the <<<{{{deploy-mojo.html} deployit:deploy }}>>> goal.
- 
+
+
+Getting started with Deployit Maven plugin
+
+  To use the Deployit maven plugin, you need to:
+  
+  	* Add the XebiaLabs repository to your pom.xm
+
+------
+  	<pluginRepositories>
+  	...
+		<pluginRepository>
+			<id>nexus-dexter-releases</id>
+			<url>http://dexter.xebialabs.com/nexus/content/repositories/releases</url>
+		</pluginRepository>
+
+		<pluginRepository>
+			<id>nexus-dexter-snapshots</id>
+			<url>http://dexter.xebialabs.com/nexus/content/repositories/snapshots</url>
+		</pluginRepository>
+	....
+	</pluginRepositories>
+------
+
+  	* Add your credentials to your settings.xml file. YOUR_USERNAME and YOUR_LICENSE are in the email you have received when you have <<< {{{http://www.xebialabs.com/try-deployit} downloaded Deployit Personal Edition}}>>>.
+
+------
+	<servers>
+	...
+		<server>
+			<id>nexus-dexter-releases</id>
+			<username>YOUR_USERNAME</username>
+			<password>YOUR_LICENSE</password>
+		</server>
+		<server>
+			<id>nexus-dexter-snapshots</id>
+			<username>YOUR_USERNAME</username>
+			<password>YOUR_LICENSE</password>
+		</server>
+	...
+	</servers>
+------

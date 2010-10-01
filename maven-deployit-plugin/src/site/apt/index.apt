@@ -36,11 +36,12 @@ Deployit Plugin
 
   The plugin has three goals meant to participate in the default build lifecycle:
 
+  * {{{generate-deployment-package-mojo.html}deployit:generate-deployment-package}} Generate a Deployment Package.
+
   * {{{deploy-mojo.html}deployit:deploy}} Deploy the main artifact, middleware resources to a single environment.
 
   * {{{clean-mojo.html}deployit:clean}} Undeploy all what is have been deployed in the  {{{deploy-mojo.html}deployit:deploy}} goal.
 
-  * {{{generate-deployment-package-mojo.html}deployit:generate-deployment-package}} Generate a Deployment Package.
 
   []
   
@@ -79,5 +80,9 @@ Deployit Plugin
   * {{{examples/test-configuration.html}Testing the configurationn}} to test the plugin configuration by skipping the executions of the deployment's steps.
 
   * {{{examples/configuration-files.html}Add configurationn file }} to the current deployment.
+
+  * {{{examples/functional-tests.html} Deploy and Run functional tests }}
+
+  * {{{examples/performance-tests.html} Deploy and Performance functional tests }}
 
   []

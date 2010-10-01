@@ -271,10 +271,15 @@
 	<pluginRepositories>
 		<pluginRepository>
 			<id>nexus-dexter-releases</id>
-			<name>Xebialabs - Deployit Releases</name>
 			<url>http://dexter.xebialabs.com/nexus/content/repositories/releases</url>
 		</pluginRepository>
+
+		<pluginRepository>
+			<id>nexus-dexter-snapshots</id>
+			<url>http://dexter.xebialabs.com/nexus/content/repositories/snapshots</url>
+		</pluginRepository>
 	</pluginRepositories>
+
 
 	<build>
 		<plugins>
@@ -307,9 +312,9 @@
 					<warName>petclinic</warName>
 				</configuration>
 			</plugin>
-
-
 		</plugins>
+
+		
 	</build>
 
 	<profiles>
@@ -493,7 +498,7 @@
 							</execution>
 						</executions>
 						<configuration>
-							<testmode>false</testmode>							
+							<testmode>false</testmode>
 							<environment>
 								<ConfigurationItem>
 									<type>Host</type>
@@ -546,7 +551,7 @@
 									<servers>[Petshop Server 1,Petshop Server 2]</servers>
 								</ConfigurationItem>
 
-								
+
 								<ConfigurationItem>
 									<type>Host</type>
 									<label>Host Production Apache</label>
@@ -639,4 +644,5 @@
 			</build>
 		</profile>
 	</profiles>
+
 </project>
