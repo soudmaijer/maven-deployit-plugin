@@ -207,12 +207,10 @@
 			<id>nexus-dexter-snapshots</id>
 			<url>http://dexter.xebialabs.com/nexus/content/repositories/snapshots</url>
 		</snapshotRepository>
-
 		<site>
 			<id>www-on-tech</id>
 			<url>scpexe://tech.xebialabs.com/home/tech.xebialabs.com/www/deployit-maven-plugin/${project.version}</url>
 		</site>
-
 	</distributionManagement>
 
 	<profiles>
@@ -234,7 +232,6 @@
 							<postBuildHookScript>verify</postBuildHookScript>
 							<localRepositoryPath>${project.build.testOutputDirectory}/m2repo</localRepositoryPath>
 							<settingsFile>src/it/settings.xml</settingsFile>
-
 							<goals>
 								<goal>clean</goal>
 								<goal>install</goal>
@@ -326,11 +323,11 @@
 						<reports>
 							<report>cim</report>
 
-							<!--
+
 							<report>dependencies</report>
 							<report>dependency-convergence</report>
 							<report>dependency-management</report>
-							-->
+							
 							<report>index</report>
 							<report>issue-tracking</report>
 							<report>license</report>
