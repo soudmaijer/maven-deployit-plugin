@@ -69,7 +69,7 @@ Simple deployment
         <dependency>
             <groupId>com.xebialabs.deployit</groupId>
             <artifactId>tomcat-plugin</artifactId>
-            <version>1.3</version>
+            <version>${deployitVersion}</version>
         </dependency>
     </dependencies>
 </plugin>

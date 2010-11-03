@@ -64,7 +64,6 @@
 							<username>weblogic</username>
 							<name>petshop</name>
 							<port>7001</port>
-							<usenodemanager>true</usenodemanager>
 							<startmode>NodeManager</startmode>
 						</ConfigurationItem>
 

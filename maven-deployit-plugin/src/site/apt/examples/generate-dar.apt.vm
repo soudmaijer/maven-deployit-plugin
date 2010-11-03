@@ -55,7 +55,7 @@ Generate DAR
 						<!-- add an EAR -->
 						<DeployableArtifactItem>
 							<type>Ear</type>
-							<location>com.xebialabs.deployit.petclinic.petclinic-artifact:PetClinic</location>
+							<location>com.xebialabs.deployit.petclinic.petclinic-ear:PetClinic</location>
 						</DeployableArtifactItem>
 
 						<!-- add Configuration Files (eg properties) -->
@@ -85,10 +85,10 @@ Generate DAR
 	<dependencies>
 
 		<dependency>
-			<groupId>com.xebialabs.deployit.petclinic.petclinic-artifact</groupId>
+			<groupId>com.xebialabs.deployit.petclinic.petclinic-ear</groupId>
 			<artifactId>PetClinic</artifactId>
 			<version>1.0</version>
-			<type>artifact</type>
+			<type>ear</type>
 			<scope>provided</scope>
 		</dependency>
 

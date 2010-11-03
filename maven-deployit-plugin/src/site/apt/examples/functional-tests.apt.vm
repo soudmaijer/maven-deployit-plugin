@@ -110,7 +110,7 @@ Deploy and run functional tests
 					<dependency>
 						<groupId>com.xebialabs.deployit</groupId>
 						<artifactId>tomcat-plugin</artifactId>
-						<version>1.3-beta-3-SNAPSHOT</version>
+						<version>${deployitVersion}</version>
 					</dependency>
 				</dependencies>
 			</plugin>
@@ -148,7 +148,7 @@ Deploy and run functional tests
 				</executions>
 			</plugin>
 			<!-- Exclude Selenium Tests from test phase,
-												Include Selenium Test into integration-test phase -->
+				Include Selenium Test into integration-test phase -->
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
