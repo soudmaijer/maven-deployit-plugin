@@ -10,9 +10,8 @@
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.xebialabs.deployit</groupId>
-
-	<artifactId>maven-deployit-plugin-test-victim-configuration-files-1</artifactId>
+	<groupId>com.xebialabs.deployit.maven.integrationtests</groupId>
+	<artifactId>configuration-files-1</artifactId>
 	<packaging>ear</packaging>
 	<version>1.0</version>
 	<name>simple</name>

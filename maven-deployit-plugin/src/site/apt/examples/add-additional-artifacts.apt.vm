@@ -25,7 +25,7 @@
 
 Add additional artifacts
 
- Show how to deploy the current artifact (ear or war) and other maven artifacts specified by dependency.
+ Show how to deploy the current artifact (artifact or war) and other maven artifacts specified by dependency.
 
 ------
 <dependencies>

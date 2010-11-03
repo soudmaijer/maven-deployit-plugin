@@ -28,7 +28,7 @@ def checkIsDir(File file) {
   assert file.isDirectory(), " file " + file;
 }
 
-def darDirectory = new File(basedir, "target/deployment-package/maven-deployit-plugin-test-victim-generate-dar-pom/1.0");
+def darDirectory = new File(basedir, "target/deployment-package/generate-dar-pom/1.0");
 checkIsDir(darDirectory);
 checkIsDir(new File(darDirectory, "ConfigurationFiles"));
 checkIsDir(new File(darDirectory, "SqlFiles"));

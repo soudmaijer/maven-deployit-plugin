@@ -19,11 +19,11 @@
 
 <project>
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.xebialabs.deployit.petclinic.petclinic-ear</groupId>
-    <groupId>com.xebialabs.deployit.petclinic.petclinic-ear</groupId>
+    <groupId>com.xebialabs.deployit.petclinic.petclinic-artifact</groupId>
+    <groupId>com.xebialabs.deployit.petclinic.petclinic-artifact</groupId>
     <artifactId>PetClinic</artifactId>
     <artifactId>PetClinic</artifactId>
-    <packaging>ear</packaging>
+    <packaging>artifact</packaging>
     <version>1.0</version>
     <distributionManagement>
         <status>verified</status>

@@ -25,7 +25,7 @@
 
 Simple deployment
 
- Show how to deploy the current artifact (ear or war) to a single Tomcat Server running on a remote host.
+ Show how to deploy the current artifact (artifact or war) to a single Tomcat Server running on a remote host.
    
 ------
 <plugin>
