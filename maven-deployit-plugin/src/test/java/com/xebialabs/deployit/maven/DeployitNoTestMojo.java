@@ -37,7 +37,7 @@ public class DeployitNoTestMojo extends AbstractMojoTestCase {
 	private ConfigurationItem host;
 	private ConfigurationItem tomcatServer;
 	private DeployableArtifactItem configurationFiles;
-	private static final boolean IGNORE = true;
+
 
 
 	public void setUp() throws Exception {
@@ -90,8 +90,6 @@ public class DeployitNoTestMojo extends AbstractMojoTestCase {
 	public void testOneServerEnvMojo()
 			throws Exception {
 
-		if (IGNORE)
-			return ;
 
 		MavenProjectStub project = new MavenProjectStub();
 		ArtifactStub mainArtifact = new ArtifactStub();
@@ -130,9 +128,7 @@ public class DeployitNoTestMojo extends AbstractMojoTestCase {
 	public void testOneServerEnvMojoWithConfigurationFiles()
 			throws Exception {
 
-		if (IGNORE)
-			return ;
-		
+
 		MavenProjectStub project = new MavenProjectStub();
 		ArtifactStub mainArtifact = new ArtifactStub();
 		mainArtifact.setType("War");
@@ -175,8 +171,6 @@ public class DeployitNoTestMojo extends AbstractMojoTestCase {
 	@After
 	public void tearDown() {
 
-		if (IGNORE)
-			return ;
 		
 		DeployMojo.stopServer();
 		try {

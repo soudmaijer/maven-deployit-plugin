@@ -520,7 +520,7 @@
 									<password>weblogic10</password>
 									<adminservername>myserver</adminservername>
 									<wlhome>/home/ubuntu/oracle/wls1033/wlserver</wlhome>
-									<usenodemanager>true</usenodemanager>
+									<startmode>NodeManager</startmode>
 								</ConfigurationItem>
 
 								<ConfigurationItem>
@@ -600,12 +600,12 @@
 							<dependency>
 								<groupId>com.xebialabs.deployit</groupId>
 								<artifactId>wls-plugin</artifactId>
-								<version>1.3-beta-3-SNAPSHOT</version>
+								<version>1.3</version>
 							</dependency>
 							<dependency>
 								<groupId>com.xebialabs.deployit</groupId>
 								<artifactId>apache-httpd-plugin</artifactId>
-								<version>1.3-beta-3-SNAPSHOT</version>
+								<version>1.3</version>
 							</dependency>
 						</dependencies>
 					</plugin>
