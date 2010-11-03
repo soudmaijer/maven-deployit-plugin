@@ -18,11 +18,6 @@
 package com.xebialabs.deployit.maven;
 
 /**
- * Created by IntelliJ IDEA.
- * User: bmoussaud
- * Date: 28 juin 2010
- * Time: 14:20:19
- * To change this template use File | Settings | File Templates.
  */
 public class MappingItem extends ConfigurationItem {
 
@@ -64,7 +59,7 @@ public class MappingItem extends ConfigurationItem {
 			return;
 
 
-		super.addParameter(name, value);    //To change body of overridden methods use File | Settings | File Templates.
+		super.addParameter(name, value);    
 	}
 
 	@Override
