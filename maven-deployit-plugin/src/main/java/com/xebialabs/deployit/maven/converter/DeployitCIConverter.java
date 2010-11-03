@@ -29,11 +29,9 @@ import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.codehaus.plexus.configuration.PlexusConfigurationException;
 
 /**
- * Created by IntelliJ IDEA.
  * User: bmoussaud
  * Date: 21 avr. 2010
  * Time: 13:28:04
- * To change this template use File | Settings | File Templates.
  */
 public class DeployitCIConverter extends AbstractConfigurationConverter {
 
@@ -107,8 +105,8 @@ public class DeployitCIConverter extends AbstractConfigurationConverter {
 			} catch (Exception e) {
 				throw new ComponentConfigurationException("getValue error", e);
 			}
+			
 			PlexusConfiguration[] children = configuration.getChildren();
-
 			for (PlexusConfiguration plexusConfiguration : children) {
 				try {
 					String name = plexusConfiguration.getName();

@@ -26,11 +26,9 @@ import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
 /**
- * Created by IntelliJ IDEA.
  * User: bmoussaud
  * Date: 29 avr. 2010
  * Time: 08:10:30
- * To change this template use File | Settings | File Templates.
  */
 public class ManifestTest {
 
