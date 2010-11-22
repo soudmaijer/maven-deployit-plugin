@@ -1,0 +1,143 @@
+<?xml  version="1.0"  encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0  http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>nl.beinformed.bi.test.server.beslissing</groupId>
+	<artifactId>minto-deploy</artifactId>
+	<version>1.0.1</version>
+	<packaging>dar</packaging>
+	<name>The Deployement Project using DAR</name>
+
+	<properties>
+		<jboss.home>/opt/jboss</jboss.home>
+		<jboss.server.name>myJboss</jboss.server.name>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>com.xebialabs.deployit</groupId>
+				<artifactId>maven-deployit-plugin</artifactId>
+				<version>1.4-SNAPSHOT</version>
+				<extensions>true</extensions>
+				<executions>
+					<execution>
+						<id>deploy-id</id>
+						<phase>install</phase>
+						<goals>
+							<goal>deploy</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<testmode>true</testmode>
+					<environment>
+						<ConfigurationItem>
+							<type>Host</type>
+							<label>appserver-host</label>
+							<address>192.168.47.191</address>
+							<username>testuser</username>
+							<password>Welkom01</password>
+							<operatingSystemFamily>UNIX</operatingSystemFamily>
+							<accessMethod>SSH_SFTP</accessMethod>
+						</ConfigurationItem>
+						<ConfigurationItem>
+							<type>JbossasServer</type>
+							<label>Jbossas server</label>
+							<host>appserver-host</host>
+							<name>myjboss</name>
+							<version>JBOSSAS_50</version>
+							<port>8080</port>
+							<accessMethod>http</accessMethod>
+							<home>/opt/jboss-5</home>
+							<restart>/opt/jboss-5/bin/restart</restart>
+						</ConfigurationItem>
+					</environment>
+
+					<deployableArtifacts>
+
+						<DeployableArtifactItem>
+							<type>ConfigurationFiles</type>
+							<location>package/resources.dir</location>
+						</DeployableArtifactItem>
+
+						<DeployableArtifactItem>
+							<type>Libraries</type>
+							<location>package/database.drivers</location>
+						</DeployableArtifactItem>
+
+						<DeployableArtifactItem>
+							<type>Libraries</type>
+							<location>package/platform.libraries.jboss4</location>
+						</DeployableArtifactItem>
+
+						<DeployableArtifactItem>
+							<type>Ear</type>
+							<location>com.xebialabs.deployit.maven.integrationtests:aSimpleEar</location>
+							<name>simpleEar</name>
+						</DeployableArtifactItem>
+
+					</deployableArtifacts>
+
+					<mappings>
+						<MappingItem>
+							<type>ConfigurationFilesMapping</type>
+							<source>ConfigurationFiles/resources.dir</source>
+							<target>appserver-host</target>
+							<keyvaluepairs>[[key=database.connection.url value=a][key=database.driver.class value=b]]</keyvaluepairs>
+							<targetdirectory>/data/autotest</targetdirectory>
+						</MappingItem>
+
+
+						<MappingItem>
+							<type>LibrariesMapping</type>
+							<source>Libraries/database.drivers</source>
+							<target>appserver-host</target>
+							<targetdirectory>${jboss.home}server/${jboss.server.name}/lib</targetdirectory>
+							<shared>true</shared>
+						</MappingItem>
+
+						<MappingItem>
+							<type>LibrariesMapping</type>
+							<source>Libraries/platform.libraries.jboss4</source>
+							<target>appserver-host</target>
+							<targetdirectory>${jboss.home}server/${jboss.server.name}/lib</targetdirectory>
+							<shared>true</shared>
+						</MappingItem>
+
+					</mappings>
+
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>com.xebialabs.deployit</groupId>
+						<artifactId>plugin-api</artifactId>
+						<version>1.3</version>
+					</dependency>
+					<dependency>
+						<groupId>com.xebialabs.deployit</groupId>
+						<artifactId>jbossas-plugin</artifactId>
+						<version>1.3</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.xebialabs.deployit.maven.integrationtests</groupId>
+			<artifactId>aSimpleEar</artifactId>
+			<type>ear</type>
+			<version>1.2.3</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+
+
+</project>
+
+
+
+
