@@ -20,7 +20,7 @@
 			<plugin>
 				<groupId>com.xebialabs.deployit</groupId>
 				<artifactId>maven-deployit-plugin</artifactId>
-				<version>@project.version@</version>
+				<version>${deployitMavenPluginVersion}</version>
 				<extensions>true</extensions>
 
 				<configuration>

@@ -345,6 +345,10 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 
 		if (!item.getLocation().contains(":")) {
 			getLog().info(" add a deployable artifact " + item);
+			String relativeLocation = item.getLocation();
+			File fileSysLoca = new File(project.getBasedir(),relativeLocation);
+			getLog().debug("  filesystem location is "+fileSysLoca.getPath());
+			item.setFileSystemLocation(fileSysLoca.getPath());
 			return item;
 		}
 
@@ -360,13 +364,16 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 		}
 
 		DeployableArtifactItem mavenDeployableArtifact = new DeployableArtifactItem();
-		mavenDeployableArtifact.setLocation(artifact.getFile().toString());
+		final String artifactFile = artifact.getFile().toString();
+		mavenDeployableArtifact.setLocation(artifactFile);
+		mavenDeployableArtifact.setFileSystemLocation(artifactFile);
 		if (item.hasName())
 			mavenDeployableArtifact.setName(item.getName());
 		else
 			mavenDeployableArtifact.setName(artifact.getArtifactId());
 		mavenDeployableArtifact.setType(item.getType());
 		mavenDeployableArtifact.setDarLocation(item.getDarLocation());
+		mavenDeployableArtifact.setFolder(item.isFolder());
 		return mavenDeployableArtifact;
 
 	}
@@ -376,6 +383,7 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 			throws MojoExecutionException {
 		DeployableArtifactItem mavenDeployableArtifact = new DeployableArtifactItem();
 		mavenDeployableArtifact.setLocation(artifact.getFile().toString());
+		mavenDeployableArtifact.setFileSystemLocation(artifact.getFile().toString());
 		mavenDeployableArtifact.setName(artifact.getArtifactId());
 		mavenDeployableArtifact.setType(capitalize(artifact.getType()));
 		return mavenDeployableArtifact;

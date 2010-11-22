@@ -32,7 +32,7 @@
 			<plugin>
 				<groupId>com.xebialabs.deployit</groupId>
 				<artifactId>maven-deployit-plugin</artifactId>
-				<version>@project.version@</version>
+				<version>${deployitMavenPluginVersion}</version>
 				<executions>
 					<execution>
 						<id>deployit-plugin-test</id>
@@ -44,7 +44,6 @@
 				</executions>
 				<configuration>
 					<testmode>true</testmode>
-					<useImportablePackage>true</useImportablePackage>
 					<environment>
 						<ConfigurationItem>
 							<type>Host</type>
@@ -75,7 +74,7 @@
 					<mappings>
 						<MappingItem>
 							<type>ConfigurationFilesMapping</type>
-							<source>ConfigurationFiles/package/resources.dir</source>
+							<source>ConfigurationFiles/resources.dir</source>
 							<target>APBIVM02-VM06</target>
 							<keyvaluepairs>[[key=database.connection.url value=a][key=database.driver.class value=b][key=database.password value=c]]
 							</keyvaluepairs>

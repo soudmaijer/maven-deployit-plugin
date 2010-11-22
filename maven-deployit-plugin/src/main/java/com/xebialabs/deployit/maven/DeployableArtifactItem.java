@@ -29,6 +29,8 @@ public class DeployableArtifactItem {
 
 	private String darLocation;
 
+	private String fileSystemLocation;
+
 	private boolean folder = false;
 
 	public DeployableArtifactItem() {
@@ -68,11 +70,18 @@ public class DeployableArtifactItem {
 		this.name = name;
 	}
 
-	public boolean isFolder() {		
-		return folder || "Libraries".equals(type);
+	public boolean isFolder() {
+		if ("ConfigurationFiles".equals(type))
+			return true;
+
+		if ("Libraries".equals(type))
+			return true;
+
+		return folder;
 	}
 
 	public void setFolder(boolean folder) {
+
 		this.folder = folder;
 	}
 
@@ -84,10 +93,19 @@ public class DeployableArtifactItem {
 				", name='" + name + '\'' +
 				", darLocation='" + darLocation + '\'' +
 				", folder=" + isFolder() +
+				", fileSysLoc=" + getFileSystemLocation() +
 				'}';
 	}
 
 	public boolean hasName() {
 		return !StringUtils.isBlank(name);
+	}
+
+	public String getFileSystemLocation() {
+		return fileSystemLocation;
+	}
+
+	public void setFileSystemLocation(String fileSystemLocation) {
+		this.fileSystemLocation = fileSystemLocation;
 	}
 }

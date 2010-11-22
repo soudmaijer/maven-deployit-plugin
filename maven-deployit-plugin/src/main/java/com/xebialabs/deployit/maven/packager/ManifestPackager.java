@@ -83,31 +83,27 @@ public class ManifestPackager implements ApplicationDeploymentPackager {
 		return a;
 	}
 
-	public void addDeployableArtifact(DeployableArtifactItem item) {		
-		if ("Dar".equals(item.getType()))
+	public void addDeployableArtifact(DeployableArtifactItem item) {
+		if ("Dar".equalsIgnoreCase(item.getType()))
 			return;
 
-		if ("Pom".equals(item.getType()))
+		if ("Pom".equalsIgnoreCase(item.getType()))
 			return;
 
 		final Map<String, Attributes> entries = manifest.getEntries();
 		final Attributes attributes = new Attributes();
 		final String type = item.getType();
-		final File location = new File(item.getLocation());
+		final File location = new File(item.getFileSystemLocation());
 
 		attributes.putValue("CI-Type", type);
 		if (item.hasName())
 			attributes.putValue("CI-Name", item.getName());
 
 		String darLocation = (item.getDarLocation() == null ? type : item.getDarLocation());
-
-		if (item.isFolder()) {
-		   entries.put(darLocation, attributes);
+		if (item.isFolder() && location.isFile()) {
+			entries.put(darLocation, attributes);			      
 		} else {
-			if (location.isAbsolute())
-				entries.put(darLocation + "/" + location.getName(), attributes);
-			else
-				entries.put(darLocation + "/" + item.getLocation(), attributes);
+			entries.put(darLocation + "/" + location.getName(), attributes);
 		}
 
 		final File targetDir = new File(targetDirectory, darLocation);

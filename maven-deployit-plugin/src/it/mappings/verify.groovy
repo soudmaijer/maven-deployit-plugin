@@ -28,10 +28,13 @@ def checkIsDir(File file) {
   assert file.isDirectory(), " file " + file;
 }
 
-def darDirectory = new File(basedir, "target/deployment-package/generate-dar/1.0");
+def darDirectory = new File(basedir, "dar/target/deployment-package/mapping-deploy/1.0.1");
 checkIsDir(darDirectory);
-checkIsDir(new File(darDirectory, "appconfig"));
-checkIsDir(new File(darDirectory, "SqlFiles"));
+checkIsDir(new File(darDirectory, "ConfigurationFiles"));
+checkIsDir(new File(darDirectory, "ConfigurationFiles/resources.dir"));
+checkIsDir(new File(darDirectory, "Libraries/database.drivers"));
+checkIsDir(new File(darDirectory, "Libraries/platform.libraries.jboss4"));
+checkIsFile(new File(darDirectory, "Ear/aSimpleEar-1.2.3.ear"));
 checkIsFile(new File(darDirectory, "META-INF/MANIFEST.MF"));
 
 def manifest = new File(darDirectory, "META-INF/MANIFEST.MF");
@@ -43,27 +46,13 @@ def m = new Manifest(manifest.newInputStream())
 
 def entries = m.getEntries();
 assert entries.size() == 4, "4 entries";
+def earEntries = entries.findAll { key, value -> key == 'Libraries/database.drivers'};
 
-def configEntries = entries.findAll { key, value -> key == 'appconfig/resources.dir'};
-assert configEntries.size() == 1
-def earEntry = configEntries.iterator().next();
+assert earEntries.size() == 1
+def earEntry = earEntries.iterator().next();
 def attributes = earEntry.getValue()
 
-assert attributes.containsKey(new Attributes.Name("CI-Type"));;
-assert attributes.get(new Attributes.Name("CI-Type")).equals("ConfigurationFiles")
-
-def extlibEntries = entries.findAll { key, value -> key == 'extlib'};
-assert extlibEntries.size() == 1
-def attributesLib = extlibEntries.iterator().next().getValue()
-assert attributesLib.containsKey(new Attributes.Name("CI-Type"));;
-assert attributesLib.get(new Attributes.Name("CI-Type")).equals("Libraries")
-
-
-extlibEntries = entries.findAll { key, value -> key == 'jdbc'};
-assert extlibEntries.size() == 1
-attributesLib = extlibEntries.iterator().next().getValue()
-assert attributesLib.containsKey(new Attributes.Name("CI-Type"));;
-assert attributesLib.get(new Attributes.Name("CI-Type")).equals("Libraries")
-
+assert attributes.containsKey(new Attributes.Name("CI-Type"));
+assert attributes.get(new Attributes.Name("CI-Type")).equals("Libraries")
 
 return true;

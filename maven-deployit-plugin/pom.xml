@@ -99,7 +99,7 @@
 
 			<!--
 						TODO: create a profile
-						-->
+						
 			<plugin>
 				<groupId>com.agilejava.docbkx</groupId>
 				<artifactId>docbkx-maven-plugin</artifactId>
@@ -126,6 +126,7 @@
 					</dependency>
 				</dependencies>
 			</plugin>
+			-->
 		</plugins>
 
 		
