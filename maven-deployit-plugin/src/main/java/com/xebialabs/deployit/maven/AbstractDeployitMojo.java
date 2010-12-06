@@ -359,13 +359,13 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 		Artifact artifact = (Artifact) project.getArtifactMap().get(key);
 		if (artifact == null)
 			getLog().debug("Not found, search in the dependency artifacts...");
-			for (Object o : project.getDependencyArtifacts()) {
-				Artifact da = (Artifact) o;
-				final String artifactKey = da.getGroupId() + ":" + da.getArtifactId();
-				if (artifactKey.equals(key)) {
-					artifact = da;
-				}
+		for (Object o : project.getDependencyArtifacts()) {
+			Artifact da = (Artifact) o;
+			final String artifactKey = da.getGroupId() + ":" + da.getArtifactId();
+			if (artifactKey.equals(key)) {
+				artifact = da;
 			}
+		}
 		if (artifact == null) {
 			throw new MojoExecutionException(
 					"The artifact "
@@ -391,11 +391,16 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 
 	protected DeployableArtifactItem getRealDeployableArtifact(final Artifact artifact)
 			throws MojoExecutionException {
+
 		DeployableArtifactItem mavenDeployableArtifact = new DeployableArtifactItem();
-		mavenDeployableArtifact.setLocation(artifact.getFile().toString());
-		mavenDeployableArtifact.setFileSystemLocation(artifact.getFile().toString());
 		mavenDeployableArtifact.setName(artifact.getArtifactId());
 		mavenDeployableArtifact.setType(capitalize(artifact.getType()));
+
+		final File file = artifact.getFile();
+		if (file != null) {
+			mavenDeployableArtifact.setFileSystemLocation(file.toString());
+			mavenDeployableArtifact.setLocation(file.toString());
+		}
 		return mavenDeployableArtifact;
 	}
 

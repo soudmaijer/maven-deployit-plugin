@@ -23,55 +23,23 @@ import org.apache.maven.plugin.MojoFailureException;
 /**
  * Clean (Undeploy) the target environment.
  *
+ * @author Benoit Moussaud
  * @goal clean
  * @phase post-integration-test
  * @configurator override
- * @author Benoit Moussaud
  */
 public class CleanMojo extends AbstractDeployitMojo {
-    public void execute() throws MojoExecutionException, MojoFailureException {
-        getLog().info("deployit:clean");
+	public void execute() throws MojoExecutionException, MojoFailureException {
+		getLog().info("deployit:clean");
 
-        startServer();
+		startServer();
 
-        interpret("delete " + DEFAULT_DEPLOYMENT);
+		interpret("delete " + DEFAULT_DEPLOYMENT);
+		//Go !
+		deployit();
 
-        //Go !
-        deployit();
+		interpret("shutdown");
 
-        interpret("shutdown");
-        
-        getLog().info("end of deployit:clean." +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "" +
-                "");
-    }
+		getLog().info("end of deployit:clean.");
+	}
 }
