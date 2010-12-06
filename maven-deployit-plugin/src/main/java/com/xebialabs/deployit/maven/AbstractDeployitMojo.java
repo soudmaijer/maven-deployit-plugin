@@ -109,6 +109,7 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 
 	/**
 	 * Additional resources such as Database, Apache plugin configuration, JMS Queues...
+	 *
 	 * @parameter
 	 */
 	protected List<ConfigurationItem> middlewareResources;
@@ -135,7 +136,7 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 	 * @parameter
 	 */
 	protected List<DeployableArtifactItem> deployableArtifacts;
-		
+
 	/**
 	 * Only the Manifest file will be generate. Do not copy files when generating Deployment package
 	 *
@@ -346,8 +347,8 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 		if (!item.getLocation().contains(":")) {
 			getLog().info(" add a deployable artifact " + item);
 			String relativeLocation = item.getLocation();
-			File fileSysLoca = new File(project.getBasedir(),relativeLocation);
-			getLog().debug("  filesystem location is "+fileSysLoca.getPath());
+			File fileSysLoca = new File(project.getBasedir(), relativeLocation);
+			getLog().debug("  filesystem location is " + fileSysLoca.getPath());
 			item.setFileSystemLocation(fileSysLoca.getPath());
 			return item;
 		}
@@ -356,6 +357,15 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 		getLog().debug("-translateIntoPath- " + item.getLocation());
 		String key = item.getLocation();
 		Artifact artifact = (Artifact) project.getArtifactMap().get(key);
+		if (artifact == null)
+			getLog().debug("Not found, search in the dependency artifacts...");
+			for (Object o : project.getDependencyArtifacts()) {
+				Artifact da = (Artifact) o;
+				final String artifactKey = da.getGroupId() + ":" + da.getArtifactId();
+				if (artifactKey.equals(key)) {
+					artifact = da;
+				}
+			}
 		if (artifact == null) {
 			throw new MojoExecutionException(
 					"The artifact "
