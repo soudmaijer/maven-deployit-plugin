@@ -41,6 +41,7 @@ public class DeployMojo extends AbstractDeployitMojo {
 
 
 		final ManifestPackager packager = new ManifestPackager(artifactId, version, outputDirectory);
+		packager.setLogger(getLog());
 		packager.setGenerateManifestOnly(generateManifestOnly);
 
 		getLog().info("create the main artifact");
@@ -52,7 +53,6 @@ public class DeployMojo extends AbstractDeployitMojo {
 			for (DeployableArtifactItem item : deployableArtifacts) {
 				packager.addDeployableArtifact(getRealDeployableArtifact(item));
 			}
-
 		}
 
 
@@ -61,7 +61,6 @@ public class DeployMojo extends AbstractDeployitMojo {
 		startServer();		
 
 		interpret(packager.getCliCommands());
-
 
 		//Create Environment
 		getLog().info("Create the environment");

@@ -19,6 +19,8 @@ package com.xebialabs.deployit.maven;
 
 import org.apache.commons.lang.StringUtils;
 
+import java.io.File;
+
 public class DeployableArtifactItem {
 
 	private String type;
@@ -37,7 +39,7 @@ public class DeployableArtifactItem {
 	}
 
 	public String getDarLocation() {
-		return darLocation;
+		return (darLocation == null ? type : darLocation);
 	}
 
 	public void setDarLocation(String darLocation) {
@@ -81,7 +83,6 @@ public class DeployableArtifactItem {
 	}
 
 	public void setFolder(boolean folder) {
-
 		this.folder = folder;
 	}
 
@@ -107,5 +108,15 @@ public class DeployableArtifactItem {
 
 	public void setFileSystemLocation(String fileSystemLocation) {
 		this.fileSystemLocation = fileSystemLocation;
+	}
+
+	public String getEntryKey() {
+		final File syslocation = new File(this.getFileSystemLocation());
+		String darLocation = getDarLocation();
+		if (isFolder() && syslocation.isFile()) {
+			return darLocation;
+		} else {
+			return darLocation + "/" + syslocation.getName();
+		}
 	}
 }

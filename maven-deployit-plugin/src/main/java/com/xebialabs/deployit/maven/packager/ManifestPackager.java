@@ -19,6 +19,7 @@ package com.xebialabs.deployit.maven.packager;
 
 import com.xebialabs.deployit.maven.DeployableArtifactItem;
 import org.apache.commons.io.FileUtils;
+import org.apache.maven.plugin.logging.Log;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -38,6 +39,7 @@ public class ManifestPackager implements ApplicationDeploymentPackager {
 	private static final String DEPLOYMENT_PACKAGE_DIR = "deployment-package";
 
 	private boolean generateManifestOnly = false;
+	private Log logger;
 
 
 	public File getTargetDirectory() {
@@ -59,8 +61,8 @@ public class ManifestPackager implements ApplicationDeploymentPackager {
 	public void perform() {
 		final File meta_inf = new File(targetDirectory, "META-INF");
 		meta_inf.mkdirs();
-
 		File manifestFile = new File(meta_inf, "MANIFEST.MF");
+		logger.info("Generate manifest file " + manifestFile.getAbsolutePath());
 		try {
 			FileOutputStream fos = new FileOutputStream(manifestFile);
 			manifest.write(fos);
@@ -92,23 +94,17 @@ public class ManifestPackager implements ApplicationDeploymentPackager {
 
 		final Map<String, Attributes> entries = manifest.getEntries();
 		final Attributes attributes = new Attributes();
-		final String type = item.getType();
 		final File location = new File(item.getFileSystemLocation());
 
-		attributes.putValue("CI-Type", type);
+		attributes.putValue("CI-Type", item.getType());
 		if (item.hasName())
 			attributes.putValue("CI-Name", item.getName());
 
-		String darLocation = (item.getDarLocation() == null ? type : item.getDarLocation());
-		if (item.isFolder() && location.isFile()) {
-			entries.put(darLocation, attributes);			      
-		} else {
-			entries.put(darLocation + "/" + location.getName(), attributes);
-		}
+		entries.put(item.getEntryKey(), attributes);
 
-		final File targetDir = new File(targetDirectory, darLocation);
+		final File targetDir = new File(targetDirectory, item.getDarLocation());
 		if (generateManifestOnly) {
-			System.out.println("Skip copying artifact " + item.getName() + " to " + targetDir);
+			logger.info("Skip copying artifact " + item.getName() + " to " + targetDir);
 			return;
 		}
 		targetDir.mkdirs();
@@ -148,4 +144,7 @@ public class ManifestPackager implements ApplicationDeploymentPackager {
 		return new File(targetDirectory, "META-INF/MANIFEST.MF");
 	}
 
+	public void setLogger(Log logger) {
+		this.logger = logger;
+	}
 }

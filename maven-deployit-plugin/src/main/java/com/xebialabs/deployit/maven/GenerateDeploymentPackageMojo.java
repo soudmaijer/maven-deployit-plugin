@@ -75,6 +75,8 @@ public class GenerateDeploymentPackageMojo extends AbstractDeployitMojo {
 	 * @component
 	 */
 	private MavenProjectHelper projectHelper;
+	private File manifestFile;
+	private DeployableArtifactItem realMainDeployableArtifact;
 
 
 	public void execute() throws MojoExecutionException, MojoFailureException {
@@ -82,9 +84,13 @@ public class GenerateDeploymentPackageMojo extends AbstractDeployitMojo {
 		getLog().info("Build the Deployit Deployment Package");
 
 		ManifestPackager packager = new ManifestPackager(artifactId, version, outputDirectory);
+		packager.setLogger(getLog());
 
 		packager.setGenerateManifestOnly(generateManifestOnly);
 		getLog().info("Generate Deployment Package...");
+
+		realMainDeployableArtifact = getRealDeployableArtifact(project.getArtifact());
+		packager.addDeployableArtifact(realMainDeployableArtifact);
 
 		//Handle additionnal maven artifacts
 		if (deployableArtifacts != null) {
@@ -94,7 +100,8 @@ public class GenerateDeploymentPackageMojo extends AbstractDeployitMojo {
 			}
 		}
 		packager.perform();
-		getLog().info("Manifest file generated in " + packager.getManifestFile());
+		manifestFile = packager.getManifestFile();
+		getLog().info("Manifest file generated in " + manifestFile);
 
 		if (generateManifestOnly) {
 			getLog().info("Do not seal the dar file, return");
@@ -153,5 +160,9 @@ public class GenerateDeploymentPackageMojo extends AbstractDeployitMojo {
 
 	public JarArchiver getJarArchiver() {
 		return jarArchiver;
+	}
+
+	public DeployableArtifactItem getRealMainDeployableArtifact() {
+		return realMainDeployableArtifact;
 	}
 }
