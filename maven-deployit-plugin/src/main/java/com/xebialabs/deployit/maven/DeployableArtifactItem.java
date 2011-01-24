@@ -21,7 +21,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 
-public class DeployableArtifactItem {
+public class DeployableArtifactItem implements PackagedItem {
 
 	private String type;
 

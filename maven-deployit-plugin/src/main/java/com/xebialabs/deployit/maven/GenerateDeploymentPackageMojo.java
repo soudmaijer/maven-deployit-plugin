@@ -94,11 +94,20 @@ public class GenerateDeploymentPackageMojo extends AbstractDeployitMojo {
 
 		//Handle additionnal maven artifacts
 		if (deployableArtifacts != null) {
-			getLog().info("create the artifacts");
+			getLog().info("Add the artifacts");
 			for (DeployableArtifactItem item : deployableArtifacts) {
 				packager.addDeployableArtifact(getRealDeployableArtifact(item));
 			}
 		}
+
+		//Handle the middleware resources
+		if (middlewareResources != null) {
+			getLog().info("Add the middleware resources");
+			for (MiddlewareResource mr : middlewareResources) {
+				packager.addMiddlewareResource(mr);
+			}
+		}
+
 		packager.perform();
 		manifestFile = packager.getManifestFile();
 		getLog().info("Manifest file generated in " + manifestFile);
@@ -121,7 +130,7 @@ public class GenerateDeploymentPackageMojo extends AbstractDeployitMojo {
 			mvnArchiver.getArchiver().addDirectory(packager.getTargetDirectory());
 
 			final File manifestFile = packager.getManifestFile();
-			getLog().debug("set Manifest file of the archive "+manifestFile);
+			getLog().debug("set Manifest file of the archive " + manifestFile);
 			mvnArchiver.getArchiver().setManifest(manifestFile);
 
 			mvnArchiver.createArchive(getProject(), archive);
@@ -131,8 +140,7 @@ public class GenerateDeploymentPackageMojo extends AbstractDeployitMojo {
 			} else {
 				getProject().getArtifact().setFile(darFile);
 			}
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			throw new MojoExecutionException("Error assembling DAR", e);
 		}
 

@@ -42,7 +42,7 @@ manifest.eachLine {line ->
 def m = new Manifest(manifest.newInputStream())
 
 def entries = m.getEntries();
-assert entries.size() == 4, "4 entries";
+assert entries.size() == 5, "5 entries";
 
 def configEntries = entries.findAll { key, value -> key == 'appconfig/resources.dir'};
 assert configEntries.size() == 1

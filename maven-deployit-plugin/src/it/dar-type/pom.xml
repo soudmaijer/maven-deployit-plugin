@@ -25,7 +25,6 @@
 
 				<configuration>
 					<deployableArtifacts>
-
 						<DeployableArtifactItem>
 							<type>Ear</type>
 							<location>com.xebialabs.deployit.petclinic.petclinic-ear:PetClinic</location>
@@ -51,6 +50,19 @@
 							<location>package/single.sql/afile.sql</location>
 						</DeployableArtifactItem>
 					</deployableArtifacts>
+
+					<middlewareResources>
+						<middlewareResource>
+							<name>petclinicDS</name>
+							<type>DummyDataSource</type>
+							<driver>com.mysql.jdbc.Driver</driver>
+							<url>jdbc:mysql://localhost/petclinic</url>
+							<username>scott</username>
+							<password>tiger</password>
+							<settings-EntryKey-1>autoCommit</settings-EntryKey-1>
+							<settings-EntryValue-1>true</settings-EntryValue-1>
+						</middlewareResource>
+					</middlewareResources>
 				</configuration>
 			</plugin>
 

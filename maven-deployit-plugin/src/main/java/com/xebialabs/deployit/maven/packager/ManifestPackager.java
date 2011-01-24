@@ -18,7 +18,9 @@
 package com.xebialabs.deployit.maven.packager;
 
 import com.xebialabs.deployit.maven.DeployableArtifactItem;
+import com.xebialabs.deployit.maven.MiddlewareResource;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.logging.Log;
 
 import java.io.File;
@@ -63,12 +65,14 @@ public class ManifestPackager implements ApplicationDeploymentPackager {
 		meta_inf.mkdirs();
 		File manifestFile = new File(meta_inf, "MANIFEST.MF");
 		logger.info("Generate manifest file " + manifestFile.getAbsolutePath());
+		FileOutputStream fos = null;
 		try {
-			FileOutputStream fos = new FileOutputStream(manifestFile);
+			fos = new FileOutputStream(manifestFile);
 			manifest.write(fos);
-			fos.close();
 		} catch (IOException e) {
 			new RuntimeException("perform failed", e);
+		} finally {
+			IOUtils.closeQuietly(fos);
 		}
 	}
 
@@ -130,6 +134,16 @@ public class ManifestPackager implements ApplicationDeploymentPackager {
 
 		}
 
+	}
+
+	public void addMiddlewareResource(MiddlewareResource mr) {
+		final Map<String, Attributes> entries = manifest.getEntries();
+		final Attributes attributes = new Attributes();
+		attributes.putValue("CI-Type", mr.getType());
+		for (Map.Entry<String, String> entry : mr.getProperties().entrySet()) {
+			attributes.putValue(entry.getKey(), entry.getValue());
+		}
+		entries.put(mr.getName(), attributes);
 	}
 
 	public boolean isGenerateManifestOnly() {

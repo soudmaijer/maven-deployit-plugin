@@ -65,13 +65,13 @@
 
 
 					<middlewareResources>
-						<ConfigurationItem>
+						<middlewareResource>
 							<type>JbossasQueue</type>
 							<label>The resource</label>
 							<name>maven-generated-queue</name>
 							<maxDepth>768</maxDepth>
 							<jndiName>jms/maven-generated-q</jndiName>
-						</ConfigurationItem>
+						</middlewareResource>
 					</middlewareResources>
 
 

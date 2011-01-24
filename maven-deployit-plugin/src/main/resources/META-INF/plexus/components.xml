@@ -40,7 +40,6 @@
 					<install>org.apache.maven.plugins:maven-install-plugin:install</install>
 					<deploy>org.apache.maven.plugins:maven-deploy-plugin:deploy</deploy>
 				</phases>
-
 			</configuration>
 		</component>
 
@@ -60,8 +59,7 @@
 		<component>
 			<role>org.codehaus.plexus.component.configurator.converters.lookup.ConverterLookup</role>
 			<role-hint>override</role-hint>
-			<implementation>org.codehaus.plexus.component.configurator.converters.lookup.DefaultConverterLookup
-			</implementation>
+			<implementation>org.codehaus.plexus.component.configurator.converters.lookup.DefaultConverterLookup</implementation>
 			<requirements>
 				<requirement>
 					<role>org.codehaus.plexus.component.configurator.converters.ConfigurationConverter</role>

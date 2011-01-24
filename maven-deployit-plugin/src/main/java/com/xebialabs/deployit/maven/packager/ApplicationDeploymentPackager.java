@@ -18,6 +18,7 @@
 package com.xebialabs.deployit.maven.packager;
 
 import com.xebialabs.deployit.maven.DeployableArtifactItem;
+import com.xebialabs.deployit.maven.MiddlewareResource;
 
 import java.util.List;
 
@@ -31,4 +32,6 @@ public interface ApplicationDeploymentPackager {
     List<String> getCliCommands();
 
     void addDeployableArtifact(DeployableArtifactItem item);
+
+	void addMiddlewareResource(MiddlewareResource mr);
 }

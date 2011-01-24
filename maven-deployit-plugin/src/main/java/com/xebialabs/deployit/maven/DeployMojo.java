@@ -76,15 +76,6 @@ public class DeployMojo extends AbstractDeployitMojo {
 			interpret("modify " + DEFAULT_ENVIRONMENT + " members += \"" + member + "\" ");
 		}
 
-		if (middlewareResources != null) {
-			getLog().info("create Middleware Resources");
-			for (ConfigurationItem ci : middlewareResources) {
-				interpret(ci.getCli());
-				interpret("modify \"" + packager.getDeploymentPackageName() + "\" middlewareResources+=\"" + ci.getLabel() + "\"");
-			}
-		}
-
-
 		if (commands != null) {
 			getLog().info("Handle additional commands");
 			for (String each : commands) {

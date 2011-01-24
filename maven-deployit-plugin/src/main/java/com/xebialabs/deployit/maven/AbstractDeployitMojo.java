@@ -112,7 +112,7 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 	 *
 	 * @parameter
 	 */
-	protected List<ConfigurationItem> middlewareResources;
+	protected List<MiddlewareResource> middlewareResources;
 
 
 	/**
@@ -313,11 +313,11 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 		this.commands = commands;
 	}
 
-	public List<ConfigurationItem> getMiddlewareResources() {
+	public List<MiddlewareResource> getMiddlewareResources() {
 		return middlewareResources;
 	}
 
-	public void setMiddlewareResources(List<ConfigurationItem> middlewareResources) {
+	public void setMiddlewareResources(List<MiddlewareResource> middlewareResources) {
 		this.middlewareResources = middlewareResources;
 	}
 

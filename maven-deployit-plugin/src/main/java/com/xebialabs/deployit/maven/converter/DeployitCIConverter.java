@@ -19,6 +19,7 @@ package com.xebialabs.deployit.maven.converter;
 
 import com.xebialabs.deployit.maven.ConfigurationItem;
 import com.xebialabs.deployit.maven.MappingItem;
+import com.xebialabs.deployit.maven.MiddlewareResource;
 import org.codehaus.plexus.component.configurator.ComponentConfigurationException;
 import org.codehaus.plexus.component.configurator.ConfigurationListener;
 import org.codehaus.plexus.component.configurator.converters.AbstractConfigurationConverter;
@@ -42,7 +43,8 @@ public class DeployitCIConverter extends AbstractConfigurationConverter {
 	static final String ADD_TO_ENV = "addToEnv";
 
 	public boolean canConvert(Class type) {
-		return ConfigurationItem.class.isAssignableFrom(type);
+		return ConfigurationItem.class.isAssignableFrom(type) || MiddlewareResource.class.isAssignableFrom(type);
+
 	}
 
 	/**
@@ -56,7 +58,6 @@ public class DeployitCIConverter extends AbstractConfigurationConverter {
 		if (type.equals(ConfigurationItem.class)) {
 
 			ConfigurationItem ci = new ConfigurationItem();
-
 			try {
 				final String typeAttribute = configuration.getAttribute(TYPE);
 				if (typeAttribute != null) {
@@ -105,7 +106,7 @@ public class DeployitCIConverter extends AbstractConfigurationConverter {
 			} catch (Exception e) {
 				throw new ComponentConfigurationException("getValue error", e);
 			}
-			
+
 			PlexusConfiguration[] children = configuration.getChildren();
 			for (PlexusConfiguration plexusConfiguration : children) {
 				try {
@@ -117,6 +118,20 @@ public class DeployitCIConverter extends AbstractConfigurationConverter {
 				}
 			}
 			return ci;
+		}
+
+		if (type.equals(MiddlewareResource.class)) {
+			MiddlewareResource mr = new MiddlewareResource();
+			for (PlexusConfiguration plexusConfiguration : configuration.getChildren()) {
+				try {
+					String name = plexusConfiguration.getName();
+					String c = plexusConfiguration.getValue();
+					mr.addParameter(name, c);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			return mr;
 		}
 
 

@@ -156,7 +156,6 @@
 		</dependency>
 
 		<!-- deployit -->
-
 		<dependency>
 			<groupId>com.xebialabs.deployit</groupId>
 			<artifactId>core-java</artifactId>
@@ -170,7 +169,6 @@
 			<scope>test</scope>
 		</dependency>
 
-
 		<!-- test -->
 		<dependency>
 			<groupId>junit</groupId>
@@ -178,8 +176,6 @@
 			<version>4.0</version>
 			<scope>test</scope>
 		</dependency>
-
-
 	</dependencies>
 
 	<developers>
@@ -317,12 +313,9 @@
 					<reportSet>
 						<reports>
 							<report>cim</report>
-
-
 							<report>dependencies</report>
 							<report>dependency-convergence</report>
 							<report>dependency-management</report>
-							
 							<report>index</report>
 							<report>issue-tracking</report>
 							<report>license</report>

@@ -67,14 +67,14 @@ Add middleware resources
                 </ConfigurationItem>
             </environment>
             <middlewareResources>
-                <ConfigurationItem>
+                <middlewareResource>
                     <type>TomcatDataSource</type>
                     <label>My application datasource</label>
                     <jndiName>jdbc/myDataSource</jndiName>
                     <driverClass>org.hsqldb.jdbcDriver</driverClass>
                     <connectionUrl>jdbc:hsqldb:file:/tmp/database.hdb</connectionUrl>
                     <maxActive>10</maxActive>
-                </ConfigurationItem>
+                </middlewareResource>
             </middlewareResources>
             </configuration>
         </configuration>
