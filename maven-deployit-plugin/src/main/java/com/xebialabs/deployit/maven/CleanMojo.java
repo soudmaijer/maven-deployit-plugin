@@ -34,12 +34,18 @@ public class CleanMojo extends AbstractDeployitMojo {
 
 		startServer();
 
-		interpret("delete " + DEFAULT_DEPLOYMENT);
-		//Go !
-		deployit();
 
-		interpret("shutdown");
+		try {
+			interpret("delete " + DEFAULT_DEPLOYMENT);
+			//Go !
+			//deployit();
+			//interpret("shutdown");
+		} catch (Exception e) {
+			e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+		}
+		getLog().info("Stop.");
 
+		stopServer();
 		getLog().info("end of deployit:clean.");
 	}
 }

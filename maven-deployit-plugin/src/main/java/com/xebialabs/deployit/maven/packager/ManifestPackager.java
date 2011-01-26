@@ -34,11 +34,12 @@ import java.util.jar.Manifest;
 
 public class ManifestPackager implements ApplicationDeploymentPackager {
 
-	private final File targetDirectory;
-	private final String deploymentPackageName;
+	public  static final String DEPLOYMENT_PACKAGE_DIR = "deployment-package";
 
+	private final File targetDirectory;
+
+	private final String deploymentPackageName;
 	private final Manifest manifest = new Manifest();
-	private static final String DEPLOYMENT_PACKAGE_DIR = "deployment-package";
 
 	private boolean generateManifestOnly = false;
 	private Log logger;

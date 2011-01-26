@@ -7,7 +7,7 @@ import java.util.Map;
 /**
  * Describe a deployit middleware resource for a deployment package.
  */
-public class MiddlewareResource implements PackagedItem{
+public class MiddlewareResource implements PackagedItem {
 
 	private String name;
 

@@ -58,23 +58,11 @@ public class DeployMojo extends AbstractDeployitMojo {
 
 		packager.perform();
 
-		startServer();		
+		startServer();
 
 		interpret(packager.getCliCommands());
+		defineEnvironment();
 
-		//Create Environment
-		getLog().info("Create the environment");
-		List<String> members = new ArrayList<String>();
-		for (ConfigurationItem each : environment) {
-			interpret(each.getCli());
-			if (each.isAddedToEnvironment())
-				members.add(each.getLabel());
-		}
-
-		interpret("create Environment label=" + DEFAULT_ENVIRONMENT);
-		for (String member : members) {
-			interpret("modify " + DEFAULT_ENVIRONMENT + " members += \"" + member + "\" ");
-		}
 
 		if (commands != null) {
 			getLog().info("Handle additional commands");
@@ -102,6 +90,23 @@ public class DeployMojo extends AbstractDeployitMojo {
 		deployit();
 
 		getLog().info("end of deploy:deploy");
+	}
+
+	public  void defineEnvironment() throws MojoExecutionException {
+		getLog().info("Create the environment");
+		List<String> members = new ArrayList<String>();
+		for (ConfigurationItem each : environment) {
+			getLog().info(" create "+each.getLabel());
+			getInterpreter().create(each);
+			if (each.isAddedToEnvironment())
+				members.add(each.getLabel());
+		}
+
+		ConfigurationItem ciEnvironment = new ConfigurationItem();
+		ciEnvironment.setLabel(DEFAULT_ENVIRONMENT);
+		ciEnvironment.setType("Environment");
+		ciEnvironment.addParameter("members", members);
+		getInterpreter().create(ciEnvironment);
 	}
 
 

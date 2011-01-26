@@ -17,66 +17,91 @@
 
 package com.xebialabs.deployit.maven;
 
+import com.google.common.collect.Maps;
+
+import java.util.Map;
+import java.util.Set;
+
+import static java.lang.String.format;
+
 public class ConfigurationItem {
 
-    private String mainType;
-    protected final StringBuilder parameters = new StringBuilder();
-    private String label;
+	private String type;
+	private String label;
+	private boolean addedToEnvironment = true;
 
-    private boolean addedToEnvironment = true;
+	final private Map<String, Object> properties = Maps.newHashMap();
 
-    public String getMainType() {
-        return mainType;
-    }
 
-    public String getLabel() {
-        if (label == null) {
-            label = "autogen-label-"+mainType;
-        }
-        return label;
-    }
+	public String getType() {
+		return type;
+	}
 
-    public void setMainType(String mainType) {
-        this.mainType = mainType;
-    }
+	public String getLabel() {
+		if (label == null) {
+			throw new IllegalStateException("Label cannot be null");
+		}
+		return label;
+	}
 
-    public void addParameter(String name, Object value) {
-        if ("addedToEnvironment".equals(name)){
-            addedToEnvironment = Boolean.parseBoolean(value.toString());
-            return;
-        }
+	public void setLabel(String label) {
+		this.label = label;
+	}
 
-	    if ("type".equals(name)) {
-		    setMainType(value.toString());
-		    return;
-	    }
-        parameters.append(' ').append(name).append('=').append('"').append(value).append('"').append(' ');
-        if ("label".equals(name)) {
-            label = value.toString();
-        }
+	public void setType(String type) {
+		this.type = type;
+	}
 
-    }
+	public void addParameter(String name, Object value) {
+		if ("addedToEnvironment".equals(name)) {
+			addedToEnvironment = Boolean.parseBoolean(value.toString());
+			return;
+		}
 
-    public String getCli() {
-        if (label == null) {
-             return "create " + mainType + " " + parameters; // RAJOUTER !!!!            
-        }
-        return "create " + mainType + " " + parameters;
-    }
+		if ("type".equals(name)) {
+			setType(value.toString());
+			return;
+		}
 
-    public boolean isAddedToEnvironment() {
-        return addedToEnvironment;
-    }
+		if ("label".equals(name)) {
+			label = value.toString();
+			return;
+		}
+		properties.put(name, value);
 
-    public void setAddedToEnvironment(boolean addedToEnvironment) {
-        this.addedToEnvironment = addedToEnvironment;
-    }
 
-    @Override
-    public String toString() {
-        return "ConfigurationItem{" +
-                "mainType='" + mainType + '\'' +
-                ", parameters=" + parameters +
-                '}';
-    }
+
+	}
+
+	public String getCli() {
+		throw new IllegalStateException("GetCli sucks");
+	}
+
+	public boolean isAddedToEnvironment() {
+		return addedToEnvironment;
+	}
+
+	public void setAddedToEnvironment(boolean addedToEnvironment) {
+		this.addedToEnvironment = addedToEnvironment;
+	}
+
+	public Map<String, Object> getProperties() {
+		return properties;
+	}
+
+	@Override
+	public String toString() {
+		//Joiner.MapJoiner mapJoiner = Joiner.on(",").withKeyValueSeparator("->").appendTo()
+		//String properties = mapJoiner.join(ci.getProperties());
+		final Set<Map.Entry<String,Object>> entries = getProperties().entrySet();
+		String properties = "{";
+		boolean first =  false;
+		for( Map.Entry<String,Object> e:entries) {
+			properties +=(first ? ",": "" )+ "\""+e.getKey()+"\":\""+e.getValue()+"\"";
+			first = true ;
+		}
+		properties+="}";
+
+		return format("repository.create(\"%s\",factory.configurationItem(\"%s\", %s))", getLabel(), getType(), properties);
+	}
 }

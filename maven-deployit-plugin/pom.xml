@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 
 	<modelVersion>4.0.0</modelVersion>
@@ -15,7 +16,6 @@
 
 	<properties>
 		<mavenVersion>2.2.1</mavenVersion>
-		<deployitVersion>1.3</deployitVersion>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.build.java.target>1.5</project.build.java.target>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -132,7 +132,7 @@
 			-->
 		</plugins>
 
-		
+
 	</build>
 
 
@@ -158,15 +158,26 @@
 		<!-- deployit -->
 		<dependency>
 			<groupId>com.xebialabs.deployit</groupId>
-			<artifactId>core-java</artifactId>
-			<version>${deployitVersion}</version>
+			<artifactId>server</artifactId>
+			<version>2.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.xebialabs.deployit</groupId>
+			<artifactId>server-core</artifactId>
+			<version>2.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.xebialabs.deployit</groupId>
+			<artifactId>cli</artifactId>
+			<version>2.0-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.xebialabs.deployit</groupId>
 			<artifactId>tomcat-plugin</artifactId>
-			<version>${deployitVersion}</version>
-			<scope>test</scope>
+			<version>1.4-SNAPSHOT</version>
 		</dependency>
 
 		<!-- test -->
@@ -189,6 +200,7 @@
 		</developer>
 	</developers>
 
+	<!--
 	<distributionManagement>
 		<repository>
 			<id>nexus-dexter-releases</id>
@@ -203,6 +215,7 @@
 			<url>scpexe://tech.xebialabs.com/home/tech.xebialabs.com/www/deployit-maven-plugin/${project.version}</url>
 		</site>
 	</distributionManagement>
+	-->
 
 	<profiles>
 		<profile>
@@ -336,7 +349,7 @@
 					<headerLocation>config/maven-header.txt</headerLocation>
 				</configuration>
 			</plugin>
-			
+
 			<plugin>
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>2.5</version>
@@ -385,7 +398,7 @@
 					</reportSet>
 				</reportSets>
 			</plugin>
-			
+
 			<plugin>
 				<artifactId>maven-jxr-plugin</artifactId>
 				<version>2.1</version>

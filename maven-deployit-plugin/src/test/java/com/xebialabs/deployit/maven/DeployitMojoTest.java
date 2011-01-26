@@ -18,6 +18,7 @@
 package com.xebialabs.deployit.maven;
 
 
+import com.google.common.collect.Lists;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.apache.maven.plugin.testing.stubs.ArtifactStub;
 import org.apache.maven.plugin.testing.stubs.MavenProjectStub;
@@ -31,13 +32,12 @@ import java.util.Collections;
 import java.util.List;
 
 
-public class DeployitNoTestMojo extends AbstractMojoTestCase {
+public class DeployitMojoTest extends AbstractMojoTestCase {
 
 	private DeployMojo mojo;
 	private ConfigurationItem host;
 	private ConfigurationItem tomcatServer;
 	private DeployableArtifactItem configurationFiles;
-
 
 
 	public void setUp() throws Exception {
@@ -51,8 +51,8 @@ public class DeployitNoTestMojo extends AbstractMojoTestCase {
 
 
 		host = new ConfigurationItem();
-		host.setMainType("Host");
-		host.addParameter("label", "Tomcat Host");
+		host.setType("Host");
+		host.addParameter("label", "Infrastructure/tomcat6.vm");
 		host.addParameter("address", "ubuntu-weblogic-1.local");
 		host.addParameter("username", "weblogic");
 		host.addParameter("password", "weblogic");
@@ -60,18 +60,15 @@ public class DeployitNoTestMojo extends AbstractMojoTestCase {
 		host.addParameter("accessMethod", "SSH_SCP");
 
 		tomcatServer = new ConfigurationItem();
-		tomcatServer.setMainType("TomcatUnmanagedServer");
-		tomcatServer.addParameter("host", "Tomcat Host");
-		tomcatServer.addParameter("label", "tomcat server");
-		tomcatServer.addParameter("port", "8080");
-		tomcatServer.addParameter("accessMethod", "http");
+		tomcatServer.setType("TomcatUnmanagedServer");
+		tomcatServer.addParameter("host", "Infrastructure/tomcat6.vm");
+		tomcatServer.addParameter("label", "Infrastructure/tomcat6.vm/tomcat6-1");
 		tomcatServer.addParameter("tomcatHome", "/opt/apache-tomcat-6.0.26");
 		tomcatServer.addParameter("startCommand", "/opt/apache-tomcat-6.0.26/bin/catalina.sh start");
 		tomcatServer.addParameter("stopCommand", "/opt/apache-tomcat-6.0.26/bin/catalina.sh stop");
 		tomcatServer.addParameter("appBase", "/opt/apache-tomcat-6.0.26/mywebapps");
 		tomcatServer.addParameter("baseUrl", "http://ubuntu-weblogic-1.local:8080");
-		tomcatServer.addParameter("managerAppInstalled", "false");
-		tomcatServer.addParameter("ajpport", "8009");
+		tomcatServer.addParameter("ajpPort", "8009");
 
 
 		configurationFiles = new DeployableArtifactItem();
@@ -86,46 +83,33 @@ public class DeployitNoTestMojo extends AbstractMojoTestCase {
 
 
 	@Test
-	@Ignore
-	public void testOneServerEnvMojo()
-			throws Exception {
-
+	public void testOneServerEnvMojo() throws Exception {
 
 		MavenProjectStub project = new MavenProjectStub();
 		ArtifactStub mainArtifact = new ArtifactStub();
 		mainArtifact.setType("War");
 		mainArtifact.setArtifactId("com.test.tomcat");
-		mainArtifact.setGroupId("test");
+		mainArtifact.setGroupId("petclinic");
 		mainArtifact.setVersion("1.0");
-		mainArtifact.setFile(new File("main.war"));
+		mainArtifact.setFile(new File("src/test/resources/m2repo/com/xebialabs/deployit/petclinic/petclinic-war/PetClinic/1.0/PetClinic-1.0.war"));
 		project.setArtifact(mainArtifact);
 
-
-		List<ConfigurationItem> env = new ArrayList<ConfigurationItem>();
-		env.add(host);
-		env.add(tomcatServer);
-
+		List<ConfigurationItem> env = Lists.newArrayList(host, tomcatServer);
 
 		setVariableValueToObject(mojo, "testmode", true);
 		setVariableValueToObject(mojo, "environment", env);
 		setVariableValueToObject(mojo, "project", project);
 		setVariableValueToObject(mojo, "artifactId", "com.test.tomcat");
 		setVariableValueToObject(mojo, "version", "1.0");
-		setVariableValueToObject(mojo, "generateManifestOnly", true);
-
-		try {
-			mojo.execute();
-		} finally {
-			System.out.println(mojo.getScript());
-		}
 
 
+		mojo.execute();
 	}
 
 
 	@Test
 	@Ignore
-	public void testOneServerEnvMojoWithConfigurationFiles()
+	public void XXXtestOneServerEnvMojoWithConfigurationFiles()
 			throws Exception {
 
 
@@ -145,7 +129,7 @@ public class DeployitNoTestMojo extends AbstractMojoTestCase {
 
 
 		MappingItem mapping = new MappingItem();
-		mapping.setMainType("ConfigurationFilesMapping");
+		mapping.setType("ConfigurationFilesMapping");
 		mapping.setTarget(host.getLabel());
 		mapping.setSource(configurationFiles.getName());
 		mapping.addParameter("targetdirectory", "/tmp/remoteproperties");
@@ -160,25 +144,24 @@ public class DeployitNoTestMojo extends AbstractMojoTestCase {
 		setVariableValueToObject(mojo, "version", "1.0");
 		setVariableValueToObject(mojo, "generateManifestOnly", true);
 
-		try {
-			mojo.execute();
-		} finally {
-			System.out.println(mojo.getScript());
-		}
+
+		mojo.execute();
+
 	}
 
 
 	@After
 	public void tearDown() {
 
-		
-		DeployMojo.stopServer();
-		try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-		}
+		/*
+		  DeployMojo.stopServer();
+		  try {
+			  Thread.sleep(5000);
+		  } catch (InterruptedException e) {
+			  e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+		  }
 
+  */
 	}
 
 

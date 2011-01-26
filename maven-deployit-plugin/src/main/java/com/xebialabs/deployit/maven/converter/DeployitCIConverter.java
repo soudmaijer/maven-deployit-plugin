@@ -93,7 +93,7 @@ public class DeployitCIConverter extends AbstractConfigurationConverter {
 			try {
 				ci.setSource(source.getValue());
 				ci.setTarget(target.getValue());
-				ci.setMainType(mainType.getValue());
+				ci.setType(mainType.getValue());
 			} catch (PlexusConfigurationException e) {
 				throw new ComponentConfigurationException("getValue error", e);
 			}

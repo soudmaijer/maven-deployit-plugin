@@ -17,21 +17,24 @@
 
 package com.xebialabs.deployit.maven;
 
-import com.xebia.ad.DeployItConfiguration;
-import com.xebia.ad.ReleaseInfo;
-import com.xebia.ad.Server;
-import com.xebia.ad.cli.Interpreter;
-import com.xebia.ad.setup.SetupDatabaseType;
+import com.xebialabs.deployit.DeployItConfiguration;
+import com.xebialabs.deployit.DeployitOptions;
+import com.xebialabs.deployit.Server;
+import com.xebialabs.deployit.cli.MavenCli;
+import com.xebialabs.deployit.jcr.JackrabbitRepositoryFactoryBean;
+import com.xebialabs.deployit.maven.packager.ManifestPackager;
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
+import javax.jcr.RepositoryException;
+import javax.script.ScriptException;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -96,7 +99,7 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 	/**
 	 * Deployit Listen port
 	 *
-	 * @parameter default-value="8888" expression="${deployit.port}"
+	 * @parameter default-value="4516" expression="${deployit.port}"
 	 */
 	private int port;
 
@@ -146,9 +149,9 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 
 	private final StringBuffer fullScript = new StringBuffer();
 
-	private Interpreter interpreter;
+	private MavenCli interpreter;
 
-	public static final String DEFAULT_ENVIRONMENT = "DefaultEnvironment";
+	public static final String DEFAULT_ENVIRONMENT = "Environments/DefaultEnvironment";
 	public static final String DEFAULT_DEPLOYMENT = "DefaultDeployment";
 
 	private static boolean SERVER_STARTED = false;
@@ -158,68 +161,78 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 			getLog().info("STARTING DEPLOYIT SERVER");
 			DeployItConfiguration context = new DeployItConfiguration();
 
-			context.setDatabaseType(SetupDatabaseType.HSQLDB);
-			context.setDatabaseDriverClass(SetupDatabaseType.getDefaultDatabaseDriverClass(context.getDatabaseType()));
-			context.setHibernateDialect(SetupDatabaseType.getHibernateDialect(context.getDatabaseType()));
-			context.setDatabaseURL("jdbc:hsqldb:file:" + new File(outputDirectory, "./deployit.hdb").getPath()
-					+ ";shutdown=true");
-			context.setDatabaseUsername(SetupDatabaseType.getDefaultUsername(context.getDatabaseType()));
-			context.setDatabasePassword("");
-			File deployitRepoDir = new File(outputDirectory, "deployit.repo");
-			deployitRepoDir.mkdir();
-			context.setApplicationRepositoryPath(deployitRepoDir.getPath());
+			File repositoryHomeDir = new File("repository");
+			context.setJcrRepositoryPath(repositoryHomeDir.getPath());
 			context.setHttpPort(getPort());
-			context.setApplicationToDeployPath("importablePackages");
-			context.setMinThreads(10);
-			context.setMaxThreads(50);
-			context.setSecured(false);
-			context.setHttpServerName("localhost");
+			context.setImportablePackagesPath(new File(outputDirectory, ManifestPackager.DEPLOYMENT_PACKAGE_DIR).getPath());
+			context.setMinThreads(3);
+			context.setMaxThreads(24);
+			context.setSsl(false);
+
+
+			//context.setHttpServerName("localhost");
 
 			context.save();
+			try {
+				setupJcrRepository(repositoryHomeDir);
+			} catch (IOException e) {
+				e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+			} catch (RepositoryException e) {
+				e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+			}
 
-			EntityManagerFactory emf = Persistence.createEntityManagerFactory("ad-repository", context
-					.getCreationalJPAProperties());
-			emf.close();
+			final Server server = new Server(context, new DeployitOptions());
+			server.start();
 
-			final Server s = new Server(context, ReleaseInfo.getReleaseInfo());
-			s.start();
 			getLog().info("STARTED DEPLOYIT SERVER");
 			SERVER_STARTED = true;
 		}
 	}
 
+	private static void setupJcrRepository(File repositoryHomeDir) throws IOException, RepositoryException {
+
+		FileUtils.deleteDirectory(repositoryHomeDir);
+		String homeDirAbsolutePath = repositoryHomeDir.getAbsolutePath();
+
+		JackrabbitRepositoryFactoryBean repositoryFactoryBean = new JackrabbitRepositoryFactoryBean();
+		repositoryFactoryBean.setConfiguration(new ClassPathResource("jackrabbit-repository.xml"));
+		repositoryFactoryBean.setHomeDir(new FileSystemResource(homeDirAbsolutePath));
+
+		repositoryFactoryBean.setCreateHomeDirIfNotExists(true);
+		repositoryFactoryBean.afterPropertiesSet();
+		repositoryFactoryBean.configureJcrRepositoryForDeployit();
+		repositoryFactoryBean.destroy();
+	}
+
 	public static void stopServer() {
-		Server.shutdown();
+		Server.requestShutdown();
 		SERVER_STARTED = false;
 	}
 
 	protected void interpret(String line) throws MojoExecutionException {
 		getLog().info("Interpret [" + line + "]");
 		fullScript.append(line).append('\n');
-		// getInterpreter().interpret(line);
-		getInterpreter().interpretAndThrowExceptions(line);
+		try {
+			getInterpreter().evaluate(line);
+		} catch (ScriptException e) {
+			throw new MojoExecutionException("interpret error",e);
+		}
 	}
 
 	protected void interpret(List<String> cliCommands) throws MojoExecutionException {
 		for (String cmd : cliCommands)
 			interpret(cmd);
+
 	}
 
-	protected Interpreter getInterpreter() throws MojoExecutionException {
+	protected MavenCli getInterpreter() throws MojoExecutionException {
 		if (interpreter == null) {
-			System.setProperty("cli.protocol", "http");
-			ApplicationContext ctx = new ClassPathXmlApplicationContext(
-					new String[]{"/cli/unsecured/ad-cli-context.xml"});
-			interpreter = (Interpreter) ctx.getBean("interpreter");
-			if (interpreter == null) {
-				throw new MojoExecutionException("Cannot find interpreter");
-			}
-			interpreter.afterPropertiesSet();
+			interpreter = new MavenCli(getPort());
 		}
 		return interpreter;
 	}
 
-	protected void deployit() throws MojoExecutionException {
+	protected void deployit()  throws MojoExecutionException {
 		getLog().info(" ");
 		getLog().info(" ");
 		getLog().info("------------------------------------------------------------------");

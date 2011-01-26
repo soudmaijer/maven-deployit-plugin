@@ -44,7 +44,7 @@ public class MappingItem extends ConfigurationItem {
 		return '"' + source + " to " + target + " for " + DeployMojo.DEFAULT_DEPLOYMENT + '"';
 	}
 
-	@Override
+	//@Override
 	public void addParameter(String name, Object value) {
 		if ("source".equals(name))
 			return;
@@ -59,11 +59,11 @@ public class MappingItem extends ConfigurationItem {
 			return;
 
 
-		super.addParameter(name, value);    
+		//super.addParameter(name, value);
 	}
 
 	@Override
 	public String getCli() {
-		return "modify " + getLabel() + " " + parameters;
+		return "XXXXXX";
 	}
 }
