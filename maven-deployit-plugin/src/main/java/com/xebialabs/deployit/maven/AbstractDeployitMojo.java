@@ -104,13 +104,6 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 	private int port;
 
 	/**
-	 * Extra CLI commands.
-	 *
-	 * @parameter
-	 */
-	protected String[] commands;
-
-	/**
 	 * Additional resources such as Database, Apache plugin configuration, JMS Queues...
 	 *
 	 * @parameter
@@ -146,6 +139,23 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 	 * @parameter default-value=false
 	 */
 	protected boolean generateManifestOnly;
+
+
+	/**
+	 * The name of the DAR file to generate.
+	 *
+	 * @parameter alias="darName" expression="${project.build.finalName}"
+	 * @required
+	 */
+	private String finalName;
+
+	/**
+	 * Classifier to add to the artifact generated. If given, the artifact will
+	 * be an attachment instead.
+	 *
+	 * @parameter
+	 */
+	protected String classifier;
 
 	private final StringBuffer fullScript = new StringBuffer();
 
@@ -215,7 +225,7 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 		try {
 			getInterpreter().evaluate(line);
 		} catch (ScriptException e) {
-			throw new MojoExecutionException("interpret error",e);
+			throw new MojoExecutionException("interpret error", e);
 		}
 	}
 
@@ -232,7 +242,7 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 		return interpreter;
 	}
 
-	protected void deployit()  throws MojoExecutionException {
+	protected void deployit() throws MojoExecutionException {
 		getLog().info(" ");
 		getLog().info(" ");
 		getLog().info("------------------------------------------------------------------");
@@ -316,14 +326,6 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 
 	public void setPort(int port) {
 		this.port = port;
-	}
-
-	public String[] getCommands() {
-		return commands;
-	}
-
-	public void setCommands(String[] commands) {
-		this.commands = commands;
 	}
 
 	public List<MiddlewareResource> getMiddlewareResources() {
@@ -425,4 +427,25 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 
 	}
 
+	/**
+	 * Returns the DAR file to generate, based on an optional classifier.
+	 *
+	 * @param basedir    the output directory
+	 * @param finalName  the name of the ear file
+	 * @param classifier an optional classifier
+	 * @return the DAR file to generate
+	 */
+	protected File getDarFile(File basedir, String finalName, String classifier) {
+		if (classifier == null) {
+			classifier = "";
+		} else if (classifier.trim().length() > 0 && !classifier.startsWith("-")) {
+			classifier = "-" + classifier;
+		}
+
+		return new File(basedir, finalName + classifier + ".dar");
+	}
+
+	protected File getDarFile() {
+		return getDarFile(outputDirectory, finalName, classifier);
+	}
 }

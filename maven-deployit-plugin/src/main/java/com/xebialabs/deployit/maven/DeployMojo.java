@@ -64,13 +64,6 @@ public class DeployMojo extends AbstractDeployitMojo {
 		defineEnvironment();
 
 
-		if (commands != null) {
-			getLog().info("Handle additional commands");
-			for (String each : commands) {
-				interpret(each);
-			}
-		}
-
 		getLog().info("Create the Deployment");
 		//String deploymentCmd="create Deployment label=currentDeploymement source=\\""${project.artifactId} - ${project.version}\\"" target=DefaultEnvironment";
 		StringBuilder depCmd = new StringBuilder("create Deployment ");

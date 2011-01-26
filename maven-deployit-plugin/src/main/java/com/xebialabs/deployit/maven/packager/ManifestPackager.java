@@ -43,14 +43,16 @@ public class ManifestPackager implements ApplicationDeploymentPackager {
 
 	private boolean generateManifestOnly = false;
 	private Log logger;
+	private final File outputDirectory;
 
 
 	public File getTargetDirectory() {
 		return targetDirectory;
 	}
 
-	public ManifestPackager(String artifactId, String version, File targetDirectory) {
-		this.targetDirectory = new File(targetDirectory, DEPLOYMENT_PACKAGE_DIR + File.separator + artifactId + File.separator + version);
+	public ManifestPackager(String artifactId, String version, File outputDirectory) {
+		this.outputDirectory = outputDirectory;
+		this.targetDirectory = new File(outputDirectory, DEPLOYMENT_PACKAGE_DIR + File.separator + artifactId + File.separator + version);
 		this.targetDirectory.mkdirs();
 
 		this.deploymentPackageName = artifactId + "/" + version;
@@ -71,7 +73,7 @@ public class ManifestPackager implements ApplicationDeploymentPackager {
 			fos = new FileOutputStream(manifestFile);
 			manifest.write(fos);
 		} catch (IOException e) {
-			new RuntimeException("perform failed", e);
+			new RuntimeException("generation of the manifest file failed", e);
 		} finally {
 			IOUtils.closeQuietly(fos);
 		}
@@ -91,6 +93,7 @@ public class ManifestPackager implements ApplicationDeploymentPackager {
 	}
 
 	public void addDeployableArtifact(DeployableArtifactItem item) {
+		logger.info(" add deployable artifact : "+item);
 		if ("Dar".equalsIgnoreCase(item.getType()))
 			return;
 
@@ -138,6 +141,7 @@ public class ManifestPackager implements ApplicationDeploymentPackager {
 	}
 
 	public void addMiddlewareResource(MiddlewareResource mr) {
+		logger.info(" add mddleware resource : "+mr);
 		final Map<String, Attributes> entries = manifest.getEntries();
 		final Attributes attributes = new Attributes();
 		attributes.putValue("CI-Type", mr.getType());

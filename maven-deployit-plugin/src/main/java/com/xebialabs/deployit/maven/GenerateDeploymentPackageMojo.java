@@ -47,41 +47,15 @@ public class GenerateDeploymentPackageMojo extends AbstractDeployitMojo {
 
 
 	/**
-	 * The name of the DAR file to generate.
-	 *
-	 * @parameter alias="darName" expression="${project.build.finalName}"
-	 * @required
-	 */
-	private String finalName;
-
-	/**
-	 * Classifier to add to the artifact generated. If given, the artifact will
-	 * be an attachment instead.
-	 *
-	 * @parameter
-	 */
-	private String classifier;
-
-
-	/**
-	 * The archive configuration to use.
-	 * See <a href="http://maven.apache.org/shared/maven-archiver/index.html">Maven Archiver Reference</a>.
-	 *
-	 * @parameter
-	 */
-	private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
-
-	/**
 	 * @component
 	 */
 	private MavenProjectHelper projectHelper;
-	private File manifestFile;
-	private DeployableArtifactItem realMainDeployableArtifact;
 
+	private File manifestFile;
 
 	public void execute() throws MojoExecutionException, MojoFailureException {
 
-		getLog().info("Build the Deployit Deployment Package");
+		getLog().info("Build the Deployit Deployment Package (DAR)");
 
 		ManifestPackager packager = new ManifestPackager(artifactId, version, outputDirectory);
 		packager.setLogger(getLog());
@@ -89,9 +63,8 @@ public class GenerateDeploymentPackageMojo extends AbstractDeployitMojo {
 		packager.setGenerateManifestOnly(generateManifestOnly);
 		getLog().info("Generate Deployment Package...");
 
-		realMainDeployableArtifact = getRealDeployableArtifact(project.getArtifact());
-		packager.addDeployableArtifact(realMainDeployableArtifact);
 
+		packager.addDeployableArtifact(getRealDeployableArtifact(project.getArtifact()));
 		//Handle additionnal maven artifacts
 		if (deployableArtifacts != null) {
 			getLog().info("Add the artifacts");
@@ -109,17 +82,18 @@ public class GenerateDeploymentPackageMojo extends AbstractDeployitMojo {
 		}
 
 		packager.perform();
+
 		manifestFile = packager.getManifestFile();
 		getLog().info("Manifest file generated in " + manifestFile);
 
 		if (generateManifestOnly) {
-			getLog().info("Do not seal the dar file, return");
+			getLog().info("Do not seal the dar file, return now");
 			return;
 		}
 
 		try {
 
-			File darFile = getDarFile(outputDirectory, finalName, classifier);
+			File darFile = getDarFile();
 			getLog().info("Seal the archive in " + darFile);
 
 			final MavenArchiver mvnArchiver = new MavenArchiver();
@@ -133,7 +107,7 @@ public class GenerateDeploymentPackageMojo extends AbstractDeployitMojo {
 			getLog().debug("set Manifest file of the archive " + manifestFile);
 			mvnArchiver.getArchiver().setManifest(manifestFile);
 
-			mvnArchiver.createArchive(getProject(), archive);
+			mvnArchiver.createArchive(getProject(), new  MavenArchiveConfiguration());
 
 			if (classifier != null) {
 				projectHelper.attachArtifact(getProject(), "dar", classifier, darFile);
@@ -143,34 +117,10 @@ public class GenerateDeploymentPackageMojo extends AbstractDeployitMojo {
 		} catch (Exception e) {
 			throw new MojoExecutionException("Error assembling DAR", e);
 		}
-
-
 	}
 
 
-	/**
-	 * Returns the DAR file to generate, based on an optional classifier.
-	 *
-	 * @param basedir    the output directory
-	 * @param finalName  the name of the ear file
-	 * @param classifier an optional classifier
-	 * @return the DAR file to generate
-	 */
-	private static File getDarFile(File basedir, String finalName, String classifier) {
-		if (classifier == null) {
-			classifier = "";
-		} else if (classifier.trim().length() > 0 && !classifier.startsWith("-")) {
-			classifier = "-" + classifier;
-		}
-
-		return new File(basedir, finalName + classifier + ".dar");
-	}
-
-	public JarArchiver getJarArchiver() {
-		return jarArchiver;
-	}
-
-	public DeployableArtifactItem getRealMainDeployableArtifact() {
-		return realMainDeployableArtifact;
+	public DeployableArtifactItem getRealMainDeployableArtifact() throws MojoExecutionException {
+		return getRealDeployableArtifact(project.getArtifact());
 	}
 }
