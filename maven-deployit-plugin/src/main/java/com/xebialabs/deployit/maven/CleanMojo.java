@@ -31,7 +31,6 @@ import org.apache.maven.plugin.MojoFailureException;
 public class CleanMojo extends AbstractDeployitMojo {
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		getLog().info("deployit:clean");
-
 		undeploy();
 		getLog().info("end of deployit:clean.");
 	}

@@ -21,20 +21,25 @@ import com.xebialabs.deployit.maven.DeployableArtifactItem;
 import com.xebialabs.deployit.maven.MiddlewareResource;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.maven.archiver.MavenArchiveConfiguration;
+import org.apache.maven.archiver.MavenArchiver;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.archiver.jar.JarArchiver;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
-public class ManifestPackager implements ApplicationDeploymentPackager {
+public class ManifestPackager {
 
-	public  static final String DEPLOYMENT_PACKAGE_DIR = "deployment-package";
+	public static final String DEPLOYMENT_PACKAGE_DIR = "deployment-package";
 
 	private final File targetDirectory;
 
@@ -42,32 +47,35 @@ public class ManifestPackager implements ApplicationDeploymentPackager {
 	private final Manifest manifest = new Manifest();
 
 	private boolean generateManifestOnly = false;
-	private Log logger;
+	private Log log;
 	private final File outputDirectory;
+	private MavenProject project;
+
+	public ManifestPackager(MavenProject project) {
+		this.project = project;
+		this.outputDirectory = new File(project.getBuild().getOutputDirectory());
+		this.targetDirectory = new File(outputDirectory, DEPLOYMENT_PACKAGE_DIR + File.separator + project.getArtifactId() + File.separator + project.getVersion());
+		this.targetDirectory.mkdirs();
+		this.deploymentPackageName = project.getArtifactId() + "/" + project.getVersion();
+
+		final Attributes mainAttributes = manifest.getMainAttributes();
+		mainAttributes.putValue("Manifest-Version", "1.0");
+		mainAttributes.putValue("Deployit-Package-Format-Version", "1.1");
+		mainAttributes.putValue("CI-Application", project.getArtifactId());
+		mainAttributes.putValue("CI-Version", project.getVersion());
+	}
 
 
 	public File getTargetDirectory() {
 		return targetDirectory;
 	}
 
-	public ManifestPackager(String artifactId, String version, File outputDirectory) {
-		this.outputDirectory = outputDirectory;
-		this.targetDirectory = new File(outputDirectory, DEPLOYMENT_PACKAGE_DIR + File.separator + artifactId + File.separator + version);
-		this.targetDirectory.mkdirs();
-
-		this.deploymentPackageName = artifactId + "/" + version;
-		final Attributes mainAttributes = manifest.getMainAttributes();
-		mainAttributes.putValue("Manifest-Version", "1.0");
-		mainAttributes.putValue("Deployit-Package-Format-Version", "1.1");
-		mainAttributes.putValue("CI-Application", artifactId);
-		mainAttributes.putValue("CI-Version", version);
-	}
 
 	public void perform() {
 		final File meta_inf = new File(targetDirectory, "META-INF");
 		meta_inf.mkdirs();
 		File manifestFile = new File(meta_inf, "MANIFEST.MF");
-		logger.info("Generate manifest file " + manifestFile.getAbsolutePath());
+		getLog().info("Generate manifest file " + manifestFile.getAbsolutePath());
 		FileOutputStream fos = null;
 		try {
 			fos = new FileOutputStream(manifestFile);
@@ -83,17 +91,11 @@ public class ManifestPackager implements ApplicationDeploymentPackager {
 		return deploymentPackageName;
 	}
 
-	public List<String> getCliCommands() {
-		List<String> a = new ArrayList<String>();
-		a.add("import location=" + targetDirectory);
-		a.add("show");
-		a.add("show_type");
-		a.add("show_type DeploymentPackage");
-		return a;
-	}
 
-	public void addDeployableArtifact(DeployableArtifactItem item) {
-		logger.info(" add deployable artifact : "+item);
+	protected void addDeployableArtifact(DeployableArtifactItem origianlItem) {
+
+		final DeployableArtifactItem item = getRealDeployableArtifact(origianlItem);
+		getLog().info(" add deployable artifact : " + item);
 		if ("Dar".equalsIgnoreCase(item.getType()))
 			return;
 
@@ -112,7 +114,7 @@ public class ManifestPackager implements ApplicationDeploymentPackager {
 
 		final File targetDir = new File(targetDirectory, item.getDarLocation());
 		if (generateManifestOnly) {
-			logger.info("Skip copying artifact " + item.getName() + " to " + targetDir);
+			getLog().info("Skip copying artifact " + item.getName() + " to " + targetDir);
 			return;
 		}
 		targetDir.mkdirs();
@@ -140,8 +142,8 @@ public class ManifestPackager implements ApplicationDeploymentPackager {
 
 	}
 
-	public void addMiddlewareResource(MiddlewareResource mr) {
-		logger.info(" add mddleware resource : "+mr);
+	protected void addMiddlewareResource(MiddlewareResource mr) {
+		getLog().info(" add mddleware resource : " + mr);
 		final Map<String, Attributes> entries = manifest.getEntries();
 		final Attributes attributes = new Attributes();
 		attributes.putValue("CI-Type", mr.getType());
@@ -163,7 +165,139 @@ public class ManifestPackager implements ApplicationDeploymentPackager {
 		return new File(targetDirectory, "META-INF/MANIFEST.MF");
 	}
 
-	public void setLogger(Log logger) {
-		this.logger = logger;
+	public void setLog(Log log) {
+		this.log = log;
+	}
+
+	private Log getLog() {
+		return log;
+	}
+
+
+	protected DeployableArtifactItem getRealDeployableArtifact(final DeployableArtifactItem item) {
+		if (!item.getLocation().contains(":")) {
+			getLog().info(" add a deployable artifact " + item);
+			String relativeLocation = item.getLocation();
+			File fileSysLoca = new File(project.getBasedir(), relativeLocation);
+			getLog().debug("  filesystem location is " + fileSysLoca.getPath());
+			item.setFileSystemLocation(fileSysLoca.getPath());
+			return item;
+		}
+
+		getLog().info(" add a maven deployable artifact " + item);
+		getLog().debug("-translateIntoPath- " + item.getLocation());
+		String key = item.getLocation();
+		Artifact artifact = (Artifact) project.getArtifactMap().get(key);
+		if (artifact == null)
+			getLog().debug("Not found, search in the dependency artifacts...");
+		for (Object o : project.getDependencyArtifacts()) {
+			Artifact da = (Artifact) o;
+			final String artifactKey = da.getGroupId() + ":" + da.getArtifactId();
+			if (artifactKey.equals(key)) {
+				artifact = da;
+			}
+		}
+		if (artifact == null) {
+			throw new IllegalStateException(
+					"The artifact "
+							+ key
+							+ " referenced in plugin as is not found the project dependencies");
+		}
+
+		DeployableArtifactItem mavenDeployableArtifact = new DeployableArtifactItem();
+		final String artifactFile = artifact.getFile().toString();
+		mavenDeployableArtifact.setLocation(artifactFile);
+		mavenDeployableArtifact.setFileSystemLocation(artifactFile);
+		if (item.hasName())
+			mavenDeployableArtifact.setName(item.getName());
+		else
+			mavenDeployableArtifact.setName(artifact.getArtifactId());
+		mavenDeployableArtifact.setType(item.getType());
+		mavenDeployableArtifact.setDarLocation(item.getDarLocation());
+		mavenDeployableArtifact.setFolder(item.isFolder());
+		return mavenDeployableArtifact;
+
+	}
+
+	public DeployableArtifactItem getRealDeployableArtifact(final Artifact artifact) {
+		DeployableArtifactItem mavenDeployableArtifact = new DeployableArtifactItem();
+		mavenDeployableArtifact.setName(artifact.getArtifactId());
+		mavenDeployableArtifact.setType(capitalize(artifact.getType()));
+
+		final File file = artifact.getFile();
+		if (file != null) {
+			mavenDeployableArtifact.setFileSystemLocation(file.toString());
+			mavenDeployableArtifact.setLocation(file.toString());
+		}
+		return mavenDeployableArtifact;
+	}
+
+
+	private String capitalize(String inputWord) {
+		String firstLetter = inputWord.substring(0, 1);  // Get first letter
+		String remainder = inputWord.substring(1);    // Get remainder of word.
+		String capitalized = firstLetter.toUpperCase() + remainder.toLowerCase();
+		return capitalized;
+
+	}
+
+
+	public void addDeployableArtifact(Artifact artifact) {
+		addDeployableArtifact(getRealDeployableArtifact(artifact));
+	}
+
+	public void addDeployableArtifacts(List<DeployableArtifactItem> deployableArtifacts) {
+		if (deployableArtifacts == null) {
+			return;
+		}
+
+		getLog().info("Add the artifacts");
+		for (DeployableArtifactItem item : deployableArtifacts) {
+			addDeployableArtifact(item);
+		}
+	}
+
+	public void addMiddlewareResources(List<MiddlewareResource> middlewareResources) {
+		if (middlewareResources == null) {
+			return;
+		}
+
+		getLog().info("Add the middleware resources");
+		for (MiddlewareResource mr : middlewareResources) {
+			addMiddlewareResource(mr);
+		}
+	}
+
+	public void seal() throws MojoExecutionException {
+		if (generateManifestOnly) {
+			getLog().info("Do not seal the dar file, return now");
+			return;
+		}
+
+		try {
+			File darFile = getDarFile();
+			getLog().info("Seal the archive in " + darFile);
+
+			final MavenArchiver mvnArchiver = new MavenArchiver();
+			mvnArchiver.setArchiver(new JarArchiver());
+			mvnArchiver.setOutputFile(darFile);
+
+			mvnArchiver.getArchiver().addDirectory(getTargetDirectory());
+
+			final File manifestFile = getManifestFile();
+			getLog().debug("set Manifest file of the archive " + manifestFile);
+			mvnArchiver.getArchiver().setManifest(manifestFile);
+
+			mvnArchiver.createArchive(project, new MavenArchiveConfiguration());
+
+			project.getArtifact().setFile(darFile);
+
+		} catch (Exception e) {
+			throw new MojoExecutionException("Error assembling DAR", e);
+		}
+	}
+
+	public File getDarFile() {
+		return new File(project.getBuild().getOutputDirectory(), project.getBuild().getFinalName() + ".dar");
 	}
 }

@@ -20,12 +20,10 @@ package com.xebialabs.deployit.maven;
 import com.xebialabs.deployit.DeployItConfiguration;
 import com.xebialabs.deployit.DeployitOptions;
 import com.xebialabs.deployit.Server;
-import com.xebialabs.deployit.cli.MavenCli;
 import com.xebialabs.deployit.core.api.dto.RepositoryObject;
 import com.xebialabs.deployit.jcr.JackrabbitRepositoryFactoryBean;
 import com.xebialabs.deployit.maven.packager.ManifestPackager;
 import org.apache.commons.io.FileUtils;
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
@@ -33,7 +31,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 
 import javax.jcr.RepositoryException;
-import javax.script.ScriptException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -70,19 +67,6 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 	 */
 	protected String artifactId;
 
-	/**
-	 * @parameter default-value="${project.version}"
-	 * @required
-	 * @readonly
-	 */
-	protected String version;
-
-	/**
-	 * @parameter default-value="${project.packaging}"
-	 * @required
-	 * @readonly
-	 */
-	protected String packaging;
 
 	/**
 	 * Activate the test mode, the steps are not executed.
@@ -91,14 +75,6 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 	 */
 	protected boolean testmode;
 
-
-	/**
-	 * The main JEE artifact to deploy
-	 *
-	 * @parameter default-value="${project.build.directory}/${project.build.finalName}.${project.packaging}"
-	 * @required
-	 */
-	protected File jeeArtifact;
 
 	/**
 	 * Deployit Listen port
@@ -151,35 +127,22 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 	 */
 	protected boolean forcedClean;
 
-	/**
-	 * The name of the DAR file to generate.
-	 *
-	 * @parameter alias="darName" expression="${project.build.finalName}"
-	 * @required
-	 */
-	private String finalName;
 
-	/**
-	 * Classifier to add to the artifact generated. If given, the artifact will
-	 * be an attachment instead.
-	 *
-	 * @parameter
-	 */
-	protected String classifier;
+	protected ManifestPackager packager;
 
-	private final StringBuffer fullScript = new StringBuffer();
-
-	private MavenCli interpreter;
+	protected MavenCli client;
 
 	public static final String DEFAULT_ENVIRONMENT = "Environments/DefaultEnvironment";
+
 	public static final String DEFAULT_DEPLOYMENT = "DefaultDeployment";
 
 	private static boolean SERVER_STARTED = false;
 
 	protected void startServer() {
+		//TODO: too naive....imagine the maven plugin runs in an hudson or bamboo...
 		if (!SERVER_STARTED) {
 			new File("recovery.dat").delete();
-			new File("repository").deleteOnExit();
+			new File("repository").delete();
 
 			getLog().info("STARTING DEPLOYIT SERVER");
 			DeployItConfiguration context = new DeployItConfiguration();
@@ -232,236 +195,24 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 		SERVER_STARTED = false;
 	}
 
-	protected void interpret(String line) throws MojoExecutionException {
-		getLog().info("Interpret [" + line + "]");
-		fullScript.append(line).append('\n');
-		try {
-			getInterpreter().evaluate(line);
-		} catch (ScriptException e) {
-			throw new MojoExecutionException("interpret error", e);
+	protected MavenCli getClient() throws MojoExecutionException {
+		if (client == null) {
+			client = new MavenCli(getPort());
+			client.setLogger(getLog());
+			client.setSkipStepsMode(testmode);
 		}
+		return client;
 	}
 
-	protected void interpret(List<String> cliCommands) throws MojoExecutionException {
-		for (String cmd : cliCommands)
-			interpret(cmd);
-
-	}
-
-	protected MavenCli getInterpreter() throws MojoExecutionException {
-		if (interpreter == null) {
-			interpreter = new MavenCli(getPort());
-			interpreter.setLogger(getLog());
-			interpreter.setSkipStepsMode(testmode);
-		}
-		return interpreter;
-	}
-
-	protected void deployit() throws MojoExecutionException {
-		getLog().info(" ");
-		getLog().info(" ");
-		getLog().info("------------------------------------------------------------------");
-		getLog().info("--- DEPLOYIT CHANGE PLAN  ----------------------------------------");
-		getLog().info("------------------------------------------------------------------");
-		interpret("changeplan steps");
-		getLog().info("------------------------------------------------------------------");
-		getLog().info("------------------------------------------------------------------");
-		getLog().info("------------------------------------------------------------------");
-		getLog().info(" ");
-		getLog().info(" ");
-
-		if (testmode) {
-			interpret("deployit_nosteps");
-			//interpret("export");
-		} else {
-			interpret("deployit");
-		}
-		interpret("changeplan changes");
-	}
-
-	public MavenProject getProject() {
-		return project;
-	}
-
-	public void setProject(MavenProject project) {
-		this.project = project;
-	}
-
-	public File getOutputDirectory() {
-		return outputDirectory;
-	}
-
-	public void setOutputDirectory(File outputDirectory) {
-		this.outputDirectory = outputDirectory;
-	}
-
-	public String getArtifactId() {
-		return artifactId;
-	}
-
-	public void setArtifactId(String artifactId) {
-		this.artifactId = artifactId;
-	}
-
-	public String getVersion() {
-		return version;
-	}
-
-	public void setVersion(String version) {
-		this.version = version;
-	}
-
-	public String getPackaging() {
-		return packaging;
-	}
-
-	public void setPackaging(String packaging) {
-		this.packaging = packaging;
-	}
-
-	public boolean isTestmode() {
-		return testmode;
-	}
-
-	public void setTestmode(boolean testmode) {
-		this.testmode = testmode;
-	}
-
-	public File getJeeArtifact() {
-		return jeeArtifact;
-	}
-
-	public void setJeeArtifact(File jeeArtifact) {
-		this.jeeArtifact = jeeArtifact;
-	}
-
-	public int getPort() {
-		return (port == 0 ? 8888 : port);
-	}
-
-	public void setPort(int port) {
-		this.port = port;
-	}
-
-	public List<MiddlewareResource> getMiddlewareResources() {
-		return middlewareResources;
-	}
-
-	public void setMiddlewareResources(List<MiddlewareResource> middlewareResources) {
-		this.middlewareResources = middlewareResources;
-	}
-
-
-	public List<ConfigurationItem> getEnvironment() {
-		return environment;
-	}
-
-	public void setEnvironment(List<ConfigurationItem> environment) {
-		this.environment = environment;
-	}
-
-	public String getScript() {
-		return fullScript.toString();
-	}
-
-	protected DeployableArtifactItem getRealDeployableArtifact(final DeployableArtifactItem item)
-			throws MojoExecutionException {
-
-		if (!item.getLocation().contains(":")) {
-			getLog().info(" add a deployable artifact " + item);
-			String relativeLocation = item.getLocation();
-			File fileSysLoca = new File(project.getBasedir(), relativeLocation);
-			getLog().debug("  filesystem location is " + fileSysLoca.getPath());
-			item.setFileSystemLocation(fileSysLoca.getPath());
-			return item;
-		}
-
-		getLog().info(" add a maven deployable artifact " + item);
-		getLog().debug("-translateIntoPath- " + item.getLocation());
-		String key = item.getLocation();
-		Artifact artifact = (Artifact) project.getArtifactMap().get(key);
-		if (artifact == null)
-			getLog().debug("Not found, search in the dependency artifacts...");
-		for (Object o : project.getDependencyArtifacts()) {
-			Artifact da = (Artifact) o;
-			final String artifactKey = da.getGroupId() + ":" + da.getArtifactId();
-			if (artifactKey.equals(key)) {
-				artifact = da;
-			}
-		}
-		if (artifact == null) {
-			throw new MojoExecutionException(
-					"The artifact "
-							+ key
-							+ " referenced in plugin as is not found the project dependencies");
-		}
-
-		DeployableArtifactItem mavenDeployableArtifact = new DeployableArtifactItem();
-		final String artifactFile = artifact.getFile().toString();
-		mavenDeployableArtifact.setLocation(artifactFile);
-		mavenDeployableArtifact.setFileSystemLocation(artifactFile);
-		if (item.hasName())
-			mavenDeployableArtifact.setName(item.getName());
-		else
-			mavenDeployableArtifact.setName(artifact.getArtifactId());
-		mavenDeployableArtifact.setType(item.getType());
-		mavenDeployableArtifact.setDarLocation(item.getDarLocation());
-		mavenDeployableArtifact.setFolder(item.isFolder());
-		return mavenDeployableArtifact;
-
-	}
-
-
-	protected DeployableArtifactItem getRealDeployableArtifact(final Artifact artifact)
-			throws MojoExecutionException {
-
-		DeployableArtifactItem mavenDeployableArtifact = new DeployableArtifactItem();
-		mavenDeployableArtifact.setName(artifact.getArtifactId());
-		mavenDeployableArtifact.setType(capitalize(artifact.getType()));
-
-		final File file = artifact.getFile();
-		if (file != null) {
-			mavenDeployableArtifact.setFileSystemLocation(file.toString());
-			mavenDeployableArtifact.setLocation(file.toString());
-		}
-		return mavenDeployableArtifact;
-	}
-
-	private String capitalize(String inputWord) {
-		String firstLetter = inputWord.substring(0, 1);  // Get first letter
-		String remainder = inputWord.substring(1);    // Get remainder of word.
-		String capitalized = firstLetter.toUpperCase() + remainder.toLowerCase();
-		return capitalized;
-
-	}
-
-	/**
-	 * Returns the DAR file to generate, based on an optional classifier.
-	 *
-	 * @param basedir    the output directory
-	 * @param finalName  the name of the ear file
-	 * @param classifier an optional classifier
-	 * @return the DAR file to generate
-	 */
-	protected File getDarFile(File basedir, String finalName, String classifier) {
-		if (classifier == null) {
-			classifier = "";
-		} else if (classifier.trim().length() > 0 && !classifier.startsWith("-")) {
-			classifier = "-" + classifier;
-		}
-
-		return new File(basedir, finalName + classifier + ".dar");
-	}
-
-	protected File getDarFile() {
-		return getDarFile(outputDirectory, finalName, classifier);
+	private int getPort() {
+		return port;
 	}
 
 	protected void initialDeployment() throws MojoExecutionException {
 		if (environment == null)
 			throw new MojoExecutionException("Environment is empty");
 
-		final File darFile = getDarFile();
+		final File darFile = getPackager().getDarFile();
 		if (!darFile.exists())
 			throw new MojoExecutionException("Dar file does not exist " + darFile);
 
@@ -469,25 +220,22 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 		startServer();
 
 		final RepositoryObject environment = defineEnvironment();
-
 		final RepositoryObject deploymentPackage = importDar(darFile);
 
-
 		getLog().info(format("-- Deploy %s on %s", deploymentPackage.getId(), environment.getId()));
-
-		getInterpreter().deployAndWait(deploymentPackage.getId(), environment.getId(), mappings);
+		getClient().deployAndWait(deploymentPackage.getId(), environment.getId(), mappings);
 	}
 
 	protected void undeploy() throws MojoExecutionException {
 		startServer();
 
 		if (forcedClean) {
-			getInterpreter().toggleSkipStepsMode();
+			getClient().toggleSkipStepsMode();
 			initialDeployment();
-			getInterpreter().toggleSkipStepsMode();
+			getClient().toggleSkipStepsMode();
 		}
 
-		getInterpreter().undeployAndWait(DEFAULT_ENVIRONMENT + "/" + artifactId);
+		getClient().undeployAndWait(DEFAULT_ENVIRONMENT + "/" + artifactId);
 
 
 		stopServer();
@@ -495,7 +243,7 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 
 	protected RepositoryObject importDar(File darFile) throws MojoExecutionException {
 		getLog().info("Import dar file " + darFile);
-		return getInterpreter().importPackage(darFile);
+		return getClient().importPackage(darFile);
 	}
 
 	protected RepositoryObject defineEnvironment() throws MojoExecutionException {
@@ -503,7 +251,7 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 		List<String> members = new ArrayList<String>();
 		for (ConfigurationItem each : environment) {
 			getLog().info(" create " + each.getLabel());
-			getInterpreter().create(each);
+			getClient().create(each);
 			if (each.isAddedToEnvironment())
 				members.add(each.getLabel());
 		}
@@ -512,6 +260,18 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 		ciEnvironment.setLabel(DEFAULT_ENVIRONMENT);
 		ciEnvironment.setType("Environment");
 		ciEnvironment.addParameter("members", members);
-		return getInterpreter().create(ciEnvironment);
+		return getClient().create(ciEnvironment);
+	}
+
+	ManifestPackager getPackager() {
+		if (packager == null) {
+			packager = new ManifestPackager(project);
+			packager.setLog(getLog());
+			packager.setGenerateManifestOnly(generateManifestOnly);
+			packager.addDeployableArtifact(project.getArtifact());
+			packager.addDeployableArtifacts(deployableArtifacts);
+			packager.addMiddlewareResources(middlewareResources);
+		}
+		return packager;
 	}
 }

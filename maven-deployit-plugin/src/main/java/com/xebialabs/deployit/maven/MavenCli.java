@@ -1,8 +1,9 @@
-package com.xebialabs.deployit.cli;
+package com.xebialabs.deployit.maven;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
+import com.xebialabs.deployit.cli.JythonInterpreterOptions;
 import com.xebialabs.deployit.cli.api.DeployitClient;
 import com.xebialabs.deployit.cli.api.ObjectFactory;
 import com.xebialabs.deployit.cli.api.Proxies;

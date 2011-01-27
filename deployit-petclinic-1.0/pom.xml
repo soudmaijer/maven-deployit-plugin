@@ -37,7 +37,6 @@
 				</executions>
 				<configuration>
 					<testmode>false</testmode>
-					<forcedClean>true</forcedClean>
 					<deployableArtifacts>
 						<DeployableArtifactItem>
 							<type>War</type>

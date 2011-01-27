@@ -19,15 +19,14 @@ package com.xebialabs.deployit.maven;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
+import org.apache.maven.model.Build;
 import org.apache.maven.plugin.testing.stubs.ArtifactStub;
 import org.apache.maven.plugin.testing.stubs.MavenProjectStub;
-import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -36,175 +35,65 @@ import java.util.jar.Manifest;
 
 public class GenerateDeploymentPackageMojoTest extends BaseForTestMojo {
 
-
 	@Test
 	public void testPackageWar() throws Exception {
-		MavenProjectStub project = new MavenProjectStub();
-		ArtifactStub mainArtifact = new ArtifactStub();
-		mainArtifact.setType("War");
-		mainArtifact.setArtifactId("com.test.tomcat");
-		mainArtifact.setGroupId("test");
-		mainArtifact.setVersion("1.0");
-		mainArtifact.setFile(new File("main.war"));
-		project.setArtifact(mainArtifact);
-
-		setVariableValueToObject(darMojo, "project", project);
-		setVariableValueToObject(darMojo, "outputDirectory", new File("target/"));
-		setVariableValueToObject(darMojo, "artifactId", "com.test.tomcat");
-		setVariableValueToObject(darMojo, "version", "1.0");
-		setVariableValueToObject(darMojo, "jarArchiver", new JarArchiver());
-		setVariableValueToObject(darMojo, "generateManifestOnly", true);
-		setVariableValueToObject(darMojo, "finalName", "test1");
-
-		darMojo.execute();
-		File manifest = (File) getVariableValueFromObject(darMojo, "manifestFile");
-		assertDescribeTheSamePackage(darMojo.getRealMainDeployableArtifact(), null, null, manifest);
+		List<DeployableArtifactItem> deployableArtifactItems = Lists.newArrayList();
+		List<MiddlewareResource> mrs = Lists.newArrayList();
+		final String artifactID = "testPackageWar";
+		performTestAndAssert(artifactID, "war", deployableArtifactItems, mrs);
 	}
 
 
 	@Test
 	public void testPackageOneWithConfigurationFiles() throws Exception {
-		MavenProjectStub project = new MavenProjectStub();
-		ArtifactStub mainArtifact = new ArtifactStub();
-		mainArtifact.setType("War");
-		mainArtifact.setArtifactId("com.test.tomcat.configurationsfiles");
-		mainArtifact.setGroupId("test");
-		mainArtifact.setVersion("1.0");
-		mainArtifact.setFile(new File("main.war"));
-		project.setArtifact(mainArtifact);
-
-		final List<DeployableArtifactItem> artifactItems = Collections.singletonList(configurationFiles);
-
-		setVariableValueToObject(darMojo, "project", project);
-		setVariableValueToObject(darMojo, "outputDirectory", new File("target/"));
-		setVariableValueToObject(darMojo, "artifactId", "com.test.tomcat.configurationsfiles");
-		setVariableValueToObject(darMojo, "deployableArtifacts", artifactItems);
-		setVariableValueToObject(darMojo, "jarArchiver", new JarArchiver());
-		setVariableValueToObject(darMojo, "version", "1.0");
-		setVariableValueToObject(darMojo, "generateManifestOnly", true);
-
-
-		darMojo.execute();
-		File manifest = (File) getVariableValueFromObject(darMojo, "manifestFile");
-		assertDescribeTheSamePackage(darMojo.getRealMainDeployableArtifact(), artifactItems,null,  manifest);
+		List<DeployableArtifactItem> deployableArtifactItems = Collections.singletonList(configurationFiles);
+		List<MiddlewareResource> mrs = Lists.newArrayList();
+		final String artifactID = "testPackageOneWithConfigurationFiles";
+		performTestAndAssert(artifactID, "war", deployableArtifactItems, mrs);
 	}
 
 
 	@Test
 	public void testPackageOneWithConfigurationFilesAndSqlFiles() throws Exception {
-		MavenProjectStub project = new MavenProjectStub();
-		ArtifactStub mainArtifact = new ArtifactStub();
-		mainArtifact.setType("War");
-		mainArtifact.setArtifactId("com.test.tomcat.configurationsfiles");
-		mainArtifact.setGroupId("test");
-		mainArtifact.setVersion("1.0");
-		mainArtifact.setFile(new File("main.war"));
-		project.setArtifact(mainArtifact);
-
 		List<DeployableArtifactItem> deployableArtifactItems = Lists.newArrayList(configurationFiles, sqlFiles);
-
-		setVariableValueToObject(darMojo, "project", project);
-		setVariableValueToObject(darMojo, "outputDirectory", new File("target/"));
-		setVariableValueToObject(darMojo, "artifactId", "com.xebialans.maven.dar");
-		setVariableValueToObject(darMojo, "deployableArtifacts", deployableArtifactItems);
-		setVariableValueToObject(darMojo, "jarArchiver", new JarArchiver());
-		setVariableValueToObject(darMojo, "version", "1.0");
-		setVariableValueToObject(darMojo, "generateManifestOnly", true);
-
-		darMojo.execute();
-		File manifest = (File) getVariableValueFromObject(darMojo, "manifestFile");
-		assertDescribeTheSamePackage(darMojo.getRealMainDeployableArtifact(), deployableArtifactItems, null, manifest);
+		List<MiddlewareResource> mrs = Lists.newArrayList();
+		final String artifactID = "testPackageOneWithConfigurationFilesAndSqlFiles";
+		performTestAndAssert(artifactID, "War", deployableArtifactItems, mrs);
 
 	}
 
 	@Test
 	public void testPackageDarOneWithConfigurationFilesAndSqlFiles() throws Exception {
-		MavenProjectStub project = new MavenProjectStub();
-		ArtifactStub mainArtifact = new ArtifactStub();
-		mainArtifact.setType("dar");
-		mainArtifact.setGroupId("com.xebialabs.maven.unit.tests");
-		mainArtifact.setVersion("1.0");
-		project.setArtifact(mainArtifact);
-
-		List<DeployableArtifactItem> daitem = Lists.newArrayList(configurationFiles,sqlFiles, warFile);
-
-		setVariableValueToObject(darMojo, "project", project);
-		setVariableValueToObject(darMojo, "outputDirectory", new File("target/"));
-		setVariableValueToObject(darMojo, "artifactId", "monAppDar");
-		setVariableValueToObject(darMojo, "deployableArtifacts", daitem);
-		setVariableValueToObject(darMojo, "jarArchiver", new JarArchiver());
-		setVariableValueToObject(darMojo, "version", "1.0");
-		setVariableValueToObject(darMojo, "generateManifestOnly", true);
-
-		darMojo.execute();
-		File manifest = (File) getVariableValueFromObject(darMojo, "manifestFile");
-		assertDescribeTheSamePackage(null, daitem, null, manifest);
+		List<DeployableArtifactItem> deployableArtifactItems = Lists.newArrayList(configurationFiles, sqlFiles, warFile);
+		List<MiddlewareResource> mrs = Lists.newArrayList();
+		final String artifactID = "testPackageDarOneWithConfigurationFilesAndSqlFiles";
+		performTestAndAssert(artifactID, "dar", deployableArtifactItems, mrs);
 	}
 
 	@Test
 	public void testPackageDarOneWithConfigurationFilesAndSqlFilesAndADataSource() throws Exception {
-		MavenProjectStub project = new MavenProjectStub();
-		ArtifactStub mainArtifact = new ArtifactStub();
-		mainArtifact.setType("dar");
-		mainArtifact.setGroupId("com.xebialabs.maven.unit.tests");
-		mainArtifact.setVersion("1.0");
-		project.setArtifact(mainArtifact);
-
-		List<DeployableArtifactItem> deployableArtifactItems = new ArrayList<DeployableArtifactItem>();
-		deployableArtifactItems.add(configurationFiles);
-		deployableArtifactItems.add(sqlFiles);
-		deployableArtifactItems.add(warFile);
-
+		List<DeployableArtifactItem> deployableArtifactItems = Lists.newArrayList(configurationFiles, sqlFiles, warFile);
 		List<MiddlewareResource> mrs = Lists.newArrayList(mrDataSource);
-
-		setVariableValueToObject(darMojo, "project", project);
-		setVariableValueToObject(darMojo, "outputDirectory", new File("target/"));
-		setVariableValueToObject(darMojo, "artifactId", "monAppDar");
-		setVariableValueToObject(darMojo, "deployableArtifacts", deployableArtifactItems);
-		setVariableValueToObject(darMojo, "middlewareResources", mrs);
-		setVariableValueToObject(darMojo, "jarArchiver", new JarArchiver());
-		setVariableValueToObject(darMojo, "version", "1.0");
-		setVariableValueToObject(darMojo, "generateManifestOnly", true);
-
-		darMojo.execute();
-		File manifest = (File) getVariableValueFromObject(darMojo, "manifestFile");
-		assertDescribeTheSamePackage(null, deployableArtifactItems, mrs, manifest);
+		final String artifactID = "testPackageDarOneWithConfigurationFilesAndSqlFilesAndADataSource";
+		performTestAndAssert(artifactID, "dar", deployableArtifactItems, mrs);
 	}
 
 	@Test
 	public void testPackageDarOneWithConfigurationFilesAndSqlFilesAndTwoMiddlewareResources() throws Exception {
-		MavenProjectStub project = new MavenProjectStub();
-		ArtifactStub mainArtifact = new ArtifactStub();
-		mainArtifact.setType("dar");
-		mainArtifact.setGroupId("com.xebialabs.maven.unit.tests");
-		mainArtifact.setVersion("1.0");
-		project.setArtifact(mainArtifact);
-
-		List<DeployableArtifactItem> deployableArtifactItems = Lists.newArrayList(configurationFiles,sqlFiles, warFile);
-		List<MiddlewareResource> mrs = Lists.newArrayList(mrDataSource,mrModjk);
-
-		setVariableValueToObject(darMojo, "project", project);
-		setVariableValueToObject(darMojo, "outputDirectory", new File("target/"));
-		setVariableValueToObject(darMojo, "artifactId", "monAppDar");
-		setVariableValueToObject(darMojo, "deployableArtifacts", deployableArtifactItems);
-		setVariableValueToObject(darMojo, "middlewareResources", mrs);
-		setVariableValueToObject(darMojo, "jarArchiver", new JarArchiver());
-		setVariableValueToObject(darMojo, "version", "1.0");
-		setVariableValueToObject(darMojo, "generateManifestOnly", true);
-
-		darMojo.execute();
-		File manifest = (File) getVariableValueFromObject(darMojo, "manifestFile");
-		assertDescribeTheSamePackage(null, deployableArtifactItems, mrs, manifest);
+		List<DeployableArtifactItem> deployableArtifactItems = Lists.newArrayList(configurationFiles, sqlFiles, warFile);
+		List<MiddlewareResource> mrs = Lists.newArrayList(mrDataSource, mrModjk);
+		final String artifactID = "testPackageDarOneWithConfigurationFilesAndSqlFilesAndTwoMiddlewareResources";
+		performTestAndAssert(artifactID, "dar", deployableArtifactItems, mrs);
 	}
 
 
-	private void assertDescribeTheSamePackage(DeployableArtifactItem mainArtifact, List<DeployableArtifactItem> daitem, List<MiddlewareResource> mr,File manifestFile) throws Exception {
+	private void assertDescribeTheSamePackage(DeployableArtifactItem mainArtifact, List<DeployableArtifactItem> daitem, List<MiddlewareResource> mr, File manifestFile) throws Exception {
 		List<PackagedItem> all = Lists.newArrayList();
-		if (mainArtifact != null)
+		if (mainArtifact != null && !mainArtifact.getType().equalsIgnoreCase("dar"))
 			all.add(mainArtifact);
 		if (daitem != null)
 			all.addAll(daitem);
-		if (mr !=null)
+		if (mr != null)
 			all.addAll(mr);
 
 		assertDescribeTheSamePackage(all, manifestFile);
@@ -233,6 +122,46 @@ public class GenerateDeploymentPackageMojoTest extends BaseForTestMojo {
 
 		baos.close();
 		System.out.println(new String(baos.toByteArray()));
+	}
+
+	private void performTestAndAssert(String artifactID, String type, List<DeployableArtifactItem> deployableArtifactItems, List<MiddlewareResource> mrs) throws Exception {
+		MavenProjectStub project = new MavenProjectStub() {
+			private Build build;
+
+			@Override
+			public void setBuild(Build build) {
+				this.build = build;
+			}
+
+			@Override
+			public Build getBuild() {
+				return build;
+			}
+		};
+
+		ArtifactStub mainArtifact = new ArtifactStub();
+		mainArtifact.setType(type);
+		mainArtifact.setArtifactId("com.test.tomcat");
+		mainArtifact.setGroupId("test");
+		mainArtifact.setVersion("1.0");
+		mainArtifact.setFile(new File("main.war"));
+		project.setArtifact(mainArtifact);
+		project.setBuild(new Build());
+		project.setGroupId("com.xebialabs.unit.tests");
+		project.setArtifactId(artifactID);
+		project.setVersion("1.0");
+
+		project.getBuild().setOutputDirectory(new File("target/").getPath());
+		project.getBuild().setFinalName(project.getArtifactId());
+
+		setVariableValueToObject(darMojo, "project", project);
+		setVariableValueToObject(darMojo, "generateManifestOnly", true);
+		setVariableValueToObject(darMojo, "deployableArtifacts", deployableArtifactItems);
+		setVariableValueToObject(darMojo, "middlewareResources", mrs);
+
+
+		darMojo.execute();
+		assertDescribeTheSamePackage(darMojo.getRealMainDeployableArtifact(), deployableArtifactItems, mrs, darMojo.getManifestFile());
 	}
 
 
