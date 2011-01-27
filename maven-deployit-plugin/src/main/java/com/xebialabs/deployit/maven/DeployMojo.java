@@ -17,12 +17,8 @@
 
 package com.xebialabs.deployit.maven;
 
-import com.xebialabs.deployit.maven.packager.ManifestPackager;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Deploy artifacts to the target environment.
@@ -36,71 +32,7 @@ import java.util.List;
 public class DeployMojo extends AbstractDeployitMojo {
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		getLog().info("deployit:deploy");
-		if (environment == null)
-			throw new MojoExecutionException("Environment is empty");
-
-
-		final ManifestPackager packager = new ManifestPackager(artifactId, version, outputDirectory);
-		packager.setLogger(getLog());
-		packager.setGenerateManifestOnly(generateManifestOnly);
-
-		getLog().info("create the main artifact");
-		packager.addDeployableArtifact(getRealDeployableArtifact(project.getArtifact()));
-
-		//Handle additionnal maven artifacts
-		if (deployableArtifacts != null) {
-			getLog().info("create the additional artifacts");
-			for (DeployableArtifactItem item : deployableArtifacts) {
-				packager.addDeployableArtifact(getRealDeployableArtifact(item));
-			}
-		}
-
-
-		packager.perform();
-
-		startServer();
-
-		interpret(packager.getCliCommands());
-		defineEnvironment();
-
-
-		getLog().info("Create the Deployment");
-		//String deploymentCmd="create Deployment label=currentDeploymement source=\\""${project.artifactId} - ${project.version}\\"" target=DefaultEnvironment";
-		StringBuilder depCmd = new StringBuilder("create Deployment ");
-		depCmd.append("label=" + DEFAULT_DEPLOYMENT).append(' ');
-		depCmd.append("source=").append('"').append(packager.getDeploymentPackageName()).append('"').append(' ');
-		depCmd.append("target=" + DEFAULT_ENVIRONMENT);
-		interpret(depCmd.toString());
-
-		if (mappings != null) {
-			getLog().info("create Mappings");
-			for (ConfigurationItem ci : mappings) {
-				interpret(ci.getCli());
-			}
-		}
-
-		//Go !
-		deployit();
-
+		initialDeployment();
 		getLog().info("end of deploy:deploy");
 	}
-
-	public  void defineEnvironment() throws MojoExecutionException {
-		getLog().info("Create the environment");
-		List<String> members = new ArrayList<String>();
-		for (ConfigurationItem each : environment) {
-			getLog().info(" create "+each.getLabel());
-			getInterpreter().create(each);
-			if (each.isAddedToEnvironment())
-				members.add(each.getLabel());
-		}
-
-		ConfigurationItem ciEnvironment = new ConfigurationItem();
-		ciEnvironment.setLabel(DEFAULT_ENVIRONMENT);
-		ciEnvironment.setType("Environment");
-		ciEnvironment.addParameter("members", members);
-		getInterpreter().create(ciEnvironment);
-	}
-
-
 }

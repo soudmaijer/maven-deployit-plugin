@@ -19,7 +19,6 @@ package com.xebialabs.deployit.maven;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
-import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.apache.maven.plugin.testing.stubs.ArtifactStub;
 import org.apache.maven.plugin.testing.stubs.MavenProjectStub;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
@@ -35,51 +34,8 @@ import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
-public class GenerateDeploymentPackageMojoTest extends AbstractMojoTestCase {
+public class GenerateDeploymentPackageMojoTest extends BaseForTestMojo {
 
-	private GenerateDeploymentPackageMojo mojo;
-	private DeployableArtifactItem configurationFiles;
-	private DeployableArtifactItem sqlFiles;
-	private DeployableArtifactItem warFile;
-
-	private MiddlewareResource mrDataSource;
-	private MiddlewareResource mrModjk;
-
-
-	public void setUp() throws Exception {
-		super.setUp();
-
-		configurationFiles = new DeployableArtifactItem();
-		configurationFiles.setType("ConfigurationFiles");
-		configurationFiles.setLocation("src/main/resources");
-
-
-		sqlFiles = new DeployableArtifactItem();
-		sqlFiles.setType("SqlFiles");
-		sqlFiles.setLocation("src/main/sql");
-
-		warFile = new DeployableArtifactItem();
-		warFile.setType("War");
-		warFile.setLocation("/tmp/apetwar.war");
-
-		mrDataSource = new MiddlewareResource();
-		mrDataSource.setName("petclinicDS");
-		mrDataSource.setType("DummyDataSource");
-		mrDataSource.addParameter("driver","com.mysql.jdbc.Driver");
-		mrDataSource.addParameter("url","jdbc:mysql://localhost/petclinic");
-		mrDataSource.addParameter("username","petclinic");
-		mrDataSource.addParameter("password","secr$t");
-		mrDataSource.addParameter("settings-EntryKey-1","autoCommit");
-		mrDataSource.addParameter("settings-EntryValue-1","true");
-
-		mrModjk = new MiddlewareResource();
-		mrModjk.setName("AnModJkConfiguration");
-		mrModjk.setType("ModJkApacheModuleConfiguration");
-		mrModjk.addParameter("urlMounts-EntryPrefix-1","/foo");
-		mrModjk.addParameter("jkstatus","true");
-
-		mojo = new GenerateDeploymentPackageMojo();
-	}
 
 	@Test
 	public void testPackageWar() throws Exception {
@@ -92,17 +48,17 @@ public class GenerateDeploymentPackageMojoTest extends AbstractMojoTestCase {
 		mainArtifact.setFile(new File("main.war"));
 		project.setArtifact(mainArtifact);
 
-		setVariableValueToObject(mojo, "project", project);
-		setVariableValueToObject(mojo, "outputDirectory", new File("target/"));
-		setVariableValueToObject(mojo, "artifactId", "com.test.tomcat");
-		setVariableValueToObject(mojo, "version", "1.0");
-		setVariableValueToObject(mojo, "jarArchiver", new JarArchiver());
-		setVariableValueToObject(mojo, "generateManifestOnly", true);
-		setVariableValueToObject(mojo, "finalName", "test1");
+		setVariableValueToObject(darMojo, "project", project);
+		setVariableValueToObject(darMojo, "outputDirectory", new File("target/"));
+		setVariableValueToObject(darMojo, "artifactId", "com.test.tomcat");
+		setVariableValueToObject(darMojo, "version", "1.0");
+		setVariableValueToObject(darMojo, "jarArchiver", new JarArchiver());
+		setVariableValueToObject(darMojo, "generateManifestOnly", true);
+		setVariableValueToObject(darMojo, "finalName", "test1");
 
-		mojo.execute();
-		File manifest = (File) getVariableValueFromObject(mojo, "manifestFile");
-		assertDescribeTheSamePackage(mojo.getRealMainDeployableArtifact(), null, null, manifest);
+		darMojo.execute();
+		File manifest = (File) getVariableValueFromObject(darMojo, "manifestFile");
+		assertDescribeTheSamePackage(darMojo.getRealMainDeployableArtifact(), null, null, manifest);
 	}
 
 
@@ -119,18 +75,18 @@ public class GenerateDeploymentPackageMojoTest extends AbstractMojoTestCase {
 
 		final List<DeployableArtifactItem> artifactItems = Collections.singletonList(configurationFiles);
 
-		setVariableValueToObject(mojo, "project", project);
-		setVariableValueToObject(mojo, "outputDirectory", new File("target/"));
-		setVariableValueToObject(mojo, "artifactId", "com.test.tomcat.configurationsfiles");
-		setVariableValueToObject(mojo, "deployableArtifacts", artifactItems);
-		setVariableValueToObject(mojo, "jarArchiver", new JarArchiver());
-		setVariableValueToObject(mojo, "version", "1.0");
-		setVariableValueToObject(mojo, "generateManifestOnly", true);
+		setVariableValueToObject(darMojo, "project", project);
+		setVariableValueToObject(darMojo, "outputDirectory", new File("target/"));
+		setVariableValueToObject(darMojo, "artifactId", "com.test.tomcat.configurationsfiles");
+		setVariableValueToObject(darMojo, "deployableArtifacts", artifactItems);
+		setVariableValueToObject(darMojo, "jarArchiver", new JarArchiver());
+		setVariableValueToObject(darMojo, "version", "1.0");
+		setVariableValueToObject(darMojo, "generateManifestOnly", true);
 
 
-		mojo.execute();
-		File manifest = (File) getVariableValueFromObject(mojo, "manifestFile");
-		assertDescribeTheSamePackage(mojo.getRealMainDeployableArtifact(), artifactItems,null,  manifest);
+		darMojo.execute();
+		File manifest = (File) getVariableValueFromObject(darMojo, "manifestFile");
+		assertDescribeTheSamePackage(darMojo.getRealMainDeployableArtifact(), artifactItems,null,  manifest);
 	}
 
 
@@ -147,17 +103,17 @@ public class GenerateDeploymentPackageMojoTest extends AbstractMojoTestCase {
 
 		List<DeployableArtifactItem> deployableArtifactItems = Lists.newArrayList(configurationFiles, sqlFiles);
 
-		setVariableValueToObject(mojo, "project", project);
-		setVariableValueToObject(mojo, "outputDirectory", new File("target/"));
-		setVariableValueToObject(mojo, "artifactId", "com.xebialans.maven.dar");
-		setVariableValueToObject(mojo, "deployableArtifacts", deployableArtifactItems);
-		setVariableValueToObject(mojo, "jarArchiver", new JarArchiver());
-		setVariableValueToObject(mojo, "version", "1.0");
-		setVariableValueToObject(mojo, "generateManifestOnly", true);
+		setVariableValueToObject(darMojo, "project", project);
+		setVariableValueToObject(darMojo, "outputDirectory", new File("target/"));
+		setVariableValueToObject(darMojo, "artifactId", "com.xebialans.maven.dar");
+		setVariableValueToObject(darMojo, "deployableArtifacts", deployableArtifactItems);
+		setVariableValueToObject(darMojo, "jarArchiver", new JarArchiver());
+		setVariableValueToObject(darMojo, "version", "1.0");
+		setVariableValueToObject(darMojo, "generateManifestOnly", true);
 
-		mojo.execute();
-		File manifest = (File) getVariableValueFromObject(mojo, "manifestFile");
-		assertDescribeTheSamePackage(mojo.getRealMainDeployableArtifact(), deployableArtifactItems, null, manifest);
+		darMojo.execute();
+		File manifest = (File) getVariableValueFromObject(darMojo, "manifestFile");
+		assertDescribeTheSamePackage(darMojo.getRealMainDeployableArtifact(), deployableArtifactItems, null, manifest);
 
 	}
 
@@ -172,16 +128,16 @@ public class GenerateDeploymentPackageMojoTest extends AbstractMojoTestCase {
 
 		List<DeployableArtifactItem> daitem = Lists.newArrayList(configurationFiles,sqlFiles, warFile);
 
-		setVariableValueToObject(mojo, "project", project);
-		setVariableValueToObject(mojo, "outputDirectory", new File("target/"));
-		setVariableValueToObject(mojo, "artifactId", "monAppDar");
-		setVariableValueToObject(mojo, "deployableArtifacts", daitem);
-		setVariableValueToObject(mojo, "jarArchiver", new JarArchiver());
-		setVariableValueToObject(mojo, "version", "1.0");
-		setVariableValueToObject(mojo, "generateManifestOnly", true);
+		setVariableValueToObject(darMojo, "project", project);
+		setVariableValueToObject(darMojo, "outputDirectory", new File("target/"));
+		setVariableValueToObject(darMojo, "artifactId", "monAppDar");
+		setVariableValueToObject(darMojo, "deployableArtifacts", daitem);
+		setVariableValueToObject(darMojo, "jarArchiver", new JarArchiver());
+		setVariableValueToObject(darMojo, "version", "1.0");
+		setVariableValueToObject(darMojo, "generateManifestOnly", true);
 
-		mojo.execute();
-		File manifest = (File) getVariableValueFromObject(mojo, "manifestFile");
+		darMojo.execute();
+		File manifest = (File) getVariableValueFromObject(darMojo, "manifestFile");
 		assertDescribeTheSamePackage(null, daitem, null, manifest);
 	}
 
@@ -201,17 +157,17 @@ public class GenerateDeploymentPackageMojoTest extends AbstractMojoTestCase {
 
 		List<MiddlewareResource> mrs = Lists.newArrayList(mrDataSource);
 
-		setVariableValueToObject(mojo, "project", project);
-		setVariableValueToObject(mojo, "outputDirectory", new File("target/"));
-		setVariableValueToObject(mojo, "artifactId", "monAppDar");
-		setVariableValueToObject(mojo, "deployableArtifacts", deployableArtifactItems);
-		setVariableValueToObject(mojo, "middlewareResources", mrs);
-		setVariableValueToObject(mojo, "jarArchiver", new JarArchiver());
-		setVariableValueToObject(mojo, "version", "1.0");
-		setVariableValueToObject(mojo, "generateManifestOnly", true);
+		setVariableValueToObject(darMojo, "project", project);
+		setVariableValueToObject(darMojo, "outputDirectory", new File("target/"));
+		setVariableValueToObject(darMojo, "artifactId", "monAppDar");
+		setVariableValueToObject(darMojo, "deployableArtifacts", deployableArtifactItems);
+		setVariableValueToObject(darMojo, "middlewareResources", mrs);
+		setVariableValueToObject(darMojo, "jarArchiver", new JarArchiver());
+		setVariableValueToObject(darMojo, "version", "1.0");
+		setVariableValueToObject(darMojo, "generateManifestOnly", true);
 
-		mojo.execute();
-		File manifest = (File) getVariableValueFromObject(mojo, "manifestFile");
+		darMojo.execute();
+		File manifest = (File) getVariableValueFromObject(darMojo, "manifestFile");
 		assertDescribeTheSamePackage(null, deployableArtifactItems, mrs, manifest);
 	}
 
@@ -227,17 +183,17 @@ public class GenerateDeploymentPackageMojoTest extends AbstractMojoTestCase {
 		List<DeployableArtifactItem> deployableArtifactItems = Lists.newArrayList(configurationFiles,sqlFiles, warFile);
 		List<MiddlewareResource> mrs = Lists.newArrayList(mrDataSource,mrModjk);
 
-		setVariableValueToObject(mojo, "project", project);
-		setVariableValueToObject(mojo, "outputDirectory", new File("target/"));
-		setVariableValueToObject(mojo, "artifactId", "monAppDar");
-		setVariableValueToObject(mojo, "deployableArtifacts", deployableArtifactItems);
-		setVariableValueToObject(mojo, "middlewareResources", mrs);
-		setVariableValueToObject(mojo, "jarArchiver", new JarArchiver());
-		setVariableValueToObject(mojo, "version", "1.0");
-		setVariableValueToObject(mojo, "generateManifestOnly", true);
+		setVariableValueToObject(darMojo, "project", project);
+		setVariableValueToObject(darMojo, "outputDirectory", new File("target/"));
+		setVariableValueToObject(darMojo, "artifactId", "monAppDar");
+		setVariableValueToObject(darMojo, "deployableArtifacts", deployableArtifactItems);
+		setVariableValueToObject(darMojo, "middlewareResources", mrs);
+		setVariableValueToObject(darMojo, "jarArchiver", new JarArchiver());
+		setVariableValueToObject(darMojo, "version", "1.0");
+		setVariableValueToObject(darMojo, "generateManifestOnly", true);
 
-		mojo.execute();
-		File manifest = (File) getVariableValueFromObject(mojo, "manifestFile");
+		darMojo.execute();
+		File manifest = (File) getVariableValueFromObject(darMojo, "manifestFile");
 		assertDescribeTheSamePackage(null, deployableArtifactItems, mrs, manifest);
 	}
 

@@ -37,6 +37,11 @@
 					<package>
 						com.xebialabs.deployit:maven-deployit-plugin:generate-deployment-package
 					</package>
+					<!--
+					TODO: Think it is a good idea to declare this here to had this by default
+					<pre-integration-test>com.xebialabs.deployit:maven-deployit-plugin:deploy</pre-integration-test>
+					<post-integration-test>com.xebialabs.deployit:maven-deployit-plugin:clean</post-integration-test>
+					-->
 					<install>org.apache.maven.plugins:maven-install-plugin:install</install>
 					<deploy>org.apache.maven.plugins:maven-deploy-plugin:deploy</deploy>
 				</phases>

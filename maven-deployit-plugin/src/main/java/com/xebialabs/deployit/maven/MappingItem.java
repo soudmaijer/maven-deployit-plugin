@@ -17,12 +17,20 @@
 
 package com.xebialabs.deployit.maven;
 
+import com.google.common.collect.Lists;
+
+import java.util.List;
+import java.util.Map;
+
 /**
  */
 public class MappingItem extends ConfigurationItem {
 
+	private static final List<String> SKIPPED_ITEMS = Lists.newArrayList("keyValuePairs","source","target","label");
+
 	private String source;
 	private String target;
+	private List<Map<String, String>> keyValuePairs;
 
 	public String getSource() {
 		return source;
@@ -46,24 +54,22 @@ public class MappingItem extends ConfigurationItem {
 
 	//@Override
 	public void addParameter(String name, Object value) {
-		if ("source".equals(name))
+		if (SKIPPED_ITEMS.contains(name))
 			return;
 
-		if ("target".equals(name))
-			return;
-
-		if ("label".equals(name))
-			return;
-
-		if ("type".equals(name))
-			return;
-
-
-		//super.addParameter(name, value);
+		super.addParameter(name, value);
 	}
 
 	@Override
 	public String getCli() {
 		return "XXXXXX";
+	}
+
+	public void setKeyValuePairs(List<Map<String, String>> keyValuePairs) {
+		this.keyValuePairs = keyValuePairs;
+	}
+
+	public List<Map<String, String>> getKeyValuePairs() {
+		return keyValuePairs;
 	}
 }

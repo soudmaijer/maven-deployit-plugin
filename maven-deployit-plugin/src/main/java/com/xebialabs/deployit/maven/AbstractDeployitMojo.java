@@ -21,6 +21,7 @@ import com.xebialabs.deployit.DeployItConfiguration;
 import com.xebialabs.deployit.DeployitOptions;
 import com.xebialabs.deployit.Server;
 import com.xebialabs.deployit.cli.MavenCli;
+import com.xebialabs.deployit.core.api.dto.RepositoryObject;
 import com.xebialabs.deployit.jcr.JackrabbitRepositoryFactoryBean;
 import com.xebialabs.deployit.maven.packager.ManifestPackager;
 import org.apache.commons.io.FileUtils;
@@ -35,7 +36,10 @@ import javax.jcr.RepositoryException;
 import javax.script.ScriptException;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+
+import static java.lang.String.format;
 
 /**
  * Provides common code for deployit mojos
@@ -116,7 +120,7 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 	 *
 	 * @parameter
 	 */
-	protected List<ConfigurationItem> mappings;
+	protected List<MappingItem> mappings;
 
 	/**
 	 * List of ConfigurationItem in the target environment.
@@ -140,6 +144,12 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 	 */
 	protected boolean generateManifestOnly;
 
+	/**
+	 * Perform a skipped deployment before clean it.
+	 *
+	 * @parameter default-value=false
+	 */
+	protected boolean forcedClean;
 
 	/**
 	 * The name of the DAR file to generate.
@@ -168,6 +178,9 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 
 	protected void startServer() {
 		if (!SERVER_STARTED) {
+			new File("recovery.dat").delete();
+			new File("repository").deleteOnExit();
+
 			getLog().info("STARTING DEPLOYIT SERVER");
 			DeployItConfiguration context = new DeployItConfiguration();
 
@@ -238,6 +251,8 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 	protected MavenCli getInterpreter() throws MojoExecutionException {
 		if (interpreter == null) {
 			interpreter = new MavenCli(getPort());
+			interpreter.setLogger(getLog());
+			interpreter.setSkipStepsMode(testmode);
 		}
 		return interpreter;
 	}
@@ -336,13 +351,6 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 		this.middlewareResources = middlewareResources;
 	}
 
-	public List<ConfigurationItem> getMappings() {
-		return mappings;
-	}
-
-	public void setMappings(List<ConfigurationItem> mappings) {
-		this.mappings = mappings;
-	}
 
 	public List<ConfigurationItem> getEnvironment() {
 		return environment;
@@ -447,5 +455,63 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 
 	protected File getDarFile() {
 		return getDarFile(outputDirectory, finalName, classifier);
+	}
+
+	protected void initialDeployment() throws MojoExecutionException {
+		if (environment == null)
+			throw new MojoExecutionException("Environment is empty");
+
+		final File darFile = getDarFile();
+		if (!darFile.exists())
+			throw new MojoExecutionException("Dar file does not exist " + darFile);
+
+
+		startServer();
+
+		final RepositoryObject environment = defineEnvironment();
+
+		final RepositoryObject deploymentPackage = importDar(darFile);
+
+
+		getLog().info(format("-- Deploy %s on %s", deploymentPackage.getId(), environment.getId()));
+
+		getInterpreter().deployAndWait(deploymentPackage.getId(), environment.getId(), mappings);
+	}
+
+	protected void undeploy() throws MojoExecutionException {
+		startServer();
+
+		if (forcedClean) {
+			getInterpreter().toggleSkipStepsMode();
+			initialDeployment();
+			getInterpreter().toggleSkipStepsMode();
+		}
+
+		getInterpreter().undeployAndWait(DEFAULT_ENVIRONMENT + "/" + artifactId);
+
+
+		stopServer();
+	}
+
+	protected RepositoryObject importDar(File darFile) throws MojoExecutionException {
+		getLog().info("Import dar file " + darFile);
+		return getInterpreter().importPackage(darFile);
+	}
+
+	protected RepositoryObject defineEnvironment() throws MojoExecutionException {
+		getLog().info("Create the environment");
+		List<String> members = new ArrayList<String>();
+		for (ConfigurationItem each : environment) {
+			getLog().info(" create " + each.getLabel());
+			getInterpreter().create(each);
+			if (each.isAddedToEnvironment())
+				members.add(each.getLabel());
+		}
+
+		ConfigurationItem ciEnvironment = new ConfigurationItem();
+		ciEnvironment.setLabel(DEFAULT_ENVIRONMENT);
+		ciEnvironment.setType("Environment");
+		ciEnvironment.addParameter("members", members);
+		return getInterpreter().create(ciEnvironment);
 	}
 }

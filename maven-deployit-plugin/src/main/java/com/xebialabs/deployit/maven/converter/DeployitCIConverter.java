@@ -17,6 +17,8 @@
 
 package com.xebialabs.deployit.maven.converter;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.xebialabs.deployit.maven.ConfigurationItem;
 import com.xebialabs.deployit.maven.MappingItem;
 import com.xebialabs.deployit.maven.MiddlewareResource;
@@ -28,6 +30,9 @@ import org.codehaus.plexus.component.configurator.converters.lookup.ConverterLoo
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.codehaus.plexus.configuration.PlexusConfigurationException;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * User: bmoussaud
@@ -89,6 +94,23 @@ public class DeployitCIConverter extends AbstractConfigurationConverter {
 			final PlexusConfiguration source = configuration.getChild("source");
 			final PlexusConfiguration target = configuration.getChild("target");
 			final PlexusConfiguration mainType = configuration.getChild("type");
+
+			final PlexusConfiguration kvPairs = configuration.getChild("keyValuePairs");
+			List<Map<String,String>> kvParsed = Lists.newArrayList();
+			for (PlexusConfiguration pair: kvPairs.getChildren()) {
+				final PlexusConfiguration k = pair.getChild("k");
+				final PlexusConfiguration v = pair.getChild("v");
+				try {
+					Map<String,String> map = Maps.newHashMap();
+					map.put("key",k.getValue());
+					map.put("value",v.getValue());
+					kvParsed.add(map);
+				} catch (PlexusConfigurationException e) {
+					throw new ComponentConfigurationException("kv getValue error", e);
+				}
+			}
+
+			ci.setKeyValuePairs(kvParsed);
 
 			try {
 				ci.setSource(source.getValue());

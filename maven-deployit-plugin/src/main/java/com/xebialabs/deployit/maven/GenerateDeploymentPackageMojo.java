@@ -63,7 +63,6 @@ public class GenerateDeploymentPackageMojo extends AbstractDeployitMojo {
 		packager.setGenerateManifestOnly(generateManifestOnly);
 		getLog().info("Generate Deployment Package...");
 
-
 		packager.addDeployableArtifact(getRealDeployableArtifact(project.getArtifact()));
 		//Handle additionnal maven artifacts
 		if (deployableArtifacts != null) {

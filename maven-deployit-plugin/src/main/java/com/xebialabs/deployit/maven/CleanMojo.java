@@ -32,20 +32,9 @@ public class CleanMojo extends AbstractDeployitMojo {
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		getLog().info("deployit:clean");
 
-		startServer();
-
-
-		try {
-			interpret("delete " + DEFAULT_DEPLOYMENT);
-			//Go !
-			//deployit();
-			//interpret("shutdown");
-		} catch (Exception e) {
-			e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-		}
-		getLog().info("Stop.");
-
-		stopServer();
+		undeploy();
 		getLog().info("end of deployit:clean.");
 	}
+
+
 }
