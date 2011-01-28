@@ -40,13 +40,11 @@
 					</execution>
 				</executions>
 				<configuration>
-					<port>9090</port>
 					<testmode>true</testmode>
-					<useImportablePackage>true</useImportablePackage>
 					<environment>
 						<ConfigurationItem>
 							<type>Host</type>
-							<label>JBoss Host</label>
+							<label>Infrastructure/JBoss Host</label>
 							<address>jboss-51</address>
 							<username>root</username>
 							<password>centos</password>
@@ -55,11 +53,12 @@
 						</ConfigurationItem>
 						<ConfigurationItem>
 							<type>JbossasServer</type>
-							<label>JBoss server</label>
-							<host>JBoss Host</host>
+							<label>Infrastructure/JBoss Host/JBoss server</label>
+							<host>Infrastructure/JBoss Host</host>
 							<home>/opt/jboss/5.1.0.GA</home>
 							<version>JBOSSAS_50</version>
 							<name>itest</name>
+							<startCommand>bin/start.sh</startCommand>
 						</ConfigurationItem>
 					</environment>
 
@@ -80,14 +79,13 @@
 					<dependency>
 						<groupId>com.xebialabs.deployit</groupId>
 						<artifactId>apache-httpd-plugin</artifactId>
-						<version>1.3-beta-3-SNAPSHOT</version>
+						<version>${deployitPluginVersion}</version>
 					</dependency>
 					<dependency>
 						<groupId>com.xebialabs.deployit</groupId>
 						<artifactId>jbossas-plugin</artifactId>
-						<version>1.3-beta-3-SNAPSHOT</version>
+						<version>${deployitPluginVersion}</version>
 					</dependency>
-
 				</dependencies>
 			</plugin>
 		</plugins>

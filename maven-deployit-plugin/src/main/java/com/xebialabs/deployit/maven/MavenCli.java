@@ -3,7 +3,7 @@ package com.xebialabs.deployit.maven;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
-import com.xebialabs.deployit.cli.JythonInterpreterOptions;
+import com.xebialabs.deployit.cli.CliOptions;
 import com.xebialabs.deployit.cli.api.DeployitClient;
 import com.xebialabs.deployit.cli.api.ObjectFactory;
 import com.xebialabs.deployit.cli.api.Proxies;
@@ -12,17 +12,13 @@ import com.xebialabs.deployit.cli.rest.ResponseExtractor;
 import com.xebialabs.deployit.core.api.dto.RepositoryObject;
 import com.xebialabs.deployit.core.api.dto.StepInfo;
 import com.xebialabs.deployit.core.api.dto.TaskInfo;
-import com.xebialabs.deployit.maven.ConfigurationItem;
-import com.xebialabs.deployit.maven.MappingItem;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringUtils;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 
-import javax.script.ScriptException;
 import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.IOException;
@@ -42,7 +38,7 @@ import static java.lang.String.format;
  */
 public class MavenCli {
 
-	private final JythonInterpreterOptions options;
+	private final CliOptions options;
 	private final HttpClient client;
 	private final Proxies proxies;
 	private final ObjectFactory factory;
@@ -54,7 +50,7 @@ public class MavenCli {
 	private boolean testMode = false;
 
 	public MavenCli(int port) {
-		options = new JythonInterpreterOptions();
+		options = new CliOptions();
 		options.setHost("localhost");
 		options.setPort(port);
 		options.setExposeProxies(true);
@@ -70,12 +66,8 @@ public class MavenCli {
 
 	}
 
-	public void evaluate(String line) throws MojoExecutionException, ScriptException {
-		//	proxies.getImportablePackage().importPackage("/tmp/truc.dar");
-		System.out.println("----- " + line);
-	}
 
-	HttpClient getAuthenticatingHttpClient() {
+	private HttpClient getAuthenticatingHttpClient() {
 		final HttpClient httpClient = new HttpClient();
 		final UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(options.getUsername(), options.getPassword());
 		httpClient.getState().setCredentials(AuthScope.ANY, credentials);
@@ -153,7 +145,8 @@ public class MavenCli {
 		logger.info(format("generate mappings %s - %s", source, target));
 		final RepositoryObject[] generatedMappings = deployitClient.generateMappings(deployableArtifacts, target);
 		for (RepositoryObject repositoryObjectMapping : generatedMappings) {
-			logger.info("generated mapping " + repositoryObjectMapping);
+			logger.info("  process generated mapping " + repositoryObjectMapping.getId());
+			logger.debug("   mapping ->" + repositoryObjectMapping.getId());
 			final Map<String, Object> mappingValues = repositoryObjectMapping.getValues();
 
 			final MappingItem configuredMapping = searchCandidateMapping(mappings, mappingValues);
@@ -190,14 +183,17 @@ public class MavenCli {
 		});
 
 		if (foundMappings.isEmpty()) {
-			logger.debug(format("Found 0 mappings for source (%s) and target (%s) in mappings (%s) ", sourceMapping, targetMapping, mappings));
+			logger.debug(format("found 0 mapping for source (%s) and target (%s) in mappings (%s) ", sourceMapping, targetMapping, mappings));
 			return null;
 		}
 
 		if (foundMappings.size() > 1)
-			throw new IllegalStateException(format("Found %n mappings which are candidate for source (%s) and target (%s) : %s", foundMappings.size(), sourceMapping, targetMapping, foundMappings.toString()));
+			throw new IllegalStateException(format("found %n mappings which are candidate for source (%s) and target (%s) : %s", foundMappings.size(), sourceMapping, targetMapping, foundMappings.toString()));
 
-		return foundMappings.iterator().next();
+
+		final MappingItem foundMapping = foundMappings.iterator().next();
+		logger.debug(format("found 1 mapping for source (%s) and target (%s) : ", sourceMapping, targetMapping, foundMapping));
+		return foundMapping;
 	}
 
 
@@ -242,7 +238,7 @@ public class MavenCli {
 		this.testMode = testMode;
 	}
 
-	public void toggleSkipStepsMode()  {
+	public void toggleSkipStepsMode() {
 		this.testMode = (testMode ? false : true);
 	}
 

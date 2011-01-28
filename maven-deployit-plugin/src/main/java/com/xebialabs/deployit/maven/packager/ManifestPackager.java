@@ -29,6 +29,7 @@ import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -53,7 +54,7 @@ public class ManifestPackager {
 
 	public ManifestPackager(MavenProject project) {
 		this.project = project;
-		this.outputDirectory = new File(project.getBuild().getOutputDirectory());
+		this.outputDirectory = new File(project.getBuild().getDirectory());
 		this.targetDirectory = new File(outputDirectory, DEPLOYMENT_PACKAGE_DIR + File.separator + project.getArtifactId() + File.separator + project.getVersion());
 		this.targetDirectory.mkdirs();
 		this.deploymentPackageName = project.getArtifactId() + "/" + project.getVersion();
@@ -78,6 +79,7 @@ public class ManifestPackager {
 		getLog().info("Generate manifest file " + manifestFile.getAbsolutePath());
 		FileOutputStream fos = null;
 		try {
+			dumpManifest();
 			fos = new FileOutputStream(manifestFile);
 			manifest.write(fos);
 		} catch (IOException e) {
@@ -87,14 +89,22 @@ public class ManifestPackager {
 		}
 	}
 
+	private void dumpManifest() throws IOException {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		try {
+			manifest.write(baos);
+		} finally {
+			IOUtils.closeQuietly(baos);
+		}
+		getLog().debug(new String(baos.toByteArray()));
+	}
+
 	public String getDeploymentPackageName() {
 		return deploymentPackageName;
 	}
 
 
-	protected void addDeployableArtifact(DeployableArtifactItem origianlItem) {
-
-		final DeployableArtifactItem item = getRealDeployableArtifact(origianlItem);
+	protected void addDeployableArtifact(DeployableArtifactItem item) {
 		getLog().info(" add deployable artifact : " + item);
 		if ("Dar".equalsIgnoreCase(item.getType()))
 			return;
@@ -179,6 +189,8 @@ public class ManifestPackager {
 			getLog().info(" add a deployable artifact " + item);
 			String relativeLocation = item.getLocation();
 			File fileSysLoca = new File(project.getBasedir(), relativeLocation);
+			getLog().debug("   ---- base             "+project.getBasedir());
+			getLog().debug("   ---- relativeLocation "+relativeLocation);
 			getLog().debug("  filesystem location is " + fileSysLoca.getPath());
 			item.setFileSystemLocation(fileSysLoca.getPath());
 			return item;
@@ -253,7 +265,7 @@ public class ManifestPackager {
 
 		getLog().info("Add the artifacts");
 		for (DeployableArtifactItem item : deployableArtifacts) {
-			addDeployableArtifact(item);
+			addDeployableArtifact(getRealDeployableArtifact(item));
 		}
 	}
 
@@ -298,6 +310,6 @@ public class ManifestPackager {
 	}
 
 	public File getDarFile() {
-		return new File(project.getBuild().getOutputDirectory(), project.getBuild().getFinalName() + ".dar");
+		return new File(project.getBuild().getDirectory(), project.getBuild().getFinalName() + ".dar");
 	}
 }

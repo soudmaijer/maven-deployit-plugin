@@ -45,7 +45,7 @@
 					<environment>
 						<ConfigurationItem>
 							<type>Host</type>
-							<label>Host Production Weblogic</label>
+							<label>Infrastructure/Host Production Weblogic</label>
 							<address>ubuntu-weblogic-1.local</address>
 							<username>weblogic</username>
 							<password>weblogic</password>
@@ -55,32 +55,31 @@
 
 						<ConfigurationItem>
 							<type>WlsDomain</type>
-							<label>Domain WLS Petshop</label>
-							<activeHost>Host Production Weblogic</activeHost>
+							<label>Infrastructure/Domain WLS Petshop</label>
+							<activeHost>Infrastructure/Host Production Weblogic</activeHost>
 							<password>weblogic10</password>
 							<wlHome>/opt/oracle/wls10.3.1.0/wlserver_10.3</wlHome>
 							<adminServerName>AdminServer</adminServerName>
-							<wlJavaHome>/opt/oracle/wls10.3.1.0/jdk160_11</wlJavaHome>
 							<username>weblogic</username>
 							<name>petshop</name>
 							<port>7001</port>
-							<startmode>NodeManager</startmode>
+							<startMode>NodeManager</startMode>
 						</ConfigurationItem>
 
 						<ConfigurationItem>
 							<type>WlsServer</type>
-							<label>Petshop Server 1</label>
-							<host>Host Production Weblogic</host>
-							<domain>Domain WLS Petshop</domain>
+							<label>Infrastructure/Domain WLS Petshop/Petshop Server 1</label>
+							<host>Infrastructure/Host Production Weblogic</host>
+							<domain>Infrastructure/Domain WLS Petshop</domain>
 							<port>8001</port>
 							<name>Server-1</name>
 						</ConfigurationItem>
 
 						<ConfigurationItem addToEnv="false">
 							<type>WlsServer</type>
-							<label>AdminServer</label>
-							<host>Host Production Weblogic</host>
-							<domain>Domain WLS Petshop</domain>
+							<label>Infrastructure/Domain WLS Petshop/AdminServer</label>
+							<host>Infrastructure/Host Production Weblogic</host>
+							<domain>Infrastructure/Domain WLS Petshop</domain>
 							<port>7001</port>
 							<name>AdminServer</name>
 						</ConfigurationItem>
@@ -93,12 +92,12 @@
 					<dependency>
 						<groupId>com.xebialabs.deployit</groupId>
 						<artifactId>wls-plugin</artifactId>
-						<version>${deployitVersion}</version>
+						<version>${deployitPluginVersion}</version>
 					</dependency>
 					<dependency>
 						<groupId>com.xebialabs.deployit</groupId>
 						<artifactId>apache-httpd-plugin</artifactId>
-						<version>${deployitVersion}</version>
+						<version>${deployitPluginVersion}</version>
 					</dependency>
 				</dependencies>
 			</plugin>

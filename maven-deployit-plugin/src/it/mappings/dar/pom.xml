@@ -42,23 +42,21 @@
 					<environment>
 						<ConfigurationItem>
 							<type>Host</type>
-							<label>appserver-host</label>
-							<address>192.168.47.191</address>
-							<username>testuser</username>
-							<password>Welkom01</password>
+							<label>Infrastructure/JBoss Host</label>
+							<address>jboss-51</address>
+							<username>root</username>
+							<password>centos</password>
 							<operatingSystemFamily>UNIX</operatingSystemFamily>
 							<accessMethod>SSH_SFTP</accessMethod>
 						</ConfigurationItem>
 						<ConfigurationItem>
 							<type>JbossasServer</type>
-							<label>Jbossas server</label>
-							<host>appserver-host</host>
-							<name>myjboss</name>
+							<label>Infrastructure/JBoss Host/JBoss server</label>
+							<host>Infrastructure/JBoss Host</host>
+							<home>/opt/jboss/5.1.0.GA</home>
 							<version>JBOSSAS_50</version>
-							<port>8080</port>
-							<accessMethod>http</accessMethod>
-							<home>/opt/jboss-5</home>
-							<restart>/opt/jboss-5/bin/restart</restart>
+							<name>itest</name>
+							<startCommand>bin/start.sh</startCommand>
 						</ConfigurationItem>
 					</environment>
 
@@ -90,18 +88,22 @@
 					<mappings>
 						<MappingItem>
 							<type>ConfigurationFilesMapping</type>
-							<source>ConfigurationFiles/resources.dir</source>
-							<target>appserver-host</target>
-							<keyvaluepairs>[[key=database.connection.url value=a][key=database.driver.class value=b]]</keyvaluepairs>
-							<targetdirectory>/data/autotest</targetdirectory>
+							<source>Applications/mapping-deploy/1.0/resources</source>
+							<target>Infrastructure/JBoss Host</target>
+							<keyValuePairs>
+								<pair>
+									<k>remote.host</k>
+									<v>www.demomaven.com</v>
+								</pair>
+							</keyValuePairs>
+							<targetDirectory>/data/autotest</targetDirectory>
 						</MappingItem>
-
 
 						<MappingItem>
 							<type>LibrariesMapping</type>
 							<source>Libraries/database.drivers</source>
 							<target>appserver-host</target>
-							<targetdirectory>${jboss.home}server/${jboss.server.name}/lib</targetdirectory>
+							<targetDirectory>${jboss.home}server/${jboss.server.name}/lib</targetDirectory>
 							<shared>true</shared>
 						</MappingItem>
 
@@ -109,7 +111,7 @@
 							<type>LibrariesMapping</type>
 							<source>Libraries/platform.libraries.jboss4</source>
 							<target>appserver-host</target>
-							<targetdirectory>${jboss.home}server/${jboss.server.name}/lib</targetdirectory>
+							<targetDirectory>${jboss.home}server/${jboss.server.name}/lib</targetDirectory>
 							<shared>true</shared>
 						</MappingItem>
 
@@ -119,13 +121,8 @@
 				<dependencies>
 					<dependency>
 						<groupId>com.xebialabs.deployit</groupId>
-						<artifactId>plugin-api</artifactId>
-						<version>1.3</version>
-					</dependency>
-					<dependency>
-						<groupId>com.xebialabs.deployit</groupId>
 						<artifactId>jbossas-plugin</artifactId>
-						<version>1.3</version>
+						<version>${deployitPluginVersion}</version>
 					</dependency>
 				</dependencies>
 			</plugin>

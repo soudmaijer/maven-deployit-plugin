@@ -11,7 +11,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.xebialabs.deployit.maven.integrationtests</groupId>
-	<artifactId>configuration-files-1</artifactId>
+	<artifactId>configuration-files</artifactId>
 	<packaging>ear</packaging>
 	<version>1.0</version>
 	<name>simple</name>
@@ -47,20 +47,21 @@
 					<environment>
 						<ConfigurationItem>
 							<type>Host</type>
-							<label>APBIVM02-VM06</label>
-							<address>ip-address</address>
-							<username>username</username>
-							<password>password</password>
+							<label>Infrastructure/JBoss Host</label>
+							<address>jboss-51</address>
+							<username>root</username>
+							<password>centos</password>
 							<operatingSystemFamily>UNIX</operatingSystemFamily>
-							<accessMethod>SSH_SCP</accessMethod>
+							<accessMethod>SSH_SFTP</accessMethod>
 						</ConfigurationItem>
 						<ConfigurationItem>
 							<type>JbossasServer</type>
-							<label>AS02-VM06-JBOSS5</label>
-							<host>APBIVM02-VM06</host>
+							<label>Infrastructure/JBoss Host/JBoss server</label>
+							<host>Infrastructure/JBoss Host</host>
+							<home>/opt/jboss/5.1.0.GA</home>
 							<version>JBOSSAS_50</version>
-							<home>${jboss.home.dir}</home>
-							<name>autotest</name>
+							<name>itest</name>
+							<startCommand>${jboss.home.dir}/bin/start.sh</startCommand>
 						</ConfigurationItem>
 					</environment>
 
@@ -74,11 +75,15 @@
 					<mappings>
 						<MappingItem>
 							<type>ConfigurationFilesMapping</type>
-							<source>ConfigurationFiles/resources.dir</source>
-							<target>APBIVM02-VM06</target>
-							<keyvaluepairs>[[key=database.connection.url value=a][key=database.driver.class value=b][key=database.password value=c]]
-							</keyvaluepairs>
-							<targetdirectory>/data/autotest</targetdirectory>
+							<source>Applications/configuration-files/1.0/resources</source>
+							<target>Infrastructure/JBoss Host</target>
+							<keyValuePairs>
+								<pair>
+									<k>remote.host</k>
+									<v>www.demomaven.com</v>
+								</pair>
+							</keyValuePairs>
+							<targetDirectory>/data/autotest</targetDirectory>
 						</MappingItem>
 					</mappings>
 
@@ -87,7 +92,7 @@
 					<dependency>
 						<groupId>com.xebialabs.deployit</groupId>
 						<artifactId>jbossas-plugin</artifactId>
-						<version>${deployitVersion}</version>
+						<version>${deployitPluginVersion}</version>
 					</dependency>
 				</dependencies>
 			</plugin>

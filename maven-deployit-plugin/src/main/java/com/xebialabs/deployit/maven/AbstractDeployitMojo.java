@@ -213,9 +213,12 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 			throw new MojoExecutionException("Environment is empty");
 
 		final File darFile = getPackager().getDarFile();
-		if (!darFile.exists())
-			throw new MojoExecutionException("Dar file does not exist " + darFile);
-
+		if (!darFile.exists()) {
+			getLog().info("Dar file does not exist " + darFile);
+			getLog().info("generate it...");
+			getPackager().perform();
+			getPackager().seal();
+		}
 
 		startServer();
 

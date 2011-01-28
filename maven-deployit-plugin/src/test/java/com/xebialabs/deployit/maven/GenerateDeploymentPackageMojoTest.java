@@ -151,7 +151,8 @@ public class GenerateDeploymentPackageMojoTest extends BaseForTestMojo {
 		project.setArtifactId(artifactID);
 		project.setVersion("1.0");
 
-		project.getBuild().setOutputDirectory(new File("target/").getPath());
+		project.getBuild().setDirectory(new File("target/").getPath());
+		project.getBuild().setOutputDirectory(new File("target/classes").getPath());
 		project.getBuild().setFinalName(project.getArtifactId());
 
 		setVariableValueToObject(darMojo, "project", project);

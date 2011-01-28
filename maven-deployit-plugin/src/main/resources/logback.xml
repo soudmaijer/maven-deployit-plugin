@@ -6,9 +6,15 @@
 		</encoder>
 	</appender>
 
-	<logger name="com.xebialabs" level="warn"/>
+	<logger name="com.xebialabs" level="info"/>
+
 	<logger name="org.reflections" level="error"/>
-	<logger name="org" level="error"/>
+	<logger name="org.springframework" level="info"/>
+
+	<logger name="org.maven" level="info"/>
+	<logger name="org.apache.maven" level="info"/>
+	<logger name="org.apache" level="error"/>
+
 	<logger name="ch" level="error"/>
 
 	<root level="info">
