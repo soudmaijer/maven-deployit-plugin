@@ -189,8 +189,6 @@ public class ManifestPackager {
 			getLog().info(" add a deployable artifact " + item);
 			String relativeLocation = item.getLocation();
 			File fileSysLoca = new File(project.getBasedir(), relativeLocation);
-			getLog().debug("   ---- base             "+project.getBasedir());
-			getLog().debug("   ---- relativeLocation "+relativeLocation);
 			getLog().debug("  filesystem location is " + fileSysLoca.getPath());
 			item.setFileSystemLocation(fileSysLoca.getPath());
 			return item;

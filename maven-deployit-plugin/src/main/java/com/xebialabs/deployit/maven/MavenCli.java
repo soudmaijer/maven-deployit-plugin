@@ -146,7 +146,7 @@ public class MavenCli {
 		final RepositoryObject[] generatedMappings = deployitClient.generateMappings(deployableArtifacts, target);
 		for (RepositoryObject repositoryObjectMapping : generatedMappings) {
 			logger.info("  process generated mapping " + repositoryObjectMapping.getId());
-			logger.debug("   mapping ->" + repositoryObjectMapping.getId());
+			logger.debug("   mapping id ->" + repositoryObjectMapping.getId());
 			final Map<String, Object> mappingValues = repositoryObjectMapping.getValues();
 
 			final MappingItem configuredMapping = searchCandidateMapping(mappings, mappingValues);

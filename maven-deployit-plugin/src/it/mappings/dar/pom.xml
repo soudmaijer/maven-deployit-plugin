@@ -65,16 +65,19 @@
 						<DeployableArtifactItem>
 							<type>ConfigurationFiles</type>
 							<location>package/resources.dir</location>
+							<name>resources.dir</name>
 						</DeployableArtifactItem>
 
 						<DeployableArtifactItem>
 							<type>Libraries</type>
 							<location>package/database.drivers</location>
+							<name>database.drivers</name>
 						</DeployableArtifactItem>
 
 						<DeployableArtifactItem>
 							<type>Libraries</type>
 							<location>package/platform.libraries.jboss4</location>
+							<name>platform.libraries.jboss4</name>
 						</DeployableArtifactItem>
 
 						<DeployableArtifactItem>
@@ -88,7 +91,7 @@
 					<mappings>
 						<MappingItem>
 							<type>ConfigurationFilesMapping</type>
-							<source>Applications/mapping-deploy/1.0/resources</source>
+							<source>Applications/mapping-deploy/1.0.1/resources.dir</source>
 							<target>Infrastructure/JBoss Host</target>
 							<keyValuePairs>
 								<pair>
@@ -101,16 +104,16 @@
 
 						<MappingItem>
 							<type>LibrariesMapping</type>
-							<source>Libraries/database.drivers</source>
-							<target>appserver-host</target>
+							<source>Applications/mapping-deploy/1.0.1/database.drivers</source>
+							<target>Infrastructure/JBoss Host</target>
 							<targetDirectory>${jboss.home}server/${jboss.server.name}/lib</targetDirectory>
 							<shared>true</shared>
 						</MappingItem>
 
 						<MappingItem>
 							<type>LibrariesMapping</type>
-							<source>Libraries/platform.libraries.jboss4</source>
-							<target>appserver-host</target>
+							<source>Applications/mapping-deploy/1.0.1/platform.libraries.jboss4</source>
+							<target>Infrastructure/JBoss Host</target>
 							<targetDirectory>${jboss.home}server/${jboss.server.name}/lib</targetDirectory>
 							<shared>true</shared>
 						</MappingItem>
