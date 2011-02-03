@@ -160,7 +160,7 @@ public class ManifestPackager {
 		for (Map.Entry<String, String> entry : mr.getProperties().entrySet()) {
 			attributes.putValue(entry.getKey(), entry.getValue());
 		}
-		entries.put(mr.getName(), attributes);
+		entries.put(mr.getEntryKey(), attributes);
 	}
 
 	public boolean isGenerateManifestOnly() {

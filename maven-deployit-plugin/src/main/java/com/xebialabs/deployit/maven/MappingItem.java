@@ -60,11 +60,6 @@ public class MappingItem extends ConfigurationItem {
 		super.addParameter(name, value);
 	}
 
-	@Override
-	public String getCli() {
-		return "XXXXXX";
-	}
-
 	public void setKeyValuePairs(List<Map<String, String>> keyValuePairs) {
 		this.keyValuePairs = keyValuePairs;
 	}

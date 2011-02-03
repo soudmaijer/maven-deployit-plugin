@@ -63,6 +63,16 @@
 
 					</deployableArtifacts>
 
+					<middlewareResources>
+						<middlewareResource>
+							<type>ModJkApacheModuleConfiguration</type>
+							<configurationName>LoadBalancingConfiguration</configurationName>
+							<urlMounts>/*</urlMounts>
+							<jkstatus>true</jkstatus>
+							<stickySession>false</stickySession>
+						</middlewareResource>
+					</middlewareResources>
+
 					<environment>
 						<ConfigurationItem>
 							<type>Host</type>

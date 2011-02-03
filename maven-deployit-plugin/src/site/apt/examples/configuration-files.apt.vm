@@ -47,21 +47,21 @@ Include configuration files to the deployment
 			<environment>
 				<ConfigurationItem>
 					<type>Host</type>
-					<label>APBIVM02-VM06</label>
-					<address>ip-address</address>
-					<username>username</username>
-					<password>password</password>
+					<label>Infrastructure/JBoss Host</label>
+					<address>jboss-51</address>
+					<username>root</username>
+					<password>centos</password>
 					<operatingSystemFamily>UNIX</operatingSystemFamily>
-					<accessMethod>SSH_SCP</accessMethod>
+					<accessMethod>SSH_SFTP</accessMethod>
 				</ConfigurationItem>
-
 				<ConfigurationItem>
 					<type>JbossasServer</type>
-					<label>AS02-VM06-JBOSS5</label>
-					<host>APBIVM02-VM06</host>
+					<label>Infrastructure/JBoss Host/JBoss server</label>
+					<host>Infrastructure/JBoss Host</host>
+					<home>/opt/jboss/5.1.0.GA</home>
 					<version>JBOSSAS_50</version>
-					<home>/usr/local/bin/jboss-5.1.0.GA/</home>
-					<name>autotest</name>
+					<name>itest</name>
+					<startCommand>bin/start.sh</startCommand>
 				</ConfigurationItem>
 			</environment>
 
@@ -75,10 +75,15 @@ Include configuration files to the deployment
 			<mappings>
 				<MappingItem>
 					<type>ConfigurationFilesMapping</type>
-					<source>ConfigurationFiles/package/resources.dir</source>
-					<target>APBIVM02-VM06</target>
-					<keyvaluepairs>[[key=database.connection.url value=a][key=database.driver.class value=b]]</keyvaluepairs>
-					<targetdirectory>/data/autotest</targetdirectory>
+					<source>Applications/configuration-files/1.0/resources</source>
+					<target>Infrastructure/JBoss Host</target>
+					<keyValuePairs>
+						<pair>
+							<k>remote.host</k>
+							<v>www.xebialabs.com</v>
+						</pair>
+					</keyValuePairs>
+					<targetDirectory>/data/autotest</targetDirectory>
 				</MappingItem>
 			</mappings>
         </configuration>
@@ -86,7 +91,7 @@ Include configuration files to the deployment
             <dependency>
                 <groupId>com.xebialabs.deployit</groupId>
                 <artifactId>jbossas-plugin</artifactId>
-                <version>${deployitVersion}</version>
+                <version>${deployitPluginVersion}</version>
             </dependency>
         </dependencies>
         </plugin>

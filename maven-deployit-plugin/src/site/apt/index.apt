@@ -26,7 +26,7 @@
 
 Deployit Plugin
 
-  The Deployit Plugin is used to deploy a Deployment Package to an single environment containing at least an Application Server.
+  The Deployit Plugin is used to deploy a Deployment Package to an single environment.
   
   Definition: Deployment is the 'series of activities needed to make an application available to end users'. This includes the full scope of deployment activities: de-installation of the old software packages, installation of the new software packages, updating the data source(s), modifying firewall settings, reconfiguring the web server and restarting all services involved. Or rephrased in more simple terms: deployment is everything needed to ensure that if a developer, tester or end user opens his browser and types in www.my-application.com, he will see the application up and running, fully functional with (live) data.
 
@@ -73,7 +73,7 @@ Deployit Plugin
 
   * {{{examples/simple-deployment-and-clean.html}Simple deployment and Clean}} to a Tomcat Server and clean after the integration-test phase.
 
-  * {{{examples/examples/add-additional-artifacts.html}Adding additional Maven artifacts}}
+  * {{{examples/add-additional-artifacts.html}Adding additional Maven artifacts}}
 
   * {{{examples/middleware-resources.html}Define middleware resources }} such as Datasources or JMS Queues.
 

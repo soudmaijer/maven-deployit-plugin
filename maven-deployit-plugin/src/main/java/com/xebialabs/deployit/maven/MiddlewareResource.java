@@ -1,6 +1,7 @@
 package com.xebialabs.deployit.maven;
 
 import com.google.common.collect.Maps;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.Map;
 
@@ -9,33 +10,35 @@ import java.util.Map;
  */
 public class MiddlewareResource implements PackagedItem {
 
-	private String name;
+	public static final String MR_SUFFIX = "Resource";
+
+	private String configurationName;
 
 	private String type;
 
 	final private Map<String, String> properties = Maps.newHashMap();
 
 	public void addParameter(String name, String value) {
-		if ("name".equalsIgnoreCase(name)) {
-			this.name = value;
-			return;
-		}
 
 		if ("type".equals(name)) {
 			type = value.toString();
 			return;
 		}
 
+		if ("configurationName".equalsIgnoreCase(name)) {
+			this.configurationName = value;
+		}
+
 		properties.put(name, value);
 	}
 
 
-	public String getName() {
-		return name;
+	public String getConfigurationName() {
+		return configurationName;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setConfigurationName(String configurationName) {
+		this.configurationName = configurationName;
 	}
 
 	public Map<String, String> getProperties() {
@@ -43,7 +46,10 @@ public class MiddlewareResource implements PackagedItem {
 	}
 
 	public String getEntryKey() {
-		return getName();
+		if (StringUtils.isEmpty(configurationName))
+			throw new IllegalStateException("configurationName is mandatory");
+
+		return configurationName + MR_SUFFIX;
 	}
 
 	public String getType() {

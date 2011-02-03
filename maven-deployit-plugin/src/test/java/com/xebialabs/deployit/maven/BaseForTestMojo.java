@@ -31,7 +31,7 @@ public class BaseForTestMojo extends AbstractMojoTestCase {
 		warFile.setLocation("/tmp/apetwar.war");
 
 		mrDataSource = new MiddlewareResource();
-		mrDataSource.setName("petclinicDS");
+		mrDataSource.setConfigurationName("petclinicDS");
 		mrDataSource.setType("DummyDataSource");
 		mrDataSource.addParameter("driver", "com.mysql.jdbc.Driver");
 		mrDataSource.addParameter("url", "jdbc:mysql://localhost/petclinic");
@@ -41,7 +41,7 @@ public class BaseForTestMojo extends AbstractMojoTestCase {
 		mrDataSource.addParameter("settings-EntryValue-1", "true");
 
 		mrModjk = new MiddlewareResource();
-		mrModjk.setName("AnModJkConfiguration");
+		mrModjk.setConfigurationName("AnModJkConfiguration");
 		mrModjk.setType("ModJkApacheModuleConfiguration");
 		mrModjk.addParameter("urlMounts-EntryPrefix-1", "/foo");
 		mrModjk.addParameter("jkstatus", "true");

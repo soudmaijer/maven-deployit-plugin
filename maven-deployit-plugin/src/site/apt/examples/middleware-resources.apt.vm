@@ -45,44 +45,48 @@ Add middleware resources
         </executions>
         <configuration>
             <environment>
-                <ConfigurationItem>
-                    <type>Host</type>
-                    <label>Tomcat Host</label>
-                    <address>ubuntu-tomcat.mydomain.net</address>
-                    <username>tomcat</username>
-                    <password>12345678</password>
-                    <operatingSystemFamily>UNIX</operatingSystemFamily>
-                    <accessMethod>SSH_SCP</accessMethod>
-                </ConfigurationItem>
-                <ConfigurationItem>
-                    <type>TomcatServer</type>
-                    <label>Tomcat server</label>
-                    <host>Tomcat Host</host>
-                    <name>tomcattest</name>
-                    <port>8080</port>
-                    <accessMethod>http</accessMethod>
-                    <tomcatHome>/opt/apache-tomcat-6.0.26</tomcatHome>
-                    <startCommand>/opt/apache-tomcat-6.0.26/bin/catalina.sh start</startCommand>
-                    <stopCommand>/opt/apache-tomcat-6.0.26/bin/catalina.sh stop</stopCommand>
-                </ConfigurationItem>
-            </environment>
+				<ConfigurationItem>
+					<type>Host</type>
+					<label>Infrastructure/tomcat6.vm</label>
+					<address>tomcat6.vm</address>
+					<username>ubuntu</username>
+					<password>ubuntu</password>
+					<operatingSystemFamily>UNIX</operatingSystemFamily>
+					<accessMethod>SSH_SFTP</accessMethod>
+					<addedToEnvironment>false</addedToEnvironment>
+				</ConfigurationItem>
+				<ConfigurationItem>
+					<type>TomcatUnmanagedServer</type>
+					<label>Infrastructure/tomcat6.vm/tomcat6-1</label>
+					<host>Infrastructure/tomcat6.vm</host>
+					<ajpPort>8009</ajpPort>
+					<tomcatHome>/home/ubuntu/tomcat/tomcat6-10</tomcatHome>
+					<startCommand>/home/ubuntu/tomcat/tomcat6-10/bin/startup.sh</startCommand>
+					<stopCommand>/home/ubuntu/tomcat/tomcat6-10/bin/startup.sh</stopCommand>
+					<baseUrl>http://tomcat6.vm:9080</baseUrl>
+				</ConfigurationItem>
+			</environment>
+
             <middlewareResources>
-                <middlewareResource>
-                    <type>TomcatDataSource</type>
-                    <label>My application datasource</label>
-                    <jndiName>jdbc/myDataSource</jndiName>
-                    <driverClass>org.hsqldb.jdbcDriver</driverClass>
-                    <connectionUrl>jdbc:hsqldb:file:/tmp/database.hdb</connectionUrl>
-                    <maxActive>10</maxActive>
-                </middlewareResource>
-            </middlewareResources>
-            </configuration>
+				<!-- define a datasource -->
+				<middlewareResource>
+					<name>petclinicDS</name>
+					<type>DummyDataSource</type>
+					<driver>com.mysql.jdbc.Driver</driver>
+					<url>jdbc:mysql://localhost/petclinic</url>
+					<username>scott</username>
+					<password>tiger</password>
+					<settings-EntryKey-1>autoCommit</settings-EntryKey-1>
+					<settings-EntryValue-1>true</settings-EntryValue-1>
+				</middlewareResource>
+			</middlewareResources>
+
         </configuration>
         <dependencies>
             <dependency>
                 <groupId>com.xebialabs.deployit</groupId>
                 <artifactId>tomcat-plugin</artifactId>
-                <version>${deployitVersion}</version>
+                <version>${deployitPluginVersion}</version>
             </dependency>
         </dependencies>
     </plugin>

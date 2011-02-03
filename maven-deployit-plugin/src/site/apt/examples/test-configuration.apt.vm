@@ -50,33 +50,33 @@ Test Deployment Configuration
             <testmode>true</testmode>
 
             <environment>
-               <ConfigurationItem>
-                    <type>Host</type>
-                    <label>Tomcat Host</label>
-                    <address>ubuntu-tomcat.mydomain.net</address>
-                    <username>tomcat</username>
-                    <password>12345678</password>
-                    <operatingSystemFamily>UNIX</operatingSystemFamily>
-                    <accessMethod>SSH_SCP</accessMethod>
-                </ConfigurationItem>
-                <ConfigurationItem>
-                    <type>TomcatServer</type>
-                    <label>Tomcat server</label>
-                    <host>Tomcat Host</host>
-                    <name>tomcattest</name>
-                    <port>8080</port>
-                    <accessMethod>http</accessMethod>
-                    <tomcatHome>/opt/apache-tomcat-6.0.26</tomcatHome>
-                    <startCommand>/opt/apache-tomcat-6.0.26/bin/catalina.sh start</startCommand>
-                    <stopCommand>/opt/apache-tomcat-6.0.26/bin/catalina.sh stop</stopCommand>
-                </ConfigurationItem>
-            </environment>
+				<ConfigurationItem>
+					<type>Host</type>
+					<label>Infrastructure/tomcat6.vm</label>
+					<address>tomcat6.vm</address>
+					<username>ubuntu</username>
+					<password>ubuntu</password>
+					<operatingSystemFamily>UNIX</operatingSystemFamily>
+					<accessMethod>SSH_SFTP</accessMethod>
+					<addedToEnvironment>false</addedToEnvironment>
+				</ConfigurationItem>
+				<ConfigurationItem>
+					<type>TomcatUnmanagedServer</type>
+					<label>Infrastructure/tomcat6.vm/tomcat6-1</label>
+					<host>Infrastructure/tomcat6.vm</host>
+					<ajpPort>8009</ajpPort>
+					<tomcatHome>/home/ubuntu/tomcat/tomcat6-10</tomcatHome>
+					<startCommand>/home/ubuntu/tomcat/tomcat6-10/bin/startup.sh</startCommand>
+					<stopCommand>/home/ubuntu/tomcat/tomcat6-10/bin/startup.sh</stopCommand>
+					<baseUrl>http://tomcat6.vm:9080</baseUrl>
+				</ConfigurationItem>
+			</environment>
         </configuration>
         <dependencies>
             <dependency>
                 <groupId>com.xebialabs.deployit</groupId>
                 <artifactId>tomcat-plugin</artifactId>
-                <version>${deployitVersion}</version>
+                <version>${deployitPluginVersion}</version>
             </dependency>
         </dependencies>
     </plugin>

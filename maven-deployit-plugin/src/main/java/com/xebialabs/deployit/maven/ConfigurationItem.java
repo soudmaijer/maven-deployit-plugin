@@ -73,10 +73,6 @@ public class ConfigurationItem {
 
 	}
 
-	public String getCli() {
-		throw new IllegalStateException("GetCli sucks");
-	}
-
 	public boolean isAddedToEnvironment() {
 		return addedToEnvironment;
 	}
