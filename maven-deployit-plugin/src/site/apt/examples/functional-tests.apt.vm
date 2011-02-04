@@ -55,7 +55,9 @@ Deploy and run functional tests
 						</goals>
 					</execution>
 				</executions>
-				<configuration
+				<configuration>
+					<testmode>false</testmode>
+					<forcedClean>false</forcedClean>
 					<environment>
 						<ConfigurationItem>
 							<type>Host</type>
@@ -78,30 +80,30 @@ Deploy and run functional tests
 							<baseUrl>http://tomcat6.vm:9080</baseUrl>
 						</ConfigurationItem>
 					</environment>
-
 					<middlewareResources>
-						<ConfigurationItem>
+						<middlewareResource>
 							<type>TomcatDataSource</type>
+							<configurationName>petclinicDS</configurationName>
 							<label>My application datasource</label>
 							<jndiName>jdbc/petclinicHSQL</jndiName>
 							<driverClass>org.hsqldb.jdbcDriver</driverClass>
 							<connectionUrl>jdbc:hsqldb:file:/tmp/database.hdb</connectionUrl>
 							<maxActive>10</maxActive>
-						</ConfigurationItem>
+						</middlewareResource>
 					</middlewareResources>
 
 					<mappings>
-						<ConfigurationItem>
+						<MappingItem>
 							<type>TomcatWarMapping</type>
 							<label>WarMapping pocweb</label>
 							<source>org.springframework.samples.petclinic/1.0.0-SNAPSHOT/War/petclinic.war</source>
 							<target>Tomcat server</target>
 							<contextRoot>petclinic</contextRoot>
-							<keyvaluepairs>[]</keyvaluepairs>
-						</ConfigurationItem>
+						</MappingItem>
 					</mappings>
 
 				</configuration>
+
 				<dependencies>
 					<dependency>
 						<groupId>com.xebialabs.deployit</groupId>

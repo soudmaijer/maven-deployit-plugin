@@ -25,7 +25,7 @@
 
 Deploy and run performance tests
 
- A sample showing how to deploy an applicaiton and perform performance tests with JMeter
+ A sample showing how to deploy an application and perform performance tests with JMeter
 
 ------
 <profile>
@@ -58,59 +58,48 @@ Deploy and run performance tests
 					<environment>
 						<ConfigurationItem>
 							<type>Host</type>
-							<label>Host Production Weblogic</label>
-							<address>weblogic.vm</address>
-							<username>ubuntu</username>
-							<password>ubuntu</password>
+							<label>Infrastructure/Host Production Weblogic</label>
+							<address>ubuntu-weblogic-1.local</address>
+							<username>weblogic</username>
+							<password>weblogic</password>
 							<operatingSystemFamily>UNIX</operatingSystemFamily>
-							<accessMethod>SSH_SFTP</accessMethod>
+							<accessMethod>SSH_SCP</accessMethod>
 						</ConfigurationItem>
 
 						<ConfigurationItem>
 							<type>WlsDomain</type>
-							<label>Domain WLS Petshop</label>
-							<name>mydomain</name>
-							<activehost>Host Production Weblogic</activehost>
-							<port>7001</port>
-							<username>weblogic</username>
+							<label>Infrastructure/Domain WLS Petshop</label>
+							<activeHost>Infrastructure/Host Production Weblogic</activeHost>
 							<password>weblogic10</password>
-							<adminservername>myserver</adminservername>
-							<wlhome>/home/ubuntu/oracle/wls1033/wlserver</wlhome>
-							<startmode>NodeManager</startmode>
+							<wlHome>/opt/oracle/wls10.3.1.0/wlserver_10.3</wlHome>
+							<adminServerName>AdminServer</adminServerName>
+							<username>weblogic</username>
+							<name>petshop</name>
+							<port>7001</port>
+							<startMode>NodeManager</startMode>
 						</ConfigurationItem>
 
 						<ConfigurationItem>
 							<type>WlsServer</type>
-							<label>Petshop Server 1</label>
-							<name>Server-1</name>
-							<host>Host Production Weblogic</host>
-							<domain>Domain WLS Petshop</domain>
+							<label>Infrastructure/Domain WLS Petshop/Petshop Server 1</label>
+							<host>Infrastructure/Host Production Weblogic</host>
+							<domain>Infrastructure/Domain WLS Petshop</domain>
 							<port>8001</port>
-							<addedToEnvironment>false</addedToEnvironment>
+							<name>Server-1</name>
 						</ConfigurationItem>
 
-						<ConfigurationItem>
+						<ConfigurationItem addToEnv="false">
 							<type>WlsServer</type>
-							<label>Petshop Server 2</label>
-							<name>Server-2</name>
-							<host>Host Production Weblogic</host>
-							<domain>Domain WLS Petshop</domain>
-							<port>9001</port>
-							<addedToEnvironment>false</addedToEnvironment>
+							<label>Infrastructure/Domain WLS Petshop/AdminServer</label>
+							<host>Infrastructure/Host Production Weblogic</host>
+							<domain>Infrastructure/Domain WLS Petshop</domain>
+							<port>7001</port>
+							<name>AdminServer</name>
 						</ConfigurationItem>
-
-						<ConfigurationItem>
-							<type>WlsCluster</type>
-							<label>Petshop Cluster</label>
-							<domain>Domain WLS Petshop</domain>
-							<name>MyCluster</name>
-							<servers>[Petshop Server 1,Petshop Server 2]</servers>
-						</ConfigurationItem>
-
 
 						<ConfigurationItem>
 							<type>Host</type>
-							<label>Host Production Apache</label>
+							<label>Infrastructure/Host Production Apache</label>
 							<address>apache2.vm</address>
 							<username>ubuntu</username>
 							<password>ubuntu</password>
@@ -121,37 +110,39 @@ Deploy and run performance tests
 
 						<ConfigurationItem>
 							<type>ApacheHttpdServer</type>
-							<label>ApacheWeb Server</label>
-							<host>Host Production Apache</host>
+							<label>Infrastructure/Host Production Apache/ApacheWeb Server</label>
+							<host>Infrastructure/Host Production Apache</host>
 							<htdocsLocation>/home/ubuntu/wwww</htdocsLocation>
 							<errorLogLocation>/var/log/apache2/error.log</errorLogLocation>
 							<configurationLocation>/etc/apache2/mods-enabled</configurationLocation>
 							<apachectlPath>/usr/sbin/apache2ctl</apachectlPath>
 							<accessLogLocation>/var/log/apache2/access.log</accessLogLocation>
 						</ConfigurationItem>
+
 					</environment>
 
 					<middlewareResources>
-						<ConfigurationItem>
+						<middlewareResource>
 							<type>ApacheHttpdWlsPluginConfiguration</type>
+							<configurationName>loadbalancing</configurationName>
 							<label>ApacheWlsplugin Configuration</label>
 							<mimeMatchExpressions>*</mimeMatchExpressions>
-						</ConfigurationItem>
+						</middlewareResource>
 					</middlewareResources>
 
 					<mappings>
 						<MappingItem>
 							<type>ApacheHttpdWlsPluginConfigurationMapping</type>
 							<label>MyApacheWlsPlugin</label>
-							<source>ApacheWlsplugin Configuration</source>
-							<target>ApacheWeb Server</target>
+							<source>Applications/org.springframework.samples.petclinic/1.0.0-SNAPSHOT/ApacheWlsplugin Configuration</source>
+							<target>Infrastructure/Host Production Apache/ApacheWeb Server</target>
 							<clusters>[Petshop Cluster]</clusters>
 							<virtualHost>my.remote.host:8888</virtualHost>
-							<sourcePropertyOverrides>[]</sourcePropertyOverrides>
 						</MappingItem>
 					</mappings>
 
 				</configuration>
+
 				<dependencies>
 					<dependency>
 						<groupId>com.xebialabs.deployit</groupId>
