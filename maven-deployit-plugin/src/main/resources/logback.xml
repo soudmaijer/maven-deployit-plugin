@@ -16,6 +16,7 @@
 	<logger name="org.apache" level="error"/>
 
 	<logger name="ch" level="error"/>
+	<logger name="org.reflections" level="error"/>
 
 	<root level="info">
 		<appender-ref ref="STDOUT"/>

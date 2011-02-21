@@ -17,7 +17,10 @@
 
 package com.xebialabs.deployit.maven.packager;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import com.xebialabs.deployit.maven.DeployableArtifactItem;
+import com.xebialabs.deployit.maven.MappingItem;
 import com.xebialabs.deployit.maven.MiddlewareResource;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -38,13 +41,14 @@ import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
+import static java.lang.String.format;
+
 public class ManifestPackager {
 
 	public static final String DEPLOYMENT_PACKAGE_DIR = "deployment-package";
 
 	private final File targetDirectory;
 
-	private final String deploymentPackageName;
 	private final Manifest manifest = new Manifest();
 
 	private boolean generateManifestOnly = false;
@@ -52,18 +56,16 @@ public class ManifestPackager {
 	private final File outputDirectory;
 	private MavenProject project;
 
+	private boolean timestampedVersion;
+
+	static final String APPLICATION = "CI-Application";
+	static final String VERSION = "CI-Version";
+
 	public ManifestPackager(MavenProject project) {
 		this.project = project;
 		this.outputDirectory = new File(project.getBuild().getDirectory());
 		this.targetDirectory = new File(outputDirectory, DEPLOYMENT_PACKAGE_DIR + File.separator + project.getArtifactId() + File.separator + project.getVersion());
 		this.targetDirectory.mkdirs();
-		this.deploymentPackageName = project.getArtifactId() + "/" + project.getVersion();
-
-		final Attributes mainAttributes = manifest.getMainAttributes();
-		mainAttributes.putValue("Manifest-Version", "1.0");
-		mainAttributes.putValue("Deployit-Package-Format-Version", "1.1");
-		mainAttributes.putValue("CI-Application", project.getArtifactId());
-		mainAttributes.putValue("CI-Version", project.getVersion());
 	}
 
 
@@ -73,6 +75,19 @@ public class ManifestPackager {
 
 
 	public void perform() {
+		final Attributes mainAttributes = manifest.getMainAttributes();
+		mainAttributes.putValue("Manifest-Version", "1.0");
+		mainAttributes.putValue("Deployit-Package-Format-Version", "1.2");
+		mainAttributes.putValue(APPLICATION, project.getArtifactId());
+		final String pomVersion = project.getVersion();
+		final String darVersion;
+
+		if (timestampedVersion)
+			darVersion = pomVersion + "-" + System.currentTimeMillis();
+		else
+			darVersion = pomVersion;
+		mainAttributes.putValue(VERSION, darVersion);
+
 		final File meta_inf = new File(targetDirectory, "META-INF");
 		meta_inf.mkdirs();
 		File manifestFile = new File(meta_inf, "MANIFEST.MF");
@@ -98,11 +113,6 @@ public class ManifestPackager {
 		}
 		getLog().debug(new String(baos.toByteArray()));
 	}
-
-	public String getDeploymentPackageName() {
-		return deploymentPackageName;
-	}
-
 
 	protected void addDeployableArtifact(DeployableArtifactItem item) {
 		getLog().info(" add deployable artifact : " + item);
@@ -158,7 +168,7 @@ public class ManifestPackager {
 		final Attributes attributes = new Attributes();
 		attributes.putValue("CI-Type", mr.getType());
 		for (Map.Entry<String, String> entry : mr.getProperties().entrySet()) {
-			attributes.putValue(entry.getKey(), entry.getValue());
+			attributes.putValue("CI-" + entry.getKey(), entry.getValue());
 		}
 		entries.put(mr.getEntryKey(), attributes);
 	}
@@ -310,4 +320,14 @@ public class ManifestPackager {
 	public File getDarFile() {
 		return new File(project.getBuild().getDirectory(), project.getBuild().getFinalName() + ".dar");
 	}
+
+	public boolean isTimestampedVersion() {
+		return timestampedVersion;
+	}
+
+	public void setTimestampedVersion(boolean timestampedVersion) {
+		this.timestampedVersion = timestampedVersion;
+	}
+
+	
 }

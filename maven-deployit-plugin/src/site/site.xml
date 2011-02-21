@@ -36,10 +36,7 @@
 			<item name="Introduction" href="index.html"/>
 			<item name="Usage" href="usage.html"/>
 			<item name="Goals" href="plugin-info.html"/>
-
-			<!--
-						<item name="FAQ" href="faq.html"/>
-						-->
+			<item name="FAQ" href="faq.html"/>			
 		</menu>
 
 		<menu name="Examples">
@@ -52,7 +49,6 @@
 			<item name="Deploy and Run functional tests " href="examples/functional-tests.html"/>
 			<item name="Deploy and Run performance tests " href="examples/performance-tests.html"/>
 		</menu>
-
 
 		<menu ref="reports"/>
 

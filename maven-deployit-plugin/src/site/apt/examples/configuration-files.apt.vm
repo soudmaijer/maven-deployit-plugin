@@ -68,6 +68,7 @@ Include configuration files to the deployment
 			<deployableArtifacts>
 				<DeployableArtifactItem>
 					<type>ConfigurationFiles</type>
+					<name>resources</name>
 					<location>package/resources.dir</location>
 				</DeployableArtifactItem>
 			</deployableArtifacts>
@@ -75,7 +76,10 @@ Include configuration files to the deployment
 			<mappings>
 				<MappingItem>
 					<type>ConfigurationFilesMapping</type>
-					<source>Applications/configuration-files/1.0/resources</source>
+					<source>Applications/configuration-files/1.0/resources.dir</source>
+					<!--
+					or only <source>resources.dir</source>
+					-->
 					<target>Infrastructure/JBoss Host</target>
 					<keyValuePairs>
 						<pair>

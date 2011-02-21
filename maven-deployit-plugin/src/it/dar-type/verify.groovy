@@ -57,10 +57,10 @@ assert entries.size() == 6, "6 entries";
 assertEntry(entries,"ConfigurationFiles/resources.dir", "CI-Type", "ConfigurationFiles");
 assertEntry(entries,"Ear/PetClinic-1.0.ear", "CI-Type", "Ear");
 assertEntry(entries,"Ear/PetClinic-1.0.ear", "CI-Name", "PetClinic");
-assertEntry(entries,"petclinicDS", "CI-Type", "DummyDataSource");
-assertEntry(entries,"petclinicDS", "driver", "com.mysql.jdbc.Driver");
-assertEntry(entries,"petclinicDS", "settings-EntryKey-1", "autoCommit");
-assertEntry(entries,"petclinicDS", "settings-EntryValue-1", "true");
+assertEntry(entries,"petclinicDSResource", "CI-Type", "DummyDataSource");
+assertEntry(entries,"petclinicDSResource", "CI-driver", "com.mysql.jdbc.Driver");
+assertEntry(entries,"petclinicDSResource", "CI-settings-EntryKey-1", "autoCommit");
+assertEntry(entries,"petclinicDSResource", "CI-settings-EntryValue-1", "true");
 
 
 assertEntry(entries,"SqlScript/afile.sql", "CI-Type", "SqlScript");

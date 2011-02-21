@@ -17,6 +17,7 @@
 
 package com.xebialabs.deployit.maven;
 
+import com.google.common.base.Function;
 import com.xebialabs.deployit.DeployItConfiguration;
 import com.xebialabs.deployit.DeployitOptions;
 import com.xebialabs.deployit.Server;
@@ -33,9 +34,12 @@ import org.springframework.core.io.FileSystemResource;
 import javax.jcr.RepositoryException;
 import java.io.File;
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import static com.google.common.collect.Lists.transform;
 import static java.lang.String.format;
 
 /**
@@ -44,6 +48,8 @@ import static java.lang.String.format;
  * @author Benoit Moussaud
  */
 public abstract class AbstractDeployitMojo extends AbstractMojo {
+
+
 	/**
 	 * The maven project.
 	 *
@@ -75,6 +81,22 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 	 */
 	protected boolean testmode;
 
+	/**
+	 * Tell the plugin it must connect to a remote Deployit Server.
+	 * The following properties become mandatory: username, password, serverAddress, port.
+	 * The default value is false, indicating the Deployit Maven plugin will launch a transient server when needed.
+	 *
+	 * @parameter default-value=false
+	 */
+
+	protected boolean remoteServerMode;
+
+	/**
+	 * Deployit server address
+	 *
+	 * @parameter default-value="" expression="${deployit.server}"
+	 */
+	private String serverAddress;
 
 	/**
 	 * Deployit Listen port
@@ -82,6 +104,29 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 	 * @parameter default-value="4516" expression="${deployit.port}"
 	 */
 	private int port;
+
+
+	/**
+	 * username used to connect to a remote server
+	 *
+	 * @parameter default-value="" expression="${deployit.username}"
+	 */
+	private String username;
+
+
+	/**
+	 * password used to connect to a remote server
+	 *
+	 * @parameter default-value="" expression="${deployit.password}"
+	 */
+	private String password;
+
+	/**
+	 * Id of the environement used for the deployment.
+	 * Useful only if you are using the remote server mode to avoid to create a new environment or to fetch an existing environment.
+	 */
+	private String environnementId = DEFAULT_ENVIRONMENT;
+
 
 	/**
 	 * Additional resources such as Database, Apache plugin configuration, JMS Queues...
@@ -121,12 +166,19 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 	protected boolean generateManifestOnly;
 
 	/**
+	 * Use this attribute to add a timestamp to the version of the deployit package.
+	 * by default, SNAPSHOT versions are automatically timestamped
+	 *
+	 * @parameter default-value = false
+	 */
+	protected boolean timestampedVersion;
+
+	/**
 	 * Perform a skipped deployment before clean it.
 	 *
 	 * @parameter default-value=false
 	 */
 	protected boolean forcedClean;
-
 
 	protected ManifestPackager packager;
 
@@ -136,27 +188,27 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 
 	public static final String DEFAULT_DEPLOYMENT = "DefaultDeployment";
 
-	private static boolean SERVER_STARTED = false;
-
 	protected void startServer() {
-		//TODO: too naive....imagine the maven plugin runs in an hudson or bamboo...
-		if (!SERVER_STARTED) {
+		if (remoteServerMode) {
+			getLog().debug("remote server mode is on, do not start the server");
+			return;
+		}
+		if (!isServerStarted()) {
 			new File("recovery.dat").delete();
-			new File("repository").delete();
+			File repositoryHomeDir = new File("target/repository");
+			repositoryHomeDir.delete();
 
 			getLog().info("STARTING DEPLOYIT SERVER");
 			DeployItConfiguration context = new DeployItConfiguration();
 
-			File repositoryHomeDir = new File("repository");
+			repositoryHomeDir.mkdirs();
+
 			context.setJcrRepositoryPath(repositoryHomeDir.getPath());
-			context.setHttpPort(getPort());
+			context.setHttpPort(port);
 			context.setImportablePackagesPath(new File(outputDirectory, ManifestPackager.DEPLOYMENT_PACKAGE_DIR).getPath());
 			context.setMinThreads(3);
 			context.setMaxThreads(24);
 			context.setSsl(false);
-
-
-			//context.setHttpServerName("localhost");
 
 			context.save();
 			try {
@@ -171,12 +223,25 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 			server.start();
 
 			getLog().info("STARTED DEPLOYIT SERVER");
-			SERVER_STARTED = true;
 		}
 	}
 
-	private static void setupJcrRepository(File repositoryHomeDir) throws IOException, RepositoryException {
+	private boolean isServerStarted() {
+		getLog().debug("Check if the server is started on port " + port);
+		try {
+			ServerSocket socket = new ServerSocket(port);
+			socket.close();
+		} catch (Exception e) {
+			getLog().debug("The server is started on " + port, e);
+			return true;
+		}
+		getLog().debug("The server is not started on " + port);
+		return false;
+	}
 
+	private void setupJcrRepository(File repositoryHomeDir) throws IOException, RepositoryException {
+
+		getLog().info("start setupJcrRepository in " + repositoryHomeDir);
 		FileUtils.deleteDirectory(repositoryHomeDir);
 		String homeDirAbsolutePath = repositoryHomeDir.getAbsolutePath();
 
@@ -188,25 +253,26 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 		repositoryFactoryBean.afterPropertiesSet();
 		repositoryFactoryBean.configureJcrRepositoryForDeployit();
 		repositoryFactoryBean.destroy();
+		getLog().info("end setupJcrRepository in " + repositoryHomeDir);
 	}
 
-	public static void stopServer() {
+	public void stopServer() {
+		if (remoteServerMode) {
+			getLog().debug("remote server mode is on, do not stop the server");
+			return;
+		}
 		Server.requestShutdown();
-		SERVER_STARTED = false;
 	}
 
 	protected MavenCli getClient() throws MojoExecutionException {
 		if (client == null) {
-			client = new MavenCli(getPort());
+			client = new MavenCli(serverAddress, port, username, password);
 			client.setLogger(getLog());
 			client.setSkipStepsMode(testmode);
 		}
 		return client;
 	}
 
-	private int getPort() {
-		return port;
-	}
 
 	protected void initialDeployment() throws MojoExecutionException {
 		if (environment == null)
@@ -222,11 +288,30 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 
 		startServer();
 
-		final RepositoryObject environment = defineEnvironment();
+		final RepositoryObject environment = fetchEnvironment();
 		final RepositoryObject deploymentPackage = importDar(darFile);
+		final String application = (String) deploymentPackage.getValues().get("application");
+		final String version = (String) deploymentPackage.getValues().get("version");
 
-		getLog().info(format("-- Deploy %s on %s", deploymentPackage.getId(), environment.getId()));
-		getClient().deployAndWait(deploymentPackage.getId(), environment.getId(), mappings);
+		getLog().info(String.format("-- Deploy %s on %s", deploymentPackage.getId(), environment.getId()));
+		getClient().deployAndWait(deploymentPackage.getId(), environment.getId(), getMappings(application, version));
+	}
+
+	private List<MappingItem> getMappings(final String application, final String version) {
+		if (mappings == null)
+			return Collections.emptyList();
+
+		return transform(mappings, new Function<MappingItem, MappingItem>() {
+			@Override
+			public MappingItem apply(MappingItem mappingItem) {
+				final String source = mappingItem.getSource();
+				if (!source.startsWith("Applications")) {
+					mappingItem.setSource(format("%s/%s/%s", application, version, source));
+					getLog().info(" mapping translation " + source + " --> " + mappingItem.getSource());
+				}
+				return mappingItem;
+			}
+		});
 	}
 
 	protected void undeploy() throws MojoExecutionException {
@@ -238,7 +323,7 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 			getClient().toggleSkipStepsMode();
 		}
 
-		getClient().undeployAndWait(DEFAULT_ENVIRONMENT + "/" + artifactId);
+		getClient().undeployAndWait(environnementId + "/" + artifactId);
 
 
 		stopServer();
@@ -249,31 +334,44 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 		return getClient().importPackage(darFile);
 	}
 
-	protected RepositoryObject defineEnvironment() throws MojoExecutionException {
-		getLog().info("Create the environment");
-		List<String> members = new ArrayList<String>();
-		for (ConfigurationItem each : environment) {
-			getLog().info(" create " + each.getLabel());
-			getClient().create(each);
-			if (each.isAddedToEnvironment())
-				members.add(each.getLabel());
-		}
+	protected RepositoryObject fetchEnvironment() throws MojoExecutionException {
 
-		ConfigurationItem ciEnvironment = new ConfigurationItem();
-		ciEnvironment.setLabel(DEFAULT_ENVIRONMENT);
-		ciEnvironment.setType("Environment");
-		ciEnvironment.addParameter("members", members);
-		return getClient().create(ciEnvironment);
+		try {
+			getLog().info("read the environment " + environnementId);
+			return getClient().get(environnementId);
+		} catch (Exception e) {
+			getLog().debug(e.getMessage());
+			getLog().info("Create the members of environment");
+			List<String> members = new ArrayList<String>();
+			for (ConfigurationItem each : environment) {
+				getLog().info(" create " + each.getLabel());
+				getClient().create(each);
+				if (each.isAddedToEnvironment())
+					members.add(each.getLabel());
+			}
+
+			getLog().info("Create environment " + environnementId);
+			ConfigurationItem ciEnvironment = new ConfigurationItem();
+			ciEnvironment.setLabel(environnementId);
+			ciEnvironment.setType("Environment");
+			ciEnvironment.addParameter("members", members);
+			return getClient().create(ciEnvironment);
+		}
 	}
 
 	ManifestPackager getPackager() {
 		if (packager == null) {
 			packager = new ManifestPackager(project);
+
 			packager.setLog(getLog());
 			packager.setGenerateManifestOnly(generateManifestOnly);
+			packager.setTimestampedVersion(timestampedVersion);
+
 			packager.addDeployableArtifact(project.getArtifact());
 			packager.addDeployableArtifacts(deployableArtifacts);
 			packager.addMiddlewareResources(middlewareResources);
+
+
 		}
 		return packager;
 	}

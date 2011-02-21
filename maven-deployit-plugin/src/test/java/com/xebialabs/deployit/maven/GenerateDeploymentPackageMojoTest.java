@@ -43,6 +43,15 @@ public class GenerateDeploymentPackageMojoTest extends BaseForTestMojo {
 		performTestAndAssert(artifactID, "war", deployableArtifactItems, mrs);
 	}
 
+	@Test
+	public void testPackageWarSTimeStampedVersion() throws Exception {
+		List<DeployableArtifactItem> deployableArtifactItems = Lists.newArrayList();
+		List<MiddlewareResource> mrs = Lists.newArrayList();
+		final String artifactID = "testPackageWar";
+		setVariableValueToObject(darMojo, "timestampedVersion", true);
+		performTestAndAssert(artifactID, "war", deployableArtifactItems, mrs);
+	}
+
 
 	@Test
 	public void testPackageOneWithConfigurationFiles() throws Exception {

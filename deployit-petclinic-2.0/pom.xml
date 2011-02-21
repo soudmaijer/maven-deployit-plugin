@@ -13,7 +13,7 @@
 			<plugin>
 				<groupId>com.xebialabs.deployit</groupId>
 				<artifactId>maven-deployit-plugin</artifactId>
-				<version>2.0-SNAPSHOT</version>
+				<version>3.0-SNAPSHOT</version>
 				<extensions>true</extensions>
 				<executions>
 
@@ -36,6 +36,8 @@
 				</executions>
 				<configuration>
 					<testmode>false</testmode>
+					<remoteServerMode>false</remoteServerMode>
+					<timestampedVersion>true</timestampedVersion>
 					<deployableArtifacts>
 						<DeployableArtifactItem>
 							<type>War</type>
@@ -58,6 +60,7 @@
 						<DeployableArtifactItem>
 							<type>ConfigurationFiles</type>
 							<location>config</location>
+							<name>configuration</name>
 						</DeployableArtifactItem>
 
 					</deployableArtifacts>
@@ -99,19 +102,36 @@
 						<MappingItem>
 							<type>TomcatWarMapping</type>
 							<label>WarMapping pocweb</label>
-							<source>Applications/deployit-petclinic/1.0/config</source>
+							<source>config</source>
 							<target>Infrastructure/tomcat6.vm/tomcat6-1</target>
 							<keyValuePairs>
 								<pair>
 									<k>remote.host</k>
-									<v>www.demomaven.com</v>
+									<v>www.demo-maven.com</v>
 								</pair>
 							</keyValuePairs>
 						</MappingItem>
 					</mappings>
-
 				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>com.xebialabs.deployit</groupId>
+						<artifactId>tomcat-plugin</artifactId>
+						<version>1.4-SNAPSHOT</version>
+					</dependency>
+					<dependency>
+						<groupId>com.xebialabs.deployit</groupId>
+						<artifactId>apache-modjk-plugin</artifactId>
+						<version>1.4-SNAPSHOT</version>
+					</dependency>
+					<dependency>
+						<groupId>com.xebialabs.deployit</groupId>
+						<artifactId>apache-httpd-plugin</artifactId>
+						<version>1.4-SNAPSHOT</version>
+					</dependency>
+				</dependencies>
 			</plugin>
+
 
 		</plugins>
 	</build>

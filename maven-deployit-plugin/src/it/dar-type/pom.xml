@@ -53,7 +53,7 @@
 
 					<middlewareResources>
 						<middlewareResource>
-							<name>petclinicDS</name>
+							<configurationName>petclinicDS</configurationName>						
 							<type>DummyDataSource</type>
 							<driver>com.mysql.jdbc.Driver</driver>
 							<url>jdbc:mysql://localhost/petclinic</url>

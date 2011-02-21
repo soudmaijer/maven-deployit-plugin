@@ -87,7 +87,7 @@ Deploy and run functional tests
 							<label>My application datasource</label>
 							<jndiName>jdbc/petclinicHSQL</jndiName>
 							<driverClass>org.hsqldb.jdbcDriver</driverClass>
-							<connectionUrl>jdbc:hsqldb:file:/tmp/database.hdb</connectionUrl>
+							<url>jdbc:hsqldb:file:/tmp/database.hdb</url>
 							<maxActive>10</maxActive>
 						</middlewareResource>
 					</middlewareResources>

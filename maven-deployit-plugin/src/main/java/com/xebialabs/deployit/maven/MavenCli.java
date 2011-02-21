@@ -1,7 +1,6 @@
 package com.xebialabs.deployit.maven;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.xebialabs.deployit.cli.CliOptions;
 import com.xebialabs.deployit.cli.api.DeployitClient;
@@ -29,6 +28,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.collect.Collections2.filter;
 import static com.xebialabs.deployit.jcr.JcrConstants.ADMIN_PASSWORD;
 import static com.xebialabs.deployit.jcr.JcrConstants.ADMIN_USERNAME;
 import static java.lang.String.format;
@@ -49,21 +49,21 @@ public class MavenCli {
 
 	private boolean testMode = false;
 
-	public MavenCli(int port) {
+	public MavenCli(String serverAddress, int port, String username, String password) {
 		options = new CliOptions();
-		options.setHost("localhost");
+		if (StringUtils.isNotBlank(serverAddress))
+			options.setHost(serverAddress);
+
 		options.setPort(port);
 		options.setExposeProxies(true);
-		options.setUsername(ADMIN_USERNAME);
-		options.setPassword(ADMIN_PASSWORD);
+		options.setUsername(StringUtils.isBlank(username) ? ADMIN_USERNAME : username);
+		options.setPassword(StringUtils.isBlank(password) ? ADMIN_PASSWORD : password);
 		client = getAuthenticatingHttpClient();
 		attemptToConnectToServer();
 		proxies = new Proxies(options, client);
 		factory = new ObjectFactory(proxies);
 		repositoryClient = new RepositoryClient(proxies);
 		deployitClient = new DeployitClient(proxies);
-
-
 	}
 
 
@@ -77,16 +77,16 @@ public class MavenCli {
 	}
 
 	private void attemptToConnectToServer() {
-		String host = options.getHost();
-		int port = options.getPort();
-		System.out.println("Connecting to the Deployit server at " + host + ":" + port + "...");
-		String urlToConnectTo = "http://" + host + ":" + port;
+		String urlToConnectTo = options.getUrl();
+		System.out.println("Connecting to the Deployit server at " + urlToConnectTo + "...");
 		try {
-			final int responseCode = client.executeMethod(new GetMethod(urlToConnectTo));
-			if (responseCode != 200) {
-				throw new IllegalStateException("Could contact the server at " + urlToConnectTo + " but received an HTTP error code, " + responseCode);
-			} else {
+			final int responseCode = client.executeMethod(new GetMethod(urlToConnectTo + "/deployit/server/info"));
+			if (responseCode == 200) {
 				System.out.println("Succesfully connected.");
+			} else if (responseCode == 401 || responseCode == 403) {
+				throw new IllegalStateException("You were not authenticated correctly, did you use the correct credentials?");
+			} else {
+				throw new IllegalStateException("Could contact the server at " + urlToConnectTo + " but received an HTTP error code, " + responseCode);
 			}
 		} catch (MalformedURLException mue) {
 			throw new IllegalStateException("Could not contact the server at " + urlToConnectTo, mue);
@@ -96,7 +96,21 @@ public class MavenCli {
 	}
 
 	public RepositoryObject create(ConfigurationItem ci) {
-		final Response response = proxies.getRepository().create(ci.getLabel(), factory.configurationItem(ci.getType(), ci.getProperties()));
+		final String id = ci.getLabel();
+		try {
+			return get(id);
+		}
+		catch (Exception e) {
+			logger.debug(format("%s does not exist, create it", id));
+			final Response response = getProxies().getRepository().create(id, getFactory().configurationItem(ci.getType(), ci.getProperties()));
+			return checkForValidations(response);
+		}
+
+	}
+
+
+	public RepositoryObject get(String ciId) {
+		final Response response = getProxies().getRepository().read(ciId);
 		return checkForValidations(response);
 	}
 
@@ -110,17 +124,17 @@ public class MavenCli {
 	}
 
 	public RepositoryObject importPackage(File darFile) {
-		return deployitClient.importPackage(darFile.getPath());
+		return getDeployitClient().importPackage(darFile.getPath());
 	}
 
 	public void deployAndWait(String source, String target, List<MappingItem> mappings) {
 		final RepositoryObject[] generatedMappings = generateMappings(source, target, mappings);
-		final String taskId = deployitClient.prepareDeployment(source, target, generatedMappings);
+		final String taskId = getDeployitClient().prepareDeployment(source, target, generatedMappings);
 		if (testMode) {
 			logger.info("Test mode, skip all the steps");
-			deployitClient.skipSteps(taskId, range(1, deployitClient.retrieveTaskInfo(taskId).getNrOfSteps() + 1));
+			getDeployitClient().skipSteps(taskId, range(1, getDeployitClient().retrieveTaskInfo(taskId).getNrOfSteps() + 1));
 		}
-		deployitClient.startTaskAndWait(taskId);
+		getDeployitClient().startTaskAndWait(taskId);
 		checkTaskState(taskId);
 	}
 
@@ -136,14 +150,14 @@ public class MavenCli {
 		if (mappings == null)
 			mappings = Lists.newArrayList();
 
-		final RepositoryObject dp = repositoryClient.read(source);
+		final RepositoryObject dp = getRepositoryClient().read(source);
 		final Map<String, Object> values = dp.getValues();
 		final Object dpp = values.get("deployableArtifacts");
 		List<String> deployableArtifacts = Lists.newArrayList();
 		deployableArtifacts.addAll((Collection<? extends String>) dpp);
 
 		logger.info(format("generate mappings %s - %s", source, target));
-		final RepositoryObject[] generatedMappings = deployitClient.generateMappings(deployableArtifacts, target);
+		final RepositoryObject[] generatedMappings = getDeployitClient().generateMappings(deployableArtifacts, target);
 		for (RepositoryObject repositoryObjectMapping : generatedMappings) {
 			logger.info("  process generated mapping " + repositoryObjectMapping.getId());
 			logger.debug("   mapping id ->" + repositoryObjectMapping.getId());
@@ -153,6 +167,7 @@ public class MavenCli {
 			if (configuredMapping == null)
 				continue;
 
+			logger.debug("   found a configured mapping " + configuredMapping);
 			//Manage Lamda properties
 			for (Map.Entry<String, Object> entry : configuredMapping.getProperties().entrySet()) {
 				logger.debug(format("%s %s with %s", (mappings.contains(entry.getKey()) ? "overwrite" : "set"), entry.getKey(), entry.getValue().toString()));
@@ -166,24 +181,26 @@ public class MavenCli {
 				logger.debug("replace kvPair " + keyValuePairsFromMapping + " by " + configuredMappingKeyValuePairs);
 				mappingValues.put("keyValuePairs", configuredMappingKeyValuePairs);
 			}
-			logger.info("modified mapping  " + repositoryObjectMapping);
+			logger.info("   modified mapping  " + repositoryObjectMapping);
 		}
 		return generatedMappings;
 	}
 
 	private MappingItem searchCandidateMapping(List<MappingItem> mappings, Map<String, Object> mappingValues) {
+		//TODO: include the type of the mapping too
 		final String sourceMapping = (String) mappingValues.get("source");
 		final String targetMapping = (String) mappingValues.get("target");
-		final Collection<MappingItem> foundMappings = Collections2.filter(mappings, new Predicate<MappingItem>() {
+		final Collection<MappingItem> foundMappings = filter(mappings, new Predicate<MappingItem>() {
 			public boolean apply(MappingItem mappingItem) {
 				if (mappingItem == null)
 					return false;
-				return mappingItem.getSource().equals(sourceMapping) && mappingItem.getTarget().equals(targetMapping);
+
+				return mappingItem.equals(sourceMapping, targetMapping);
 			}
 		});
 
 		if (foundMappings.isEmpty()) {
-			logger.debug(format("found 0 mapping for source (%s) and target (%s) in mappings (%s) ", sourceMapping, targetMapping, mappings));
+			logger.debug(format("   found 0 mapping for source (%s) and target (%s) in mappings (%s) ", sourceMapping, targetMapping, mappings));
 			return null;
 		}
 
@@ -192,7 +209,7 @@ public class MavenCli {
 
 
 		final MappingItem foundMapping = foundMappings.iterator().next();
-		logger.debug(format("found 1 mapping for source (%s) and target (%s) : ", sourceMapping, targetMapping, foundMapping));
+		logger.debug(format("   found 1 mapping for source (%s) and target (%s) : ", sourceMapping, targetMapping, foundMapping));
 		return foundMapping;
 	}
 
@@ -202,7 +219,7 @@ public class MavenCli {
 	}
 
 	private void checkTaskState(String taskId) {
-		final TaskInfo taskInfo = deployitClient.retrieveTaskInfo(taskId);
+		final TaskInfo taskInfo = getDeployitClient().retrieveTaskInfo(taskId);
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
 		logger.info(format("%s Label      %s", taskId, taskInfo.getLabel()));
 		logger.info(format("%s State      %s %d/%d", taskId, taskInfo.getState(), taskInfo.getCurrentStepNr(), taskInfo.getNrOfSteps()));
@@ -213,7 +230,7 @@ public class MavenCli {
 
 		StringBuilder sb = new StringBuilder();
 		for (int i = 1; i <= taskInfo.getNrOfSteps(); i++) {
-			final Response stepInfoResponse = proxies.getTaskRegistry().getStepInfo(taskId, i, null);
+			final Response stepInfoResponse = getProxies().getTaskRegistry().getStepInfo(taskId, i, null);
 			final StepInfo stepInfo = new ResponseExtractor(stepInfoResponse).getEntity();
 			final String description = stepInfo.getDescription();
 			final String log = stepInfo.getLog();
@@ -248,5 +265,21 @@ public class MavenCli {
 			result[i - begin] = i;
 		}
 		return result;
+	}
+
+	Proxies getProxies() {
+		return proxies;
+	}
+
+	ObjectFactory getFactory() {
+		return factory;
+	}
+
+	RepositoryClient getRepositoryClient() {
+		return repositoryClient;
+	}
+
+	DeployitClient getDeployitClient() {
+		return deployitClient;
 	}
 }

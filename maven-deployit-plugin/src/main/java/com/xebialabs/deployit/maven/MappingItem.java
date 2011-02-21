@@ -26,7 +26,7 @@ import java.util.Map;
  */
 public class MappingItem extends ConfigurationItem {
 
-	private static final List<String> SKIPPED_ITEMS = Lists.newArrayList("keyValuePairs","source","target","label");
+	private static final List<String> SKIPPED_ITEMS = Lists.newArrayList("keyValuePairs", "source", "target", "label");
 
 	private String source;
 	private String target;
@@ -53,6 +53,7 @@ public class MappingItem extends ConfigurationItem {
 	}
 
 	//@Override
+
 	public void addParameter(String name, Object value) {
 		if (SKIPPED_ITEMS.contains(name))
 			return;
@@ -66,5 +67,14 @@ public class MappingItem extends ConfigurationItem {
 
 	public List<Map<String, String>> getKeyValuePairs() {
 		return keyValuePairs;
+	}
+
+	public boolean equals(String sourceMapping, String targetMapping) {
+		return getSource().equals(sourceMapping) && getTarget().equals(targetMapping);
+	}
+
+	@Override
+	public String toString() {
+		return String.format("MappingItem(%s,%s,%s)", source, target, getProperties().toString());
 	}
 }

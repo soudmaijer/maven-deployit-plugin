@@ -20,10 +20,12 @@
 
 <faqs id="FAQ" title="Frequently Asked Questions">
  <part id="General">
-   <faq id="Why XXXX?">
-     <question>Why XXXX?</question>
+   <faq id="timestampedVersion">
+     <question>What is the purpose of the timestampedVersion attribute ?</question>
      <answer>
-       <p>Because......</p>
+       <p>When you set timestampedVersion to the true value, the version of the generated package will be completed completed by a a timestamp.
+       The aim is to keep the pom unmodified while you can perform several deployments without clashes. 
+        </p>
      </answer>
    </faq>
  </part>
