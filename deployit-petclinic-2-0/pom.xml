@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
   <groupId>com.xebialabs.deployit.demo.petclinic-war</groupId>
   <artifactId>deployit-petclinic-pom</artifactId>
-  <version>1.0</version>
+  <version>2.0</version>
   <packaging>pom</packaging>
   <name>PetClinic Deployit pom</name>
   <url>http://www.xebialabs.com</url>

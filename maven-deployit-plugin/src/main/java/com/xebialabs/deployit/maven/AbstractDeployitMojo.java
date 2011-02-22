@@ -169,14 +169,14 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 	 * Use this attribute to add a timestamp to the version of the deployit package.
 	 * by default, SNAPSHOT versions are automatically timestamped
 	 *
-	 * @parameter default-value = false
+	 * @parameter default-value = false  expression="${deployit.timestamp}"
 	 */
 	protected boolean timestampedVersion;
 
 	/**
 	 * Perform a skipped deployment before clean it.
 	 *
-	 * @parameter default-value=false
+	 * @parameter default-value=false  expression="${deployit.forceclean}"
 	 */
 	protected boolean forcedClean;
 
@@ -262,6 +262,7 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 			return;
 		}
 		Server.requestShutdown();
+		new File("recovery.dat").delete();
 	}
 
 	protected MavenCli getClient() throws MojoExecutionException {

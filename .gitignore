@@ -11,3 +11,5 @@ target/
 *.log
 build-number.txt
 atlassian-ide-plugin.xml
+recovery.dat
+work/
