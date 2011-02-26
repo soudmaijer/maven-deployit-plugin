@@ -10,7 +10,6 @@
 	<name>Deployit Maven Mojo Parent</name>
 	<modules>
 		<module>maven-deployit-plugin</module>
-    <module>PetClinic</module>
   </modules>
 
 
