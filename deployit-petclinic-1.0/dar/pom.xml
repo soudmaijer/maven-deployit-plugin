@@ -41,14 +41,16 @@
 				<configuration>
 					<testmode>false</testmode>
 					<remoteServerMode>false</remoteServerMode>
-					<timestampedVersion>false</timestampedVersion>
+					<timestampedVersion>true</timestampedVersion>
 					<forcedClean>false</forcedClean>
+
 					<deployableArtifacts>
 						<DeployableArtifactItem>
 							<type>War</type>
 							<name>petclinic</name>
 							<location>com.xebialabs.deployit.demo.petclinic-war:PetClinic</location>
 						</DeployableArtifactItem>
+
 						<DeployableArtifactItem>
 							<type>War</type>
 							<name>petclinic-backend</name>
