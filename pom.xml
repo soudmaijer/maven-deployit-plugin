@@ -13,7 +13,6 @@
   </modules>
 
 
-	<!--
 	<distributionManagement>
 		<repository>
 			<id>nexus-dexter-releases</id>
@@ -24,8 +23,8 @@
 			<url>http://dexter.xebialabs.com/nexus/content/repositories/snapshots</url>
 		</snapshotRepository>
 
-	</distributionManagement>
-	 -->
+  </distributionManagement>
+
 	<scm>
 		<connection>scm:git:git@github.com:bmoussaud/maven-deployit-plugin.git</connection>
 		<url>scm:git:git@github.com:bmoussaud/maven-deployit-plugin.git</url>
