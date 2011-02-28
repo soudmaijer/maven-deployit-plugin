@@ -41,7 +41,7 @@
 				<configuration>
 					<testmode>false</testmode>
 					<remoteServerMode>false</remoteServerMode>
-					<timestampedVersion>true</timestampedVersion>
+					<timestampedVersion>false</timestampedVersion>
 					<forcedClean>false</forcedClean>
 
 					<deployableArtifacts>
