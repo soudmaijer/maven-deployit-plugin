@@ -156,22 +156,17 @@
 
 		<!-- deployit -->
 		<dependency>
-			<groupId>com.xebialabs.deployit</groupId>
+			<groupId>com.xebialabs.deployit.distrib</groupId>
 			<artifactId>server</artifactId>
 			<version>3.0</version>
 		</dependency>
 
 		<dependency>
-			<groupId>com.xebialabs.deployit</groupId>
-			<artifactId>server-core</artifactId>
-			<version>3.0</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.xebialabs.deployit</groupId>
+			<groupId>com.xebialabs.deployit.distrib</groupId>
 			<artifactId>cli</artifactId>
 			<version>3.0</version>
 		</dependency>
+
 
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -215,7 +210,7 @@
 	<distributionManagement>
 		<repository>
 			<id>nexus-dexter-releases</id>
-      <url>http://dexter.xebialabs.com/nexus/content/repositories/releases</url>
+			<url>http://dexter.xebialabs.com/nexus/content/repositories/releases</url>
 		</repository>
 		<snapshotRepository>
 			<id>nexus-dexter-snapshots</id>
@@ -316,7 +311,7 @@
 				<enabled>true</enabled>
 			</snapshots>
 		</pluginRepository>
-  </pluginRepositories>
+	</pluginRepositories>
 
 	<reporting>
 		<plugins>

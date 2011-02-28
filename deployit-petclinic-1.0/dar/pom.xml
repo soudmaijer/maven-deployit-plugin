@@ -123,17 +123,17 @@
 					<dependency>
 						<groupId>com.xebialabs.deployit</groupId>
 						<artifactId>tomcat-plugin</artifactId>
-						<version>1.4-SNAPSHOT</version>
+						<version>1.4</version>
 					</dependency>
 					<dependency>
 						<groupId>com.xebialabs.deployit</groupId>
 						<artifactId>apache-modjk-plugin</artifactId>
-						<version>1.4-SNAPSHOT</version>
+						<version>1.4</version>
 					</dependency>
 					<dependency>
 						<groupId>com.xebialabs.deployit</groupId>
 						<artifactId>apache-httpd-plugin</artifactId>
-						<version>1.4-SNAPSHOT</version>
+						<version>1.4</version>
 					</dependency>
 				</dependencies>
 			</plugin>
@@ -171,7 +171,6 @@
 	</dependencies>
 
 
-	<!--
 	<repositories>
 		<repository>
 			<id>thirdparty</id>
@@ -189,8 +188,11 @@
 			<id>xebialabs-releases</id>
 			<url>http://dexter.xebialabs.com/nexus/content/repositories/releases</url>
 		</pluginRepository>
+		<pluginRepository>
+			<id>nexus-dexter-snapshots</id>
+			<url>http://dexter.xebialabs.com/nexus/content/repositories/snapshots</url>
+		</pluginRepository>
 	</pluginRepositories>
-	-->
 
 </project>
 
