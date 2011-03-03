@@ -122,10 +122,11 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 	private String password;
 
 	/**
-	 * Id of the environement used for the deployment.
+	 * Id of the environment used for the deployment.
 	 * Useful only if you are using the remote server mode to avoid to create a new environment or to fetch an existing environment.
+	 * @parameter 
 	 */
-	private String environnementId = DEFAULT_ENVIRONMENT;
+	private String environmentId = DEFAULT_ENVIRONMENT;
 
 
 	/**
@@ -276,8 +277,8 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 
 
 	protected void initialDeployment() throws MojoExecutionException {
-		if (environment == null)
-			throw new MojoExecutionException("Environment is empty");
+		if (!remoteServerMode && environment == null)
+			throw new MojoExecutionException("Environment cannot be empty in the embeded mode ");
 
 		final File darFile = getPackager().getDarFile();
 		if (!darFile.exists()) {
@@ -324,7 +325,7 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 			getClient().toggleSkipStepsMode();
 		}
 
-		getClient().undeployAndWait(environnementId + "/" + artifactId);
+		getClient().undeployAndWait(environmentId + "/" + artifactId);
 
 
 		stopServer();
@@ -338,8 +339,8 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 	protected RepositoryObject fetchEnvironment() throws MojoExecutionException {
 
 		try {
-			getLog().info("read the environment " + environnementId);
-			return getClient().get(environnementId);
+			getLog().info("read the environment " + environmentId);
+			return getClient().get(environmentId);
 		} catch (Exception e) {
 			getLog().debug(e.getMessage());
 			getLog().info("Create the members of environment");
@@ -351,9 +352,9 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 					members.add(each.getLabel());
 			}
 
-			getLog().info("Create environment " + environnementId);
+			getLog().info("Create environment " + environmentId);
 			ConfigurationItem ciEnvironment = new ConfigurationItem();
-			ciEnvironment.setLabel(environnementId);
+			ciEnvironment.setLabel(environmentId);
 			ciEnvironment.setType("Environment");
 			ciEnvironment.addParameter("members", members);
 			return getClient().create(ciEnvironment);
