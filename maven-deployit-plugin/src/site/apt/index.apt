@@ -33,15 +33,14 @@ Deployit Plugin
   This plugin is in particular handy to perform integration tests for other Maven plugins.
 
 * Goals Overview
-
+  
   The plugin has three goals meant to participate in the default build lifecycle:
 
-  * {{{generate-deployment-package-mojo.html}deployit:generate-deployment-package}} Generate a Deployment Package.
+  * {{{./generate-deployment-package-mojo.html}deployit:generate-deployment-package}} Generate a Deployment Package.
 
-  * {{{deploy-mojo.html}deployit:deploy}} Deploy the main artifact, middleware resources to a single environment.
+  * {{{./deploy-mojo.html}deployit:deploy}} Deploy the main artifact, middleware resources to a single environment.
 
-  * {{{clean-mojo.html}deployit:clean}} Undeploy all what is have been deployed in the  {{{deploy-mojo.html}deployit:deploy}} goal.
-
+  * {{{./clean-mojo.html}deployit:clean}} Undeploy all what is have been deployed in the  {{{./deploy-mojo.html}deployit:deploy}} goal.
 
   []
   
@@ -67,22 +66,22 @@ Deployit Plugin
 
   The following example configurations are available to illustrate selected use cases in more detail:
 
-  * {{{examples/simple-deployment.html}Simple deployment}} to a Tomcat Server.
+  * {{{./examples/simple-deployment.html}Simple deployment}} to a Tomcat Server.
 
-  * {{{examples/generate-dar.html}Generate DAR}}, the Deployit Archive.
+  * {{{./examples/generate-dar.html}Generate DAR}}, the Deployit Archive.
 
-  * {{{examples/simple-deployment-and-clean.html}Simple deployment and Clean}} to a Tomcat Server and clean after the integration-test phase.
+  * {{{./examples/simple-deployment-and-clean.html}Simple deployment and Clean}} to a Tomcat Server and clean after the integration-test phase.
 
-  * {{{examples/add-additional-artifacts.html}Adding additional Maven artifacts}}
+  * {{{./examples/add-additional-artifacts.html}Adding additional Maven artifacts}}
 
-  * {{{examples/middleware-resources.html}Define middleware resources }} such as Datasources or JMS Queues.
+  * {{{./examples/middleware-resources.html}Define middleware resources }} such as Datasources or JMS Queues.
 
-  * {{{examples/test-configuration.html}Testing the configurationn}} to test the plugin configuration by skipping the executions of the deployment's steps.
+  * {{{./examples/test-configuration.html}Testing the configurationn}} to test the plugin configuration by skipping the executions of the deployment's steps.
 
-  * {{{examples/configuration-files.html}Add configurationn file }} to the current deployment.
+  * {{{./examples/configuration-files.html}Add configurationn file }} to the current deployment.
 
-  * {{{examples/functional-tests.html} Deploy and Run functional tests }}
+  * {{{./examples/functional-tests.html} Deploy and Run functional tests }}
 
-  * {{{examples/performance-tests.html} Deploy and Performance functional tests }}
+  * {{{./examples/performance-tests.html} Deploy and Performance functional tests }}
 
   []

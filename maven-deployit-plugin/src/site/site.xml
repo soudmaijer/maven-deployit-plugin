@@ -40,14 +40,14 @@
 		</menu>
 
 		<menu name="Examples">
-			<item name="Simple deployment" href="examples/simple-deployment.html"/>
-			<item name="Generate DAR" href="examples/generate-dar.html"/>
-			<item name="Simple deployment and clean" href="examples/simple-deployment-and-clean.html"/>
-			<item name="Define middleware resources" href="examples/middleware-resources.html"/>
-			<item name="Testing the configuration" href="examples/test-configuration.html"/>
-			<item name="Deploy configuration files" href="examples/configuration-files.html"/>
-			<item name="Deploy and Run functional tests " href="examples/functional-tests.html"/>
-			<item name="Deploy and Run performance tests " href="examples/performance-tests.html"/>
+			<item name="Simple deployment" href="./examples/simple-deployment.html"/>
+			<item name="Generate DAR" href="./examples/generate-dar.html"/>
+			<item name="Simple deployment and clean" href="./examples/simple-deployment-and-clean.html"/>
+			<item name="Define middleware resources" href="./examples/middleware-resources.html"/>
+			<item name="Testing the configuration" href="./examples/test-configuration.html"/>
+			<item name="Deploy configuration files" href="./examples/configuration-files.html"/>
+			<item name="Deploy and Run functional tests " href="./examples/functional-tests.html"/>
+			<item name="Deploy and Run performance tests " href="./examples/performance-tests.html"/>
 		</menu>
 
 		<menu ref="reports"/>

@@ -34,8 +34,8 @@ Usage
    
   * to deploy Deployit Deployment package to an environment in order to, for example,
   run a set of tests (functional tests, technical tests, performance tests). This is done during the
-  pre-integration-test and pre-integration-test phase.  This is done using <<<{{{deploy-mojo.html} deployit:deploy }}>>> goal.
-  The  <<<{{{clean-mojo.html} deployit:clean }}>>> undeploys all what has been deployed in the <<<{{{deploy-mojo.html} deployit:deploy }}>>> goal.
+  pre-integration-test and pre-integration-test phase.  This is done using <<<{{{./deploy-mojo.html} deployit:deploy }}>>> goal.
+  The  <<<{{{./clean-mojo.html} deployit:clean }}>>> undeploys all what has been deployed in the <<<{{{./deploy-mojo.html} deployit:deploy }}>>> goal.
 
 
 Getting started with Deployit Maven plugin
