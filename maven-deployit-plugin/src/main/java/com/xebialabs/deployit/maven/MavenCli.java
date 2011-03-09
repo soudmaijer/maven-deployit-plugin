@@ -99,8 +99,7 @@ public class MavenCli {
 		final String id = ci.getLabel();
 		try {
 			return get(id);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			logger.debug(format("%s does not exist, create it", id));
 			final Response response = getProxies().getRepository().create(id, getFactory().configurationItem(ci.getType(), ci.getProperties()));
 			return checkForValidations(response);
@@ -128,7 +127,10 @@ public class MavenCli {
 	}
 
 	public void deployAndWait(String source, String target, List<MappingItem> mappings) {
+
 		final RepositoryObject[] generatedMappings = generateMappings(source, target, mappings);
+		target = computeRealTarget(source, target);
+		logger.info("  real target is " + target);
 		final String taskId = getDeployitClient().prepareDeployment(source, target, generatedMappings);
 		if (testMode) {
 			logger.info("Test mode, skip all the steps");
@@ -136,6 +138,18 @@ public class MavenCli {
 		}
 		getDeployitClient().startTaskAndWait(taskId);
 		checkTaskState(taskId);
+	}
+
+	private String computeRealTarget(String source, String target) {
+		//target = "Environments/DefaultEnvironment/deployit-petclinic";
+		String deployedApplicationId = target + "/" + StringUtils.split(source, "/")[1];
+		logger.info("  deployedApplicationId " + deployedApplicationId);
+		for (String d : getRepositoryClient().search("Deployment")) {
+			if (d.equals(deployedApplicationId))
+				return deployedApplicationId;
+		}
+
+		return target;
 	}
 
 	public void undeployAndWait(String source) {
