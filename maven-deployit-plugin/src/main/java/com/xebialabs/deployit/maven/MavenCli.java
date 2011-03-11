@@ -11,6 +11,7 @@ import com.xebialabs.deployit.cli.rest.ResponseExtractor;
 import com.xebialabs.deployit.core.api.dto.RepositoryObject;
 import com.xebialabs.deployit.core.api.dto.StepInfo;
 import com.xebialabs.deployit.core.api.dto.TaskInfo;
+import com.xebialabs.deployit.core.api.resteasy.DeployitClientException;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
@@ -131,13 +132,27 @@ public class MavenCli {
 		final RepositoryObject[] generatedMappings = generateMappings(source, target, mappings);
 		target = computeRealTarget(source, target);
 		logger.info("  real target is " + target);
-		final String taskId = getDeployitClient().prepareDeployment(source, target, generatedMappings);
-		if (testMode) {
-			logger.info("Test mode, skip all the steps");
-			getDeployitClient().skipSteps(taskId, range(1, getDeployitClient().retrieveTaskInfo(taskId).getNrOfSteps() + 1));
+		String taskId = null;
+		try {
+			taskId = getDeployitClient().prepareDeployment(source, target, generatedMappings);
+
+			if (testMode) {
+				logger.info("Test mode, skip all the steps");
+				getDeployitClient().skipSteps(taskId, range(1, getDeployitClient().retrieveTaskInfo(taskId).getNrOfSteps() + 1));
+			}
+			getDeployitClient().startTaskAndWait(taskId);
+			checkTaskState(taskId);
+		} catch (DeployitClientException e) {
+			logger.error(" DeployitClientException: "+e.getMessage());
+			if (!e.getMessage().contains("The mappings did not lead to any steps")) {
+				throw e;
+			}
+		} finally {
+			if (taskId != null) {
+				logger.info(" Cancel task "+taskId);
+				getDeployitClient().cancelTask(taskId);
+			}
 		}
-		getDeployitClient().startTaskAndWait(taskId);
-		checkTaskState(taskId);
 	}
 
 	private String computeRealTarget(String source, String target) {
@@ -157,7 +172,6 @@ public class MavenCli {
 	}
 
 	private RepositoryObject[] generateMappings(String source, String target, List<MappingItem> mappings) {
-
 		if (target == null)
 			return null;
 

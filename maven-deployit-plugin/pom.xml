@@ -15,7 +15,7 @@
 	</prerequisites>
 
 	<properties>
-		<mavenVersion>3.0.3</mavenVersion>
+		<mavenVersion>2.2.0</mavenVersion>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.build.java.target>1.5</project.build.java.target>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
