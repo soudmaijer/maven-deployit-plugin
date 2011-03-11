@@ -17,10 +17,7 @@
 
 package com.xebialabs.deployit.maven.packager;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import com.xebialabs.deployit.maven.DeployableArtifactItem;
-import com.xebialabs.deployit.maven.MappingItem;
 import com.xebialabs.deployit.maven.MiddlewareResource;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -36,12 +33,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
-
-import static java.lang.String.format;
 
 public class ManifestPackager {
 
@@ -80,12 +76,13 @@ public class ManifestPackager {
 		mainAttributes.putValue("Deployit-Package-Format-Version", "1.2");
 		mainAttributes.putValue(APPLICATION, project.getArtifactId());
 		final String pomVersion = project.getVersion();
-		final String darVersion;
 
-		if (timestampedVersion)
-			darVersion = pomVersion + "-" + System.currentTimeMillis();
-		else
-			darVersion = pomVersion;
+		String darVersion = pomVersion;
+		if (timestampedVersion)   {
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss");
+			darVersion = pomVersion + "-" + dateFormat.format(System.currentTimeMillis());
+		}
+
 		mainAttributes.putValue(VERSION, darVersion);
 
 		final File meta_inf = new File(targetDirectory, "META-INF");
