@@ -18,6 +18,7 @@
 package com.xebialabs.deployit.maven;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import com.xebialabs.deployit.DeployItConfiguration;
 import com.xebialabs.deployit.DeployitOptions;
 import com.xebialabs.deployit.Server;
@@ -35,7 +36,6 @@ import javax.jcr.RepositoryException;
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -124,7 +124,8 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 	/**
 	 * Id of the environment used for the deployment.
 	 * Useful only if you are using the remote server mode to avoid to create a new environment or to fetch an existing environment.
-	 * @parameter 
+	 *
+	 * @parameter
 	 */
 	private String environmentId = DEFAULT_ENVIRONMENT;
 
@@ -343,8 +344,11 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 			return getClient().get(environmentId);
 		} catch (Exception e) {
 			getLog().debug(e.getMessage());
+			if (environment == null)
+				throw new MojoExecutionException("Cannot fetch environment " + environmentId + " and not members are defined in <environnment>", e);
+
 			getLog().info("Create the members of environment");
-			List<String> members = new ArrayList<String>();
+			List<String> members = Lists.newArrayList();
 			for (ConfigurationItem each : environment) {
 				getLog().info(" create " + each.getLabel());
 				getClient().create(each);
