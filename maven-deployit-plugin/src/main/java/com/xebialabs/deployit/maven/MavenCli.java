@@ -8,9 +8,7 @@ import com.xebialabs.deployit.cli.api.ObjectFactory;
 import com.xebialabs.deployit.cli.api.Proxies;
 import com.xebialabs.deployit.cli.api.RepositoryClient;
 import com.xebialabs.deployit.cli.rest.ResponseExtractor;
-import com.xebialabs.deployit.core.api.dto.RepositoryObject;
-import com.xebialabs.deployit.core.api.dto.StepInfo;
-import com.xebialabs.deployit.core.api.dto.TaskInfo;
+import com.xebialabs.deployit.core.api.dto.*;
 import com.xebialabs.deployit.core.api.resteasy.DeployitClientException;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
@@ -24,10 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.google.common.collect.Collections2.filter;
 import static com.xebialabs.deployit.jcr.JcrConstants.ADMIN_PASSWORD;
@@ -108,6 +103,14 @@ public class MavenCli {
 
 	}
 
+	public void delete(String id) {
+		try {
+			getRepositoryClient().delete(id);
+		} catch (Exception e) {
+			logger.debug(format("delete fails %s", id));
+		}
+	}
+
 
 	public RepositoryObject get(String ciId) {
 		final Response response = getProxies().getRepository().read(ciId);
@@ -127,31 +130,80 @@ public class MavenCli {
 		return getDeployitClient().importPackage(darFile.getPath());
 	}
 
-	public void deployAndWait(String source, String target, List<MappingItem> mappings) {
+	/**
+	 *
+	 * @param source
+	 * @param target
+	 * @param mappings
+	 * @return the id of the previous deployed package (or null) if not found.
+	 */
+	public String deployAndWait(String source, String target, List<MappingItem> mappings) {
 
 		final RepositoryObject[] generatedMappings = generateMappings(source, target, mappings);
 		target = computeRealTarget(source, target);
 		logger.info("  real target is " + target);
+		String previousDeployedPackage = getPreviousDeployedPackage(target);
 		String taskId = null;
 		try {
-			taskId = getDeployitClient().prepareDeployment(source, target, generatedMappings);
-
+			taskId = prepareDeployment(source, target, generatedMappings);
+			if (taskId == null) {
+				throw new RuntimeException("Prepare deployemend failed");
+			}
 			if (testMode) {
 				logger.info("Test mode, skip all the steps");
 				getDeployitClient().skipSteps(taskId, range(1, getDeployitClient().retrieveTaskInfo(taskId).getNrOfSteps() + 1));
 			}
+
+			logger.info("Start deployment task " + taskId);
 			getDeployitClient().startTaskAndWait(taskId);
 			checkTaskState(taskId);
 		} catch (DeployitClientException e) {
-			logger.error(" DeployitClientException: "+e.getMessage());
+			logger.error(" DeployitClientException: " + e.getMessage());
 			if (!e.getMessage().contains("The mappings did not lead to any steps")) {
 				throw e;
 			}
 		} finally {
 			if (taskId != null) {
-				logger.info(" Cancel task "+taskId);
+				logger.info(" Cancel task " + taskId);
 				getDeployitClient().cancelTask(taskId);
 			}
+		}
+		return previousDeployedPackage;
+	}
+
+	private String prepareDeployment(String source, String target, RepositoryObject[] mappings) {
+		RepositoryObjects mappingsDto = new RepositoryObjects();
+        if (mappings != null && mappings.length > 0) {
+            mappingsDto.setObjects(Arrays.asList(mappings));
+        }
+
+        // validate the mappings
+	    final ResponseExtractor responseExtractor = new ResponseExtractor(proxies.getDeployment().validate(source, target, mappingsDto));
+	    if (responseExtractor.isValidResponse()) {
+			// prepare the deployment
+			Steps steps = new ResponseExtractor(proxies.getDeployment().prepare(source, target, mappingsDto)).getEntity();
+			return steps.getTaskId();
+        } else {
+		    final RepositoryObjects validated = responseExtractor.getEntity();
+		    for (RepositoryObject v : validated.getObjects()) {
+			    if (!v.getValidations().isEmpty()) {
+				    logger.error(format("mapping with id %s has the following validation errors %s", v.getId(), v.getValidations()));
+			    }
+			    throw new RuntimeException("Mapping validation errors");
+		    }
+		    return null;
+        }
+	}
+
+	private String getPreviousDeployedPackage(String target) {
+		try {
+			final RepositoryObject dp = getRepositoryClient().read(target);
+			final Map<String, Object> values = dp.getValues();
+			Object source = values.get("source");
+			return source.toString();
+		} catch (Exception e) {
+			logger.debug("previous deployed package "+target+" not found",e);
+			return  null;
 		}
 	}
 

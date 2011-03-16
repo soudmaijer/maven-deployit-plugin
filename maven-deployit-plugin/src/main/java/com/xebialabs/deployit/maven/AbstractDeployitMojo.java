@@ -26,6 +26,7 @@ import com.xebialabs.deployit.core.api.dto.RepositoryObject;
 import com.xebialabs.deployit.jcr.JackrabbitRepositoryFactoryBean;
 import com.xebialabs.deployit.maven.packager.ManifestPackager;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
@@ -182,6 +183,14 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 	 */
 	protected boolean forcedClean;
 
+	/**
+	 * Perform a skipped deployment before clean it.
+	 *
+	 * @parameter default-value=false  expression="${deployit.delete.previous.dar}"
+	 */
+	protected boolean deletePreviouslyDeployedDar;
+
+
 	protected ManifestPackager packager;
 
 	protected MavenCli client;
@@ -297,7 +306,12 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 		final String version = (String) deploymentPackage.getValues().get("version");
 
 		getLog().info(String.format("-- Deploy %s on %s", deploymentPackage.getId(), environment.getId()));
-		getClient().deployAndWait(deploymentPackage.getId(), environment.getId(), getMappings(application, version));
+		final String previousPackageId = getClient().deployAndWait(deploymentPackage.getId(), environment.getId(), getMappings(application, version));
+
+		if (deletePreviouslyDeployedDar && StringUtils.isNotBlank(previousPackageId)) {
+			getLog().info("Delete previously deployed dar "+previousPackageId);
+			getClient().delete(previousPackageId);
+		}
 	}
 
 	private List<MappingItem> getMappings(final String application, final String version) {
