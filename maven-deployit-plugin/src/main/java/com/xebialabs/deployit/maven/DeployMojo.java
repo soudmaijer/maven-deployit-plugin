@@ -32,7 +32,7 @@ import org.apache.maven.plugin.MojoFailureException;
 public class DeployMojo extends AbstractDeployitMojo {
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		getLog().info("deployit:deploy");
-		initialDeployment();
+		deploy();
 		getLog().info("end of deploy:deploy");
 	}
 }

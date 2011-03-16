@@ -286,7 +286,7 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 	}
 
 
-	protected void initialDeployment() throws MojoExecutionException {
+	protected void deploy() throws MojoExecutionException {
 		if (!remoteServerMode && environment == null)
 			throw new MojoExecutionException("Environment cannot be empty in the embeded mode ");
 
@@ -336,7 +336,7 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 
 		if (forcedClean) {
 			getClient().toggleSkipStepsMode();
-			initialDeployment();
+			deploy();
 			getClient().toggleSkipStepsMode();
 		}
 
