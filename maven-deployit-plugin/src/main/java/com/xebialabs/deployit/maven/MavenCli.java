@@ -200,7 +200,7 @@ public class MavenCli {
 			final RepositoryObject dp = getRepositoryClient().read(target);
 			final Map<String, Object> values = dp.getValues();
 			Object source = values.get("source");
-			return source.toString();
+			return (source == null ? null : source.toString());
 		} catch (Exception e) {
 			logger.debug("previous deployed package "+target+" not found",e);
 			return  null;
