@@ -160,7 +160,7 @@ public class ManifestPackager {
 	}
 
 	protected void addMiddlewareResource(MiddlewareResource mr) {
-		getLog().info(" add mddleware resource : " + mr);
+		getLog().info(" add mddleware resource : " + mr.getConfigurationName());
 		final Map<String, Attributes> entries = manifest.getEntries();
 		final Attributes attributes = new Attributes();
 		attributes.putValue("CI-Type", mr.getType());
