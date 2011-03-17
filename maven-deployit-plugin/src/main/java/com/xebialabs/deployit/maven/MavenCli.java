@@ -185,11 +185,14 @@ public class MavenCli {
 			return steps.getTaskId();
         } else {
 		    final RepositoryObjects validated = responseExtractor.getEntity();
+		    String errMsg = "";
 		    for (RepositoryObject v : validated.getObjects()) {
 			    if (!v.getValidations().isEmpty()) {
-				    logger.error(format("mapping with id %s has the following validation errors %s", v.getId(), v.getValidations()));
+				    final String msg = format("mapping with id %s has the following validation errors %s", v.getId(), v.getValidations());
+				    logger.error(msg);
+				    errMsg = errMsg + msg + "\n";
 			    }
-			    throw new RuntimeException("Mapping validation errors");
+			    throw new RuntimeException("Mapping validation errors, "+errMsg);
 		    }
 		    return null;
         }
@@ -232,9 +235,10 @@ public class MavenCli {
 
 		final RepositoryObject dp = getRepositoryClient().read(source);
 		final Map<String, Object> values = dp.getValues();
-		final Object dpp = values.get("deployableArtifacts");
+
 		List<String> deployableArtifacts = Lists.newArrayList();
-		deployableArtifacts.addAll((Collection<? extends String>) dpp);
+		deployableArtifacts.addAll((Collection<? extends String>) values.get("deployableArtifacts"));
+		deployableArtifacts.addAll((Collection<? extends String>) values.get("middlewareResources"));
 
 		logger.info(format("generate mappings %s - %s", source, target));
 		final RepositoryObject[] generatedMappings = getDeployitClient().generateMappings(deployableArtifacts, target);
