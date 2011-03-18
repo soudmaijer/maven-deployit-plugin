@@ -131,7 +131,6 @@ public class MavenCli {
 	}
 
 	/**
-	 *
 	 * @param source
 	 * @param target
 	 * @param mappings
@@ -173,29 +172,29 @@ public class MavenCli {
 
 	private String prepareDeployment(String source, String target, RepositoryObject[] mappings) {
 		RepositoryObjects mappingsDto = new RepositoryObjects();
-        if (mappings != null && mappings.length > 0) {
-            mappingsDto.setObjects(Arrays.asList(mappings));
-        }
+		if (mappings != null && mappings.length > 0) {
+			mappingsDto.setObjects(Arrays.asList(mappings));
+		}
 
-        // validate the mappings
-	    final ResponseExtractor responseExtractor = new ResponseExtractor(proxies.getDeployment().validate(source, target, mappingsDto));
-	    if (responseExtractor.isValidResponse()) {
+		// validate the mappings
+		final ResponseExtractor responseExtractor = new ResponseExtractor(proxies.getDeployment().validate(source, target, mappingsDto));
+		if (responseExtractor.isValidResponse()) {
 			// prepare the deployment
 			Steps steps = new ResponseExtractor(proxies.getDeployment().prepare(source, target, mappingsDto)).getEntity();
 			return steps.getTaskId();
-        } else {
-		    final RepositoryObjects validated = responseExtractor.getEntity();
-		    String errMsg = "";
-		    for (RepositoryObject v : validated.getObjects()) {
-			    if (!v.getValidations().isEmpty()) {
-				    final String msg = format("mapping with id %s has the following validation errors %s", v.getId(), v.getValidations());
-				    logger.error(msg);
-				    errMsg = errMsg + msg + "\n";
-			    }
-			    throw new RuntimeException("Mapping validation errors, "+errMsg);
-		    }
-		    return null;
-        }
+		} else {
+			final RepositoryObjects validated = responseExtractor.getEntity();
+			String errMsg = "";
+			for (RepositoryObject v : validated.getObjects()) {
+				if (!v.getValidations().isEmpty()) {
+					final String msg = format("mapping with id %s has the following validation errors %s", v.getId(), v.getValidations());
+					logger.error(msg);
+					errMsg = errMsg + msg + "\n";
+				}
+				throw new RuntimeException("Mapping validation errors, " + errMsg);
+			}
+			return null;
+		}
 	}
 
 	private String getPreviousDeployedPackage(String target) {
@@ -205,8 +204,8 @@ public class MavenCli {
 			Object source = values.get("source");
 			return (source == null ? null : source.toString());
 		} catch (Exception e) {
-			logger.debug("previous deployed package "+target+" not found",e);
-			return  null;
+			logger.debug("previous deployed package " + target + " not found", e);
+			return null;
 		}
 	}
 
@@ -237,8 +236,17 @@ public class MavenCli {
 		final Map<String, Object> values = dp.getValues();
 
 		List<String> deployableArtifacts = Lists.newArrayList();
-		deployableArtifacts.addAll((Collection<? extends String>) values.get("deployableArtifacts"));
-		deployableArtifacts.addAll((Collection<? extends String>) values.get("middlewareResources"));
+
+		final Object artifacts = values.get("deployableArtifacts");
+		if (artifacts != null)
+			deployableArtifacts.addAll((Collection<? extends String>) artifacts);
+
+		final Object middlewareResources = values.get("middlewareResources");
+		if (middlewareResources != null)
+			deployableArtifacts.addAll((Collection<? extends String>) middlewareResources);
+
+		if (logger.isDebugEnabled())
+			logger.debug(deployableArtifacts.toString());
 
 		logger.info(format("generate mappings %s - %s", source, target));
 		final RepositoryObject[] generatedMappings = getDeployitClient().generateMappings(deployableArtifacts, target);
