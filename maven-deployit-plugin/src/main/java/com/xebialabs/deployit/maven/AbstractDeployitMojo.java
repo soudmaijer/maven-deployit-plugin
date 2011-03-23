@@ -287,9 +287,25 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 
 
 	protected void deploy() throws MojoExecutionException {
-		if (!remoteServerMode && environment == null)
-			throw new MojoExecutionException("Environment cannot be empty in the embeded mode ");
+		final RepositoryObject deploymentPackage = importDar();
 
+		if (!remoteServerMode && environment == null)
+			throw new MojoExecutionException("Environment cannot be empty in the embedded mode ");
+
+		final RepositoryObject environment = fetchEnvironment();
+		final String application = (String) deploymentPackage.getValues().get("application");
+		final String version = (String) deploymentPackage.getValues().get("version");
+
+		getLog().info(String.format("-- Deploy %s on %s", deploymentPackage.getId(), environment.getId()));
+		final String previousPackageId = getClient().deployAndWait(deploymentPackage.getId(), environment.getId(), getMappings(application, version));
+
+		if (deletePreviouslyDeployedDar && StringUtils.isNotBlank(previousPackageId)) {
+			getLog().info("Delete previously deployed dar " + previousPackageId);
+			getClient().delete(previousPackageId);
+		}
+	}
+
+	protected RepositoryObject importDar() throws MojoExecutionException {
 		final File darFile = getPackager().getDarFile();
 		if (!darFile.exists()) {
 			getLog().info("Dar file does not exist " + darFile);
@@ -299,19 +315,7 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 		}
 
 		startServer();
-
-		final RepositoryObject environment = fetchEnvironment();
-		final RepositoryObject deploymentPackage = importDar(darFile);
-		final String application = (String) deploymentPackage.getValues().get("application");
-		final String version = (String) deploymentPackage.getValues().get("version");
-
-		getLog().info(String.format("-- Deploy %s on %s", deploymentPackage.getId(), environment.getId()));
-		final String previousPackageId = getClient().deployAndWait(deploymentPackage.getId(), environment.getId(), getMappings(application, version));
-
-		if (deletePreviouslyDeployedDar && StringUtils.isNotBlank(previousPackageId)) {
-			getLog().info("Delete previously deployed dar "+previousPackageId);
-			getClient().delete(previousPackageId);
-		}
+		return importDar(darFile);
 	}
 
 	private List<MappingItem> getMappings(final String application, final String version) {
@@ -357,9 +361,9 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 			getLog().info("read the environment " + environmentId);
 			final RepositoryObject repositoryObject = getClient().get(environmentId);
 			if (getLog().isDebugEnabled() && repositoryObject != null) {
-				getLog().debug(" dump members of "+environmentId);
-				for (Object m  :(List) repositoryObject.getValues().get("members"))
-					getLog().debug("  -- member "+m);
+				getLog().debug(" dump members of " + environmentId);
+				for (Object m : (List) repositoryObject.getValues().get("members"))
+					getLog().debug("  -- member " + m);
 			}
 			return repositoryObject;
 		} catch (Exception e) {
