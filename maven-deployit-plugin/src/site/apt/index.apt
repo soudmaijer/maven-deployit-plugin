@@ -34,9 +34,11 @@ Deployit Plugin
 
 * Goals Overview
   
-  The plugin has three goals meant to participate in the default build lifecycle:
+  The plugin has 4 goals meant to participate in the default build lifecycle:
 
   * {{{./generate-deployment-package-mojo.html}deployit:generate-deployment-package}} Generate a Deployment Package.
+
+  * {{{./importdar-mojo.html}deployit:import}} import a generated dar file into a remote Deployit server.
 
   * {{{./deploy-mojo.html}deployit:deploy}} Deploy the main artifact, middleware resources to a single environment.
 

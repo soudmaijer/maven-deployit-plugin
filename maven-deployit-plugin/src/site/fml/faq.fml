@@ -28,5 +28,12 @@
         </p>
      </answer>
    </faq>
+   <faq id="import">
+     <question>How can I import a generate dar ?</question>
+     <answer>
+       <p>if you have a pom using dar packaging, use mvn package deployit:import
+        </p>
+     </answer>
+   </faq>
  </part>
 </faqs>
