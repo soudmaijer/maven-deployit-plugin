@@ -191,7 +191,7 @@ public class MavenCli {
 					logger.error(msg);
 					errMsg = errMsg + msg + "\n";
 				}
-				throw new RuntimeException("Mapping validation errors, " + errMsg);
+				throw new RuntimeException("Mapping validation errors, " + ( StringUtils.isNotBlank(errMsg) ? errMsg : validated.toString()));
 			}
 			return null;
 		}
