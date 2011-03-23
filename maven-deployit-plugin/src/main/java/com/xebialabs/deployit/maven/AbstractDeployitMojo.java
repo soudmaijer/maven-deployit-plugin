@@ -355,7 +355,13 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 
 		try {
 			getLog().info("read the environment " + environmentId);
-			return getClient().get(environmentId);
+			final RepositoryObject repositoryObject = getClient().get(environmentId);
+			if (getLog().isDebugEnabled() && repositoryObject != null) {
+				getLog().debug(" dump members of "+environmentId);
+				for (Object m  :(List) repositoryObject.getValues().get("members"))
+					getLog().debug("  -- member "+m);
+			}
+			return repositoryObject;
 		} catch (Exception e) {
 			getLog().debug(e.getMessage());
 			if (environment == null)
