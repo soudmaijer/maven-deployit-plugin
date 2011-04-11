@@ -4,7 +4,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.xebialabs.deployit</groupId>
-	<artifactId>maven-deployit-plugin</artifactId>
+	<artifactId>maven-deployit-plugini-embedded</artifactId>
 	<packaging>maven-plugin</packaging>
 	<version>3.1</version>
 	<url>http://www.xebialabs.com</url>
