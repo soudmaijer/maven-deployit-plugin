@@ -19,8 +19,6 @@ import org.apache.maven.plugin.logging.Log;
 
 import javax.ws.rs.core.Response;
 import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -43,7 +41,7 @@ public class MavenCli {
 
 	private boolean testMode = false;
 
-	public MavenCli(String serverAddress, int port, String username, String password) {
+	public MavenCli(String serverAddress, int port, String username, String password, Log log) {
 		options = new CliOptions();
 		if (StringUtils.isNotBlank(serverAddress))
 			options.setHost(serverAddress);
@@ -53,11 +51,14 @@ public class MavenCli {
 		options.setUsername(StringUtils.isBlank(username) ? "admin" : username);
 		options.setPassword(StringUtils.isBlank(password) ? "admin" : password);
 		client = getAuthenticatingHttpClient();
-		attemptToConnectToServer();
+
 		proxies = new Proxies(options, client);
 		factory = new ObjectFactory(proxies);
 		repositoryClient = new RepositoryClient(proxies);
 		deployitClient = new DeployitClient(proxies);
+		setLogger(log);
+
+		attemptToConnectToServer();
 	}
 
 
@@ -82,9 +83,8 @@ public class MavenCli {
 			} else {
 				throw new IllegalStateException("Could contact the server at " + urlToConnectTo + " but received an HTTP error code, " + responseCode);
 			}
-		} catch (MalformedURLException mue) {
-			throw new IllegalStateException("Could not contact the server at " + urlToConnectTo, mue);
-		} catch (IOException e) {
+		} catch (Exception e) {
+			logger.error("Could not contact the server at " + urlToConnectTo + ":"+ e);
 			throw new IllegalStateException("Could not contact the server at " + urlToConnectTo, e);
 		}
 	}

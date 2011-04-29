@@ -207,8 +207,7 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 
 	protected MavenCli getClient() throws MojoExecutionException {
 		if (client == null) {
-			client = new MavenCli(serverAddress, port, username, password);
-			client.setLogger(getLog());
+			client = new MavenCli(serverAddress, port, username, password, getLog());
 			client.setSkipStepsMode(testmode);
 		}
 		return client;
@@ -217,9 +216,6 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 
 	protected void deploy() throws MojoExecutionException {
 		final RepositoryObject deploymentPackage = importDar();
-
-		if (!remoteServerMode && environment == null)
-			throw new MojoExecutionException("Environment cannot be empty in the embedded mode ");
 
 		final RepositoryObject environment = fetchEnvironment();
 		final String application = (String) deploymentPackage.getValues().get("application");
