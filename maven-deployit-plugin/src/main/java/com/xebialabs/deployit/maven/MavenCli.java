@@ -25,8 +25,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.google.common.collect.Collections2.filter;
-import static com.xebialabs.deployit.jcr.JcrConstants.ADMIN_PASSWORD;
-import static com.xebialabs.deployit.jcr.JcrConstants.ADMIN_USERNAME;
 import static java.lang.String.format;
 
 /**
@@ -52,8 +50,8 @@ public class MavenCli {
 
 		options.setPort(port);
 		options.setExposeProxies(true);
-		options.setUsername(StringUtils.isBlank(username) ? ADMIN_USERNAME : username);
-		options.setPassword(StringUtils.isBlank(password) ? ADMIN_PASSWORD : password);
+		options.setUsername(StringUtils.isBlank(username) ? "admin" : username);
+		options.setPassword(StringUtils.isBlank(password) ? "admin" : password);
 		client = getAuthenticatingHttpClient();
 		attemptToConnectToServer();
 		proxies = new Proxies(options, client);

@@ -19,23 +19,14 @@ package com.xebialabs.deployit.maven;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import com.xebialabs.deployit.DeployItConfiguration;
-import com.xebialabs.deployit.DeployitOptions;
-import com.xebialabs.deployit.Server;
 import com.xebialabs.deployit.core.api.dto.RepositoryObject;
-import com.xebialabs.deployit.jcr.JackrabbitRepositoryFactoryBean;
 import com.xebialabs.deployit.maven.packager.ManifestPackager;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.FileSystemResource;
 
-import javax.jcr.RepositoryException;
 import java.io.File;
-import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.Collections;
 import java.util.List;
@@ -85,12 +76,13 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 	/**
 	 * Tell the plugin it must connect to a remote Deployit Server.
 	 * The following properties become mandatory: username, password, serverAddress, port.
-	 * The default value is false, indicating the Deployit Maven plugin will launch a transient server when needed.
+	 * The default value is true.
+	 * Note: the maven plugin does not support the local server mode anymore.
 	 *
-	 * @parameter default-value=false
+	 * @parameter default-value=true
 	 */
 
-	protected boolean remoteServerMode;
+	protected boolean remoteServerMode = true;
 
 	/**
 	 * Deployit server address
@@ -199,44 +191,6 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 
 	public static final String DEFAULT_DEPLOYMENT = "DefaultDeployment";
 
-	protected void startServer() {
-		if (remoteServerMode) {
-			getLog().debug("remote server mode is on, do not start the server");
-			return;
-		}
-		if (!isServerStarted()) {
-			new File("recovery.dat").delete();
-			File repositoryHomeDir = new File("target/repository");
-			repositoryHomeDir.delete();
-
-			getLog().info("STARTING DEPLOYIT SERVER");
-			DeployItConfiguration context = new DeployItConfiguration();
-
-			repositoryHomeDir.mkdirs();
-
-			context.setJcrRepositoryPath(repositoryHomeDir.getPath());
-			context.setHttpPort(port);
-			context.setImportablePackagesPath(new File(outputDirectory, ManifestPackager.DEPLOYMENT_PACKAGE_DIR).getPath());
-			context.setMinThreads(3);
-			context.setMaxThreads(24);
-			context.setSsl(false);
-
-			context.save();
-			try {
-				setupJcrRepository(repositoryHomeDir);
-			} catch (IOException e) {
-				e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-			} catch (RepositoryException e) {
-				e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-			}
-
-			final Server server = new Server(context, new DeployitOptions());
-			server.start();
-
-			getLog().info("STARTED DEPLOYIT SERVER");
-		}
-	}
-
 	private boolean isServerStarted() {
 		getLog().debug("Check if the server is started on port " + port);
 		try {
@@ -250,31 +204,6 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 		return false;
 	}
 
-	private void setupJcrRepository(File repositoryHomeDir) throws IOException, RepositoryException {
-
-		getLog().info("start setupJcrRepository in " + repositoryHomeDir);
-		FileUtils.deleteDirectory(repositoryHomeDir);
-		String homeDirAbsolutePath = repositoryHomeDir.getAbsolutePath();
-
-		JackrabbitRepositoryFactoryBean repositoryFactoryBean = new JackrabbitRepositoryFactoryBean();
-		repositoryFactoryBean.setConfiguration(new ClassPathResource("jackrabbit-repository.xml"));
-		repositoryFactoryBean.setHomeDir(new FileSystemResource(homeDirAbsolutePath));
-
-		repositoryFactoryBean.setCreateHomeDirIfNotExists(true);
-		repositoryFactoryBean.afterPropertiesSet();
-		repositoryFactoryBean.configureJcrRepositoryForDeployit();
-		repositoryFactoryBean.destroy();
-		getLog().info("end setupJcrRepository in " + repositoryHomeDir);
-	}
-
-	public void stopServer() {
-		if (remoteServerMode) {
-			getLog().debug("remote server mode is on, do not stop the server");
-			return;
-		}
-		Server.requestShutdown();
-		new File("recovery.dat").delete();
-	}
 
 	protected MavenCli getClient() throws MojoExecutionException {
 		if (client == null) {
@@ -313,8 +242,6 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 			getPackager().perform();
 			getPackager().seal();
 		}
-
-		startServer();
 		return importDar(darFile);
 	}
 
@@ -336,7 +263,6 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 	}
 
 	protected void undeploy() throws MojoExecutionException {
-		startServer();
 
 		if (forcedClean) {
 			getClient().toggleSkipStepsMode();
@@ -347,7 +273,6 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 		getClient().undeployAndWait(environmentId + "/" + artifactId);
 
 
-		stopServer();
 	}
 
 	protected RepositoryObject importDar(File darFile) throws MojoExecutionException {

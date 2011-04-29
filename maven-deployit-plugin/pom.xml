@@ -175,12 +175,7 @@
 			<version>${mavenVersion}</version>
 		</dependency>
 
-		<!-- deployit -->
-		<dependency>
-			<groupId>com.xebialabs.deployit.distrib</groupId>
-			<artifactId>server</artifactId>
-			<version>3.0</version>
-		</dependency>
+
 
 		<dependency>
 			<groupId>com.xebialabs.deployit.distrib</groupId>
