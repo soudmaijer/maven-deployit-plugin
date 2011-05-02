@@ -96,14 +96,14 @@ public class DeployitCIConverter extends AbstractConfigurationConverter {
 			final PlexusConfiguration mainType = configuration.getChild("type");
 
 			final PlexusConfiguration kvPairs = configuration.getChild("keyValuePairs");
-			List<Map<String,String>> kvParsed = Lists.newArrayList();
-			for (PlexusConfiguration pair: kvPairs.getChildren()) {
+			List<Map<String, String>> kvParsed = Lists.newArrayList();
+			for (PlexusConfiguration pair : kvPairs.getChildren()) {
 				final PlexusConfiguration k = pair.getChild("k");
 				final PlexusConfiguration v = pair.getChild("v");
 				try {
-					Map<String,String> map = Maps.newHashMap();
-					map.put("key",k.getValue());
-					map.put("value",v.getValue());
+					Map<String, String> map = Maps.newHashMap();
+					map.put("key", k.getValue());
+					map.put("value", v.getValue());
 					kvParsed.add(map);
 				} catch (PlexusConfigurationException e) {
 					throw new ComponentConfigurationException("kv getValue error", e);
@@ -133,8 +133,18 @@ public class DeployitCIConverter extends AbstractConfigurationConverter {
 			for (PlexusConfiguration plexusConfiguration : children) {
 				try {
 					String name = plexusConfiguration.getName();
-					String c = plexusConfiguration.getValue();
-					ci.addParameter(name, c);
+					String value = plexusConfiguration.getValue();
+					if (value != null)
+						ci.addParameter(name, value);
+
+					if (name.endsWith("s")) {
+						String subName = name.substring(0, name.length() - 1);
+						List<String> propertyValueAsACollection = Lists.newArrayList();
+						for (PlexusConfiguration subPlexus : plexusConfiguration.getChildren(subName)) {
+							propertyValueAsACollection.add(subPlexus.getValue("NoValueFound for node " + name));
+						}
+						ci.addParameter(name, propertyValueAsACollection);
+					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

@@ -260,8 +260,12 @@ public class MavenCli {
 			logger.debug("   found a configured mapping " + configuredMapping);
 			//Manage Lamda properties
 			for (Map.Entry<String, Object> entry : configuredMapping.getProperties().entrySet()) {
-				logger.debug(format("%s %s with %s", (mappings.contains(entry.getKey()) ? "overwrite" : "set"), entry.getKey(), entry.getValue().toString()));
-				mappingValues.put(entry.getKey(), entry.getValue());
+				final String key = entry.getKey();
+				final Object value = entry.getValue();
+				logger.debug("Key "+key);
+				logger.debug("Value "+value);
+				logger.debug(format("%s %s with %s", (mappings.contains(key) ? "overwrite" : "set"), key, value));
+				mappingValues.put(key, value);
 			}
 			//Manage K,V pairs
 			final List<Map<String, String>> configuredMappingKeyValuePairs = configuredMapping.getKeyValuePairs();
