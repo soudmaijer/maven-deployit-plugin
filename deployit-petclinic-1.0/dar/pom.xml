@@ -19,7 +19,7 @@
 			<plugin>
 				<groupId>com.xebialabs.deployit</groupId>
 				<artifactId>maven-deployit-plugin</artifactId>
-				<version>3.0</version>
+				<version>3.1</version>
 				<extensions>true</extensions>
 				<executions>
 					<execution>
@@ -29,7 +29,6 @@
 							<goal>deploy</goal>
 						</goals>
 					</execution>
-					<!--
 					<execution>
 						<id>clean-id</id>
 						<phase>post-integration-test</phase>
@@ -37,7 +36,6 @@
 							<goal>clean</goal>
 						</goals>
 					</execution>
-					-->
 				</executions>
 
 				<configuration>

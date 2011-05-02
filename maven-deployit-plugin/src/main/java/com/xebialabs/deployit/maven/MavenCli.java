@@ -175,10 +175,10 @@ public class MavenCli {
 		}
 
 		// validate the mappings
-		final ResponseExtractor responseExtractor = new ResponseExtractor(proxies.getDeployment().validate(source, target, mappingsDto));
+		final ResponseExtractor responseExtractor = new ResponseExtractor(getProxies().getDeployment().validate(source, target, mappingsDto));
 		if (responseExtractor.isValidResponse()) {
 			// prepare the deployment
-			Steps steps = new ResponseExtractor(proxies.getDeployment().prepare(source, target, mappingsDto)).getEntity();
+			Steps steps = new ResponseExtractor(getProxies().getDeployment().prepare(source, target, mappingsDto)).getEntity();
 			return steps.getTaskId();
 		} else {
 			final RepositoryObjects validated = responseExtractor.getEntity();
