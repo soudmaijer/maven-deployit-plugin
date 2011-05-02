@@ -171,13 +171,6 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 	/**
 	 * Perform a skipped deployment before clean it.
 	 *
-	 * @parameter default-value=false  expression="${deployit.forceclean}"
-	 */
-	protected boolean forcedClean;
-
-	/**
-	 * Perform a skipped deployment before clean it.
-	 *
 	 * @parameter default-value=false  expression="${deployit.delete.previous.dar}"
 	 */
 	protected boolean deletePreviouslyDeployedDar;
@@ -259,16 +252,7 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 	}
 
 	protected void undeploy() throws MojoExecutionException {
-
-		if (forcedClean) {
-			getClient().toggleSkipStepsMode();
-			deploy();
-			getClient().toggleSkipStepsMode();
-		}
-
 		getClient().undeployAndWait(environmentId + "/" + artifactId);
-
-
 	}
 
 	protected RepositoryObject importDar(File darFile) throws MojoExecutionException {
