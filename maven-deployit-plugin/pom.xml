@@ -192,14 +192,6 @@
 			<version>2.4</version>
 		</dependency>
 
-
-		<dependency>
-			<groupId>com.xebialabs.deployit</groupId>
-			<artifactId>tomcat-plugin</artifactId>
-			<version>1.4</version>
-			<scope>test</scope>
-		</dependency>
-
 		<!-- test -->
 		<dependency>
 			<groupId>junit</groupId>
