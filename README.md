@@ -1,3 +1,9 @@
+# Deployit Maven Plugin
+This is the project providing a Maven plugin to Deployit. Deployit offers end to end Java EE deployment automation to IBM WebSphere, Oracle WebLogic and JBoss environments. Deployit not only deploys Java EE applications, it also configures other middleware components such as web servers like Apache, databases, security proxies like Tivoli Webseal and DataPower, firewalls and load balancers.
+
+# Version
+
+
 # Setup your repository
 1. Go to your Deployit Cli distribution
 2. Go to lib directory : cd lib
