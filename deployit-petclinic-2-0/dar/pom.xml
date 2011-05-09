@@ -39,10 +39,8 @@
 				</executions>
 
 				<configuration>
-					<testmode>false</testmode>
-					<remoteServerMode>true</remoteServerMode>
+					<testmode>true</testmode>
 					<timestampedVersion>true</timestampedVersion>
-					<forcedClean>false</forcedClean>
 					<deployableArtifacts>
 						<DeployableArtifactItem>
 							<type>War</type>

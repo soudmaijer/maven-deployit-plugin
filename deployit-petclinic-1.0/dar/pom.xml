@@ -42,9 +42,7 @@
 
 				<configuration>
 					<testmode>true</testmode>
-					<remoteServerMode>true</remoteServerMode>
 					<timestampedVersion>true</timestampedVersion>
-					<forcedClean>false</forcedClean>
 					<serverAddress>localhost</serverAddress>
 
 					<deployableArtifacts>
