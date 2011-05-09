@@ -6,7 +6,7 @@
 	<groupId>com.xebialabs.deployit</groupId>
 	<artifactId>maven-deployit-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
-	<version>3.0.3</version>
+	<version>3.0.4</version>
 	<url>http://www.xebialabs.com</url>
 
 	<name>Deployit Maven Mojo</name>
@@ -20,9 +20,9 @@
 		<project.build.java.target>1.5</project.build.java.target>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<sourceEncoding>UTF-8</sourceEncoding>
-		<year>2011</year>
+    <year>2011</year>
+    <deployit.version>3.0.4</deployit.version>
 	</properties>
-
 
 	<build>
 		<resources>
@@ -180,7 +180,7 @@
 		<dependency>
 			<groupId>com.xebialabs.deployit</groupId>
 			<artifactId>cli</artifactId>
-			<version>${project.version}</version>
+			<version>${deployit.version}</version>
 		</dependency>
 
 		<dependency>
