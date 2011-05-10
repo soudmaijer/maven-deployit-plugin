@@ -15,8 +15,8 @@
 	<name>PetClinic Deployit DAR</name>
 	<url>http://maven.apache.org</url>
 	<build>
-		<plugins>
-			<plugin>
+    <plugins>
+      <plugin>
 				<groupId>com.xebialabs.deployit</groupId>
 				<artifactId>maven-deployit-plugin</artifactId>
 				<version>3.0.5-SNAPSHOT</version>
@@ -29,6 +29,7 @@
 							<goal>deploy</goal>
 						</goals>
 					</execution>
+					<!--
 					<execution>
 						<id>clean-id</id>
 						<phase>post-integration-test</phase>
@@ -36,17 +37,21 @@
 							<goal>clean</goal>
 						</goals>
 					</execution>
+					-->
 				</executions>
 
 				<configuration>
 					<testmode>true</testmode>
 					<timestampedVersion>true</timestampedVersion>
+					<serverAddress>localhost</serverAddress>
+
 					<deployableArtifacts>
 						<DeployableArtifactItem>
 							<type>War</type>
 							<name>petclinic</name>
 							<location>com.xebialabs.deployit.demo.petclinic-war:PetClinic</location>
 						</DeployableArtifactItem>
+
 						<DeployableArtifactItem>
 							<type>War</type>
 							<name>petclinic-backend</name>
@@ -74,35 +79,23 @@
 							<jkstatus>true</jkstatus>
 							<stickySession>false</stickySession>
 						</middlewareResource>
+						<middlewareResource>
+							<type>TomcatDataSource</type>
+							<configurationName>PetDataSource</configurationName>
+							<jndiName>jdbc/myDataSource</jndiName>
+							<username>scott</username>
+							<password>tiger</password>
+							<url>jdbc:mysql://localhost:3306/javatest</url>
+							<driverClassName>com.mysql.jdbc.Driver</driverClassName>
+						</middlewareResource>
 					</middlewareResources>
 
-					<environment>
-						<ConfigurationItem>
-							<type>Host</type>
-							<label>Infrastructure/tomcat6.vm</label>
-							<address>tomcat6.vm</address>
-							<username>ubuntu</username>
-							<password>ubuntu</password>
-							<operatingSystemFamily>UNIX</operatingSystemFamily>
-							<accessMethod>SSH_SFTP</accessMethod>
-							<addedToEnvironment>false</addedToEnvironment>
-						</ConfigurationItem>
-						<ConfigurationItem>
-							<type>TomcatUnmanagedServer</type>
-							<label>Infrastructure/tomcat6.vm/tomcat6-1</label>
-							<host>Infrastructure/tomcat6.vm</host>
-							<ajpPort>8009</ajpPort>
-							<tomcatHome>/home/ubuntu/tomcat/tomcat6-10</tomcatHome>
-							<startCommand>/home/ubuntu/tomcat/tomcat6-10/bin/startup.sh</startCommand>
-							<stopCommand>/home/ubuntu/tomcat/tomcat6-10/bin/startup.sh</stopCommand>
-							<baseUrl>http://tomcat6.vm:9080</baseUrl>
-						</ConfigurationItem>
-					</environment>
+					<environmentId>Environments/Demo-TomcatApache</environmentId>
 
 					<mappings>
+
 						<MappingItem>
 							<type>TomcatWarMapping</type>
-							<label>WarMapping pocweb</label>
 							<source>config</source>
 							<target>Infrastructure/tomcat6.vm/tomcat6-1</target>
 							<keyValuePairs>
@@ -112,27 +105,35 @@
 								</pair>
 							</keyValuePairs>
 						</MappingItem>
+
+						<MappingItem>
+							<type>TomcatWarMapping</type>
+							<source>config</source>
+							<target>Infrastructure/tomcat6.vm/tomcat6-2</target>
+							<keyValuePairs>
+								<pair>
+									<k>title</k>
+									<v>Deployment From Maven</v>
+								</pair>
+							</keyValuePairs>
+						</MappingItem>
+
+						<MappingItem>
+							<type>ModJkApacheModuleConfigurationMapping</type>
+							<label>ModJkApacheModuleConfiguration pocweb</label>
+							<source>LoadBalancingConfigurationResource</source>
+							<target>Infrastructure/apache2.vm/Apache2WebServer</target>
+							<virtualHost>my.remote.host:9999</virtualHost>
+							<targets>
+								<target>Infrastructure/tomcat6.vm/tomcat6-1</target>
+								<target>Infrastructure/tomcat6.vm/tomcat6-2</target>
+							</targets>
+						</MappingItem>
 					</mappings>
 
 				</configuration>
-				<dependencies>
-					<dependency>
-						<groupId>com.xebialabs.deployit</groupId>
-						<artifactId>tomcat-plugin</artifactId>
-						<version>1.4-SNAPSHOT</version>
-					</dependency>
-					<dependency>
-						<groupId>com.xebialabs.deployit</groupId>
-						<artifactId>apache-modjk-plugin</artifactId>
-						<version>1.4-SNAPSHOT</version>
-					</dependency>
-					<dependency>
-						<groupId>com.xebialabs.deployit</groupId>
-						<artifactId>apache-httpd-plugin</artifactId>
-						<version>1.4-SNAPSHOT</version>
-					</dependency>
-				</dependencies>
 			</plugin>
+
 		</plugins>
 	</build>
 

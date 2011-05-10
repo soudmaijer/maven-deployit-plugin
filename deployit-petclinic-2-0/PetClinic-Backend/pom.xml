@@ -14,7 +14,20 @@
 	<name>PetClinic-Backend Maven Webapp</name>
 	<url>http://maven.apache.org</url>
 	<build>
-		<finalName>PetClinic-Backend</finalName>
+    <finalName>PetClinic-Backend</finalName>
+    <plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>2.1.1</version>
+				<configuration>
+					<archive>
+						<addMavenDescriptor>false</addMavenDescriptor>
+					</archive>
+				</configuration>
+			</plugin>
+		</plugins>
+
 	</build>
 	<dependencies>
 		<dependency>
