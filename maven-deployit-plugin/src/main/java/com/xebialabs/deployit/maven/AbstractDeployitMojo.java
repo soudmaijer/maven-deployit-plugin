@@ -116,7 +116,7 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 
 	/**
 	 * Id of the environment used for the deployment.
-	 * Useful only if you are using the remote server mode to avoid to create a new environment or to fetch an existing environment.
+	 * The default values is
 	 *
 	 * @parameter
 	 */
@@ -181,8 +181,6 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 	protected MavenCli client;
 
 	public static final String DEFAULT_ENVIRONMENT = "Environments/DefaultEnvironment";
-
-	public static final String DEFAULT_DEPLOYMENT = "DefaultDeployment";
 
 	private boolean isServerStarted() {
 		getLog().debug("Check if the server is started on port " + port);
