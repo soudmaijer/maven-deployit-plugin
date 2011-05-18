@@ -116,11 +116,10 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 
 	/**
 	 * Id of the environment used for the deployment.
-	 * The default values is
 	 *
-	 * @parameter
+	 * @parameter default-value="" expression="${deployit.environmentId}"
 	 */
-	private String environmentId = DEFAULT_ENVIRONMENT;
+	private String environmentId;
 
 
 	/**
@@ -179,8 +178,6 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 	protected ManifestPackager packager;
 
 	protected MavenCli client;
-
-	public static final String DEFAULT_ENVIRONMENT = "Environments/DefaultEnvironment";
 
 	private boolean isServerStarted() {
 		getLog().debug("Check if the server is started on port " + port);
@@ -259,6 +256,9 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 	}
 
 	protected RepositoryObject fetchEnvironment() throws MojoExecutionException {
+
+		if (StringUtils.isBlank(environmentId))
+			throw new MojoExecutionException("environmentId is not set");
 
 		try {
 			getLog().info("read the environment " + environmentId);

@@ -49,7 +49,7 @@ public class MappingItem extends ConfigurationItem {
 	}
 
 	public String getLabel() {
-		return '"' + source + " to " + target + " for " + DeployMojo.DEFAULT_DEPLOYMENT + '"';
+		return '"' + source + " to " + target + '"';
 	}
 
 	//@Override
