@@ -294,16 +294,16 @@ public class MavenCli {
 		});
 
 		if (foundMappings.isEmpty()) {
-			logger.debug(format("   found 0 mapping for source (%s) and target (%s) in mappings (%s) ", sourceMapping, targetMapping, mappings));
+			logger.debug(format("   found no customized mapping for generated source (%s) and target (%s). The customized mappings are (%s) ", sourceMapping, targetMapping, mappings));
 			return null;
 		}
 
 		if (foundMappings.size() > 1)
-			throw new IllegalStateException(format("found %n mappings which are candidate for source (%s) and target (%s) : %s", foundMappings.size(), sourceMapping, targetMapping, foundMappings.toString()));
+			throw new IllegalStateException(format("found %n mappings which are candidate for the generated source (%s) and target (%s) : %s", foundMappings.size(), sourceMapping, targetMapping, foundMappings));
 
 
 		final MappingItem foundMapping = foundMappings.iterator().next();
-		logger.debug(format("   found 1 mapping for source (%s) and target (%s) : ", sourceMapping, targetMapping, foundMapping));
+		logger.debug(format("   found 1 mapping for source (%s) and target (%s) : (%s)", sourceMapping, targetMapping, foundMapping));
 		return foundMapping;
 	}
 

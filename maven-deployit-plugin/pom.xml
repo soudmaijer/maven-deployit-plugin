@@ -21,8 +21,8 @@
 		<project.build.java.target>1.5</project.build.java.target>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<sourceEncoding>UTF-8</sourceEncoding>
-    <year>2011</year>
-    <deployit.version>3.0.4</deployit.version>
+		<year>2011</year>
+		<deployit.version>3.0.4</deployit.version>
 	</properties>
 
 	<build>
