@@ -59,4 +59,12 @@ public class MiddlewareResource implements PackagedItem {
 	public void setType(String type) {
 		this.type = type;
 	}
+
+	@Override
+	public String toString() {
+		return "MiddlewareResource{" +
+				"configurationName='" + configurationName + '\'' +
+				", type='" + type + '\'' +
+				'}';
+	}
 }
