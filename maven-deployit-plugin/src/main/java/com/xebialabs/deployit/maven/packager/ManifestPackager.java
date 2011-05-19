@@ -78,7 +78,7 @@ public class ManifestPackager {
 		final String pomVersion = project.getVersion();
 
 		String darVersion = pomVersion;
-		if (timestampedVersion)   {
+		if (timestampedVersion) {
 			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss");
 			darVersion = pomVersion + "-" + dateFormat.format(System.currentTimeMillis());
 		}
@@ -192,7 +192,7 @@ public class ManifestPackager {
 
 
 	protected DeployableArtifactItem getRealDeployableArtifact(final DeployableArtifactItem item) {
-		if (!item.getLocation().contains(":")) {
+		if (!isMavenDependency(item)) {
 			getLog().info(" add a deployable artifact " + item);
 			String relativeLocation = item.getLocation();
 			File fileSysLoca = new File(project.getBasedir(), relativeLocation);
@@ -234,6 +234,15 @@ public class ManifestPackager {
 		mavenDeployableArtifact.setFolder(item.isFolder());
 		return mavenDeployableArtifact;
 
+	}
+
+	/**
+	 * TODO: define markups to handle location or dependency
+	 * item.getLocation().indexOf(':') > 1 fix absolute location on Windows Plateforrm
+	 * assuming no groupId contains only one character !
+	 */
+	private boolean isMavenDependency(DeployableArtifactItem item) {
+		return item.getLocation().contains(":") && item.getLocation().indexOf(':') > 1;
 	}
 
 	public DeployableArtifactItem getRealDeployableArtifact(final Artifact artifact) {
@@ -326,5 +335,5 @@ public class ManifestPackager {
 		this.timestampedVersion = timestampedVersion;
 	}
 
-	
+
 }

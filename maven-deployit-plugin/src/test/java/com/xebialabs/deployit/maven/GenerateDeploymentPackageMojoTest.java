@@ -61,6 +61,15 @@ public class GenerateDeploymentPackageMojoTest extends BaseForTestMojo {
 		performTestAndAssert(artifactID, "war", deployableArtifactItems, mrs);
 	}
 
+	@Test
+	public void testPackageOneWithConfigurationFilesOnWindows() throws Exception {
+		configurationFiles.setLocation("C:/too");
+		List<DeployableArtifactItem> deployableArtifactItems = Collections.singletonList(configurationFiles);
+		List<MiddlewareResource> mrs = Lists.newArrayList();
+		final String artifactID = "testPackageOneWithConfigurationFilesOnWindows";
+		performTestAndAssert(artifactID, "war", deployableArtifactItems, mrs);
+	}
+
 
 	@Test
 	public void testPackageOneWithConfigurationFilesAndSqlFiles() throws Exception {
