@@ -27,6 +27,7 @@ public class MiddlewareResource implements PackagedItem {
 
 		if ("configurationName".equalsIgnoreCase(name)) {
 			this.configurationName = value;
+			return;
 		}
 
 		properties.put(name, value);
