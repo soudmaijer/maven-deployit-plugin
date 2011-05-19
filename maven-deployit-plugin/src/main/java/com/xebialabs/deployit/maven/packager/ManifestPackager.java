@@ -206,11 +206,12 @@ public class ManifestPackager {
 		String key = item.getLocation();
 		Artifact artifact = (Artifact) project.getArtifactMap().get(key);
 		if (artifact == null)
-			getLog().debug("Not found, search in the dependency artifacts...");
+			getLog().debug("key (" + key + ") Not found, search in the dependency artifacts...");
 
 		for (Object o : project.getDependencyArtifacts()) {
 			Artifact da = (Artifact) o;
 			final String artifactKey = da.getGroupId() + ":" + da.getArtifactId();
+			log.debug("   check dependency " + artifactKey);
 			if (artifactKey.equals(key)) {
 				artifact = da;
 			}
@@ -219,15 +220,15 @@ public class ManifestPackager {
 			throw new IllegalStateException(
 					"The artifact "
 							+ key
-							+ " referenced in plugin as is not found the project dependencies");
+							+ " referenced in plugin as is not found the project dependencies "+project.getDependencyArtifacts());
 		}
 
 		final File file = artifact.getFile();
 		if (file == null) {
-			throw new IllegalStateException("Associated file of "+artifact+" is empty");
+			throw new IllegalStateException("Associated file of " + artifact + " is empty");
 		}
 
-		log.debug("  artifact file of "+artifact+" : "+file);
+		log.debug("  artifact file of " + artifact + " : " + file);
 		final String artifactFile = file.toString();
 
 		DeployableArtifactItem mavenDeployableArtifact = new DeployableArtifactItem();
