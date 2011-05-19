@@ -74,6 +74,13 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 	protected boolean testmode;
 
 	/**
+	 * If a deployments leads no steps, fail the build.
+	 *
+	 * @parameter default-value=false
+	 */
+	protected boolean failIfNoStepsAreGenerated;
+
+	/**
 	 * Tell the plugin it must connect to a remote Deployit Server.
 	 * The following properties become mandatory: username, password, serverAddress, port.
 	 * The default value is true.
@@ -197,6 +204,7 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 		if (client == null) {
 			client = new MavenCli(serverAddress, port, username, password, getLog());
 			client.setSkipStepsMode(testmode);
+			client.setFailIfNoStepsAreGenerated(failIfNoStepsAreGenerated);
 		}
 		return client;
 	}
@@ -298,7 +306,7 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 
 			packager.setLog(getLog());
 			packager.setGenerateManifestOnly(generateManifestOnly);
-			packager.setTimestampedVersion(timestampedVersion  || project.getVersion().contains("SNAPSHOT"));
+			packager.setTimestampedVersion(timestampedVersion || project.getVersion().contains("SNAPSHOT"));
 
 			packager.addDeployableArtifact(project.getArtifact());
 			packager.addDeployableArtifacts(deployableArtifacts);

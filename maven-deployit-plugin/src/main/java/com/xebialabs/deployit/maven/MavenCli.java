@@ -40,6 +40,7 @@ public class MavenCli {
 	private Log logger;
 
 	private boolean testMode = false;
+	private boolean failIfNoStepsAreGenerated = false;
 
 	public MavenCli(String serverAddress, int port, String username, String password, Log log) {
 		options = new CliOptions();
@@ -84,7 +85,7 @@ public class MavenCli {
 				throw new IllegalStateException("Could contact the server at " + urlToConnectTo + " but received an HTTP error code, " + responseCode);
 			}
 		} catch (Exception e) {
-			logger.error("Could not contact the server at " + urlToConnectTo + ":"+ e);
+			logger.error("Could not contact the server at " + urlToConnectTo + ":" + e);
 			throw new IllegalStateException("Could not contact the server at " + urlToConnectTo, e);
 		}
 	}
@@ -156,7 +157,7 @@ public class MavenCli {
 			checkTaskState(taskId);
 		} catch (DeployitClientException e) {
 			logger.error(" DeployitClientException: " + e.getMessage());
-			if (!e.getMessage().contains("The mappings did not lead to any steps")) {
+			if (failIfNoStepsAreGenerated || !e.getMessage().contains("The mappings did not lead to any steps")) {
 				throw e;
 			}
 		} finally {
@@ -189,7 +190,7 @@ public class MavenCli {
 					logger.error(msg);
 					errMsg = errMsg + msg + "\n";
 				}
-				throw new RuntimeException("Mapping validation errors, " + ( StringUtils.isNotBlank(errMsg) ? errMsg : validated.toString()));
+				throw new RuntimeException("Mapping validation errors, " + (StringUtils.isNotBlank(errMsg) ? errMsg : validated.toString()));
 			}
 			return null;
 		}
@@ -262,8 +263,8 @@ public class MavenCli {
 			for (Map.Entry<String, Object> entry : configuredMapping.getProperties().entrySet()) {
 				final String key = entry.getKey();
 				final Object value = entry.getValue();
-				logger.debug("Key "+key);
-				logger.debug("Value "+value);
+				logger.debug("Key " + key);
+				logger.debug("Value " + value);
 				logger.debug(format("%s %s with %s", (mappings.contains(key) ? "overwrite" : "set"), key, value));
 				mappingValues.put(key, value);
 			}
@@ -349,8 +350,10 @@ public class MavenCli {
 		this.testMode = testMode;
 	}
 
-	public void toggleSkipStepsMode() {
-		this.testMode = (testMode ? false : true);
+
+
+	public void setFailIfNoStepsAreGenerated(boolean failIfNoStepsAreGenerated) {
+		this.failIfNoStepsAreGenerated = failIfNoStepsAreGenerated;
 	}
 
 	private Integer[] range(int begin, int end) {
@@ -376,4 +379,6 @@ public class MavenCli {
 	DeployitClient getDeployitClient() {
 		return deployitClient;
 	}
+
+
 }
