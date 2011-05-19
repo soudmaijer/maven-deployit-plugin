@@ -327,9 +327,6 @@ public class ManifestPackager {
 		return new File(project.getBuild().getDirectory(), project.getBuild().getFinalName() + ".dar");
 	}
 
-	public boolean isTimestampedVersion() {
-		return timestampedVersion;
-	}
 
 	public void setTimestampedVersion(boolean timestampedVersion) {
 		this.timestampedVersion = timestampedVersion;

@@ -27,6 +27,7 @@ import org.junit.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -104,6 +105,46 @@ public class GenerateDeploymentPackageMojoTest extends BaseForTestMojo {
 		performTestAndAssert(artifactID, "dar", deployableArtifactItems, mrs);
 	}
 
+	@Test
+	public void testPackageDarOneWithConfigurationFilesAndSqlFilesAndTwoMiddlewareResourcesTimestamped() throws Exception {
+		List<DeployableArtifactItem> deployableArtifactItems = Lists.newArrayList(configurationFiles, sqlFiles, warFile);
+		List<MiddlewareResource> mrs = Lists.newArrayList(mrDataSource, mrModjk);
+		final String artifactID = "testPackageDarOneWithConfigurationFilesAndSqlFilesAndTwoMiddlewareResources";
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+		setVariableValueToObject(darMojo, "timestampedVersion", true);
+
+		final String darVersion = "12.2";
+		performTestAndAssert(artifactID, "dar", deployableArtifactItems, mrs, darVersion);
+		final String now = dateFormat.format(System.currentTimeMillis());
+
+		Manifest manifest = new Manifest(new java.io.FileInputStream(darMojo.getManifestFile()));
+		final Attributes mainAttributes = manifest.getMainAttributes();
+		final String version = mainAttributes.getValue("CI-Version");
+		final String darVersionNow = darVersion + "-" + now;
+		assertTrue(version + " doest not contains " + darVersion + "-" + now, version.startsWith(darVersionNow));
+
+	}
+
+	@Test
+	public void testPackageDarOneWithConfigurationFilesAndSqlFilesAndTwoMiddlewareResourcesImplicitTimestampedTrueWithSnapShot() throws Exception {
+		List<DeployableArtifactItem> deployableArtifactItems = Lists.newArrayList(configurationFiles, sqlFiles, warFile);
+		List<MiddlewareResource> mrs = Lists.newArrayList(mrDataSource, mrModjk);
+		final String artifactID = "testPackageDarOneWithConfigurationFilesAndSqlFilesAndTwoMiddlewareResources";
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+
+		final String darVersion = "2.4.5-SNAPSHOT";
+		performTestAndAssert(artifactID, "dar", deployableArtifactItems, mrs, darVersion);
+		final String now = dateFormat.format(System.currentTimeMillis());
+
+
+		Manifest manifest = new Manifest(new java.io.FileInputStream(darMojo.getManifestFile()));
+		final Attributes mainAttributes = manifest.getMainAttributes();
+		final String version = mainAttributes.getValue("CI-Version");
+		final String darVersionNow = darVersion + "-" + now;
+		assertTrue(version + " doest not contains " + darVersion + "-" + now, version.startsWith(darVersionNow));
+
+	}
+
 
 	private void assertDescribeTheSamePackage(DeployableArtifactItem mainArtifact, List<DeployableArtifactItem> daitem, List<MiddlewareResource> mr, File manifestFile) throws Exception {
 		List<PackagedItem> all = Lists.newArrayList();
@@ -143,6 +184,10 @@ public class GenerateDeploymentPackageMojoTest extends BaseForTestMojo {
 	}
 
 	private void performTestAndAssert(String artifactID, String type, List<DeployableArtifactItem> deployableArtifactItems, List<MiddlewareResource> mrs) throws Exception {
+		performTestAndAssert(artifactID, type, deployableArtifactItems, mrs, "1.3");
+	}
+
+	private void performTestAndAssert(String artifactID, String type, List<DeployableArtifactItem> deployableArtifactItems, List<MiddlewareResource> mrs, String version) throws Exception {
 		MavenProjectStub project = new MavenProjectStub() {
 			private Build build;
 
@@ -167,7 +212,7 @@ public class GenerateDeploymentPackageMojoTest extends BaseForTestMojo {
 		project.setBuild(new Build());
 		project.setGroupId("com.xebialabs.unit.tests");
 		project.setArtifactId(artifactID);
-		project.setVersion("1.0");
+		project.setVersion(version);
 
 		project.getBuild().setDirectory(new File("target/").getPath());
 		project.getBuild().setOutputDirectory(new File("target/classes").getPath());

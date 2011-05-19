@@ -298,13 +298,11 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 
 			packager.setLog(getLog());
 			packager.setGenerateManifestOnly(generateManifestOnly);
-			packager.setTimestampedVersion(timestampedVersion);
+			packager.setTimestampedVersion(timestampedVersion  || project.getVersion().contains("SNAPSHOT"));
 
 			packager.addDeployableArtifact(project.getArtifact());
 			packager.addDeployableArtifacts(deployableArtifacts);
 			packager.addMiddlewareResources(middlewareResources);
-
-
 		}
 		return packager;
 	}
