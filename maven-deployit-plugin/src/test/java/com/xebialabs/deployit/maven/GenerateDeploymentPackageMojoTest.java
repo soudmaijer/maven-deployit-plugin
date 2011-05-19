@@ -20,6 +20,7 @@ package com.xebialabs.deployit.maven;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.model.Build;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.testing.stubs.ArtifactStub;
 import org.apache.maven.plugin.testing.stubs.MavenProjectStub;
 import org.junit.Test;
@@ -31,6 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
@@ -50,7 +52,7 @@ public class GenerateDeploymentPackageMojoTest extends BaseForTestMojo {
 		List<MiddlewareResource> mrs = Lists.newArrayList();
 		final String artifactID = "testPackageWar";
 		setVariableValueToObject(darMojo, "timestampedVersion", true);
-		performTestAndAssert(artifactID, "war", deployableArtifactItems, mrs);
+		performTestAndAssert(artifactID, "war", deployableArtifactItems, mrs,"123.4");
 	}
 
 
@@ -117,12 +119,16 @@ public class GenerateDeploymentPackageMojoTest extends BaseForTestMojo {
 		performTestAndAssert(artifactID, "dar", deployableArtifactItems, mrs, darVersion);
 		final String now = dateFormat.format(System.currentTimeMillis());
 
-		Manifest manifest = new Manifest(new java.io.FileInputStream(darMojo.getManifestFile()));
-		final Attributes mainAttributes = manifest.getMainAttributes();
-		final String version = mainAttributes.getValue("CI-Version");
+		final String version = getCIVersionFromManifest();
 		final String darVersionNow = darVersion + "-" + now;
 		assertTrue(version + " doest not contains " + darVersion + "-" + now, version.startsWith(darVersionNow));
 
+	}
+
+	private String getCIVersionFromManifest() throws IOException, MojoExecutionException {
+		Manifest manifest = new Manifest(new java.io.FileInputStream(darMojo.getManifestFile()));
+		final Attributes mainAttributes = manifest.getMainAttributes();
+		return mainAttributes.getValue("CI-Version");
 	}
 
 	@Test
@@ -136,10 +142,7 @@ public class GenerateDeploymentPackageMojoTest extends BaseForTestMojo {
 		performTestAndAssert(artifactID, "dar", deployableArtifactItems, mrs, darVersion);
 		final String now = dateFormat.format(System.currentTimeMillis());
 
-
-		Manifest manifest = new Manifest(new java.io.FileInputStream(darMojo.getManifestFile()));
-		final Attributes mainAttributes = manifest.getMainAttributes();
-		final String version = mainAttributes.getValue("CI-Version");
+		final String version = getCIVersionFromManifest();
 		final String darVersionNow = darVersion + "-" + now;
 		assertTrue(version + " doest not contains " + darVersion + "-" + now, version.startsWith(darVersionNow));
 
@@ -184,7 +187,11 @@ public class GenerateDeploymentPackageMojoTest extends BaseForTestMojo {
 	}
 
 	private void performTestAndAssert(String artifactID, String type, List<DeployableArtifactItem> deployableArtifactItems, List<MiddlewareResource> mrs) throws Exception {
-		performTestAndAssert(artifactID, type, deployableArtifactItems, mrs, "1.3");
+		Random r = new Random();
+		final String version = "" + r.nextInt(10000);
+		performTestAndAssert(artifactID, type, deployableArtifactItems, mrs, version);
+		final String manifestVersion = getCIVersionFromManifest();
+		assertEquals(version, manifestVersion);
 	}
 
 	private void performTestAndAssert(String artifactID, String type, List<DeployableArtifactItem> deployableArtifactItems, List<MiddlewareResource> mrs, String version) throws Exception {
