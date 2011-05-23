@@ -104,6 +104,7 @@ public class MavenCli {
 
 	public void delete(String id) {
 		try {
+			logger.debug("Delete "+id);
 			getRepositoryClient().delete(id);
 		} catch (Exception e) {
 			logger.debug(format("delete fails %s", id));
