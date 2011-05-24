@@ -81,6 +81,8 @@ public class ManifestPackager {
 		if (timestampedVersion) {
 			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss");
 			darVersion = pomVersion + "-" + dateFormat.format(System.currentTimeMillis());
+			//SNAPHOT is removed from the timestamped version (as maven deploy does).
+			darVersion = darVersion.replace("-SNAPSHOT","");
 		}
 
 		mainAttributes.putValue(VERSION, darVersion);

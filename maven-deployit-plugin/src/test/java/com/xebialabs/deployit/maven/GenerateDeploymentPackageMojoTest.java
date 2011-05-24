@@ -143,7 +143,7 @@ public class GenerateDeploymentPackageMojoTest extends BaseForTestMojo {
 		final String now = dateFormat.format(System.currentTimeMillis());
 
 		final String version = getCIVersionFromManifest();
-		final String darVersionNow = darVersion + "-" + now;
+		final String darVersionNow = "2.4.5" + "-" + now;
 		assertTrue(version + " doest not contains " + darVersion + "-" + now, version.startsWith(darVersionNow));
 
 	}
