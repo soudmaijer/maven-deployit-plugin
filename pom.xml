@@ -6,7 +6,7 @@
 	<artifactId>maven-deployit-plugin-parent</artifactId>
 
 	<packaging>pom</packaging>
-	<version>3.0.5-SNAPSHOT</version>
+	<version>3.0.5</version>
 
 	<name>Deployit Maven Mojo Parent</name>
 	<modules>
