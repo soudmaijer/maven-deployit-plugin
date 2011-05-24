@@ -161,6 +161,7 @@ public class MavenCli {
 			if (failIfNoStepsAreGenerated || !e.getMessage().contains("The mappings did not lead to any steps")) {
 				throw e;
 			}
+			return source;
 		} finally {
 			if (taskId != null) {
 				logger.info(" Cancel task " + taskId);

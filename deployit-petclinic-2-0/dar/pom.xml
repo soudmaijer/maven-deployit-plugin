@@ -44,6 +44,7 @@
 					<testmode>true</testmode>
 					<timestampedVersion>true</timestampedVersion>
 					<serverAddress>localhost</serverAddress>
+ <deletePreviouslyDeployedDar>true</deletePreviouslyDeployedDar>
 
 					<deployableArtifacts>
 						<DeployableArtifactItem>
@@ -75,6 +76,7 @@
 						<middlewareResource>
 							<type>ModJkApacheModuleConfiguration</type>
 							<configurationName>LoadBalancingConfiguration</configurationName>
+							<name>LoadBalancingConfiguration</name>
 							<urlMounts>/*</urlMounts>
 							<jkstatus>true</jkstatus>
 							<stickySession>false</stickySession>
