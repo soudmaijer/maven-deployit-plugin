@@ -28,7 +28,7 @@ def checkIsDir(File file) {
   assert file.isDirectory(), " file " + file;
 }
 
-def darDirectory = new File(basedir, "dar/target/deployment-package/mapping-deploy/1.0.1");
+def darDirectory = new File(basedir, "dar/target/deployment-package/mapping-deploy-nl/1.0.1");
 checkIsDir(darDirectory);
 checkIsDir(new File(darDirectory, "ConfigurationFiles"));
 checkIsDir(new File(darDirectory, "ConfigurationFiles/resources.dir"));

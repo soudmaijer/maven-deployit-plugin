@@ -11,7 +11,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>nl.beinformed.bi.test.server.beslissing</groupId>
-	<artifactId>mapping-deploy</artifactId>
+	<artifactId>mapping-deploy-nl</artifactId>
 	<version>1.0.1</version>
 	<packaging>dar</packaging>
 	<name>The Deployement Project using DAR</name>
@@ -39,6 +39,7 @@
 				</executions>
 				<configuration>
 					<testmode>true</testmode>
+					<environmentId>Environments/it-${project.artifactId}</environmentId>
 					<environment>
 						<ConfigurationItem>
 							<type>Host</type>
@@ -91,7 +92,7 @@
 					<mappings>
 						<MappingItem>
 							<type>ConfigurationFilesMapping</type>
-							<source>Applications/mapping-deploy/1.0.1/resources.dir</source>
+							<source>Applications/${project.artifactId}/${project.version}/resources.dir</source>
 							<target>Infrastructure/JBoss Host</target>
 							<keyValuePairs>
 								<pair>
@@ -104,7 +105,7 @@
 
 						<MappingItem>
 							<type>LibrariesMapping</type>
-							<source>Applications/mapping-deploy/1.0.1/database.drivers</source>
+							<source>Applications/${project.artifactId}/${project.version}/database.drivers</source>
 							<target>Infrastructure/JBoss Host</target>
 							<targetDirectory>${jboss.home}server/${jboss.server.name}/lib</targetDirectory>
 							<shared>true</shared>
@@ -112,7 +113,7 @@
 
 						<MappingItem>
 							<type>LibrariesMapping</type>
-							<source>Applications/mapping-deploy/1.0.1/platform.libraries.jboss4</source>
+							<source>Applications/${project.artifactId}/${project.version}/platform.libraries.jboss4</source>
 							<target>Infrastructure/JBoss Host</target>
 							<targetDirectory>${jboss.home}server/${jboss.server.name}/lib</targetDirectory>
 							<shared>true</shared>
@@ -121,13 +122,6 @@
 					</mappings>
 
 				</configuration>
-				<dependencies>
-					<dependency>
-						<groupId>com.xebialabs.deployit</groupId>
-						<artifactId>jbossas-plugin</artifactId>
-						<version>${deployitPluginVersion}</version>
-					</dependency>
-				</dependencies>
 			</plugin>
 
 		</plugins>
@@ -142,7 +136,6 @@
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
-
 
 </project>
 

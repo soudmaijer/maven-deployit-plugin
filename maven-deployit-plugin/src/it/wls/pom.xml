@@ -40,8 +40,8 @@
 					</execution>
 				</executions>
 				<configuration>
-					<port>9090</port>
 					<testmode>true</testmode>
+					<environmentId>Environments/it-${project.artifactId}</environmentId>
 					<environment>
 						<ConfigurationItem>
 							<type>Host</type>
@@ -88,18 +88,7 @@
 
 
 				</configuration>
-				<dependencies>
-					<dependency>
-						<groupId>com.xebialabs.deployit</groupId>
-						<artifactId>wls-plugin</artifactId>
-						<version>${deployitPluginVersion}</version>
-					</dependency>
-					<dependency>
-						<groupId>com.xebialabs.deployit</groupId>
-						<artifactId>apache-httpd-plugin</artifactId>
-						<version>${deployitPluginVersion}</version>
-					</dependency>
-				</dependencies>
+
 			</plugin>
 		</plugins>
 	</build>

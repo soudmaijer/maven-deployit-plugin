@@ -10,12 +10,10 @@
 	<version>1.0-SNAPSHOT</version>
 
 	<properties>
-		<deployitVersion>1.3</deployitVersion>
-		<deployitPluginVersion>1.4-SNAPSHOT</deployitPluginVersion>
-		<deployitMavenPluginVersion>3.0-SNAPSHOT</deployitMavenPluginVersion>
 		<!--
-				<deployitMavenPluginVersion>@project.version@</deployitMavenPluginVersion>
-				-->
+		<deployitMavenPluginVersion>3.0-SNAPSHOT</deployitMavenPluginVersion>
+		    	-->
+		<deployitMavenPluginVersion>@project.version@</deployitMavenPluginVersion>
 	</properties>
 
 	<!--

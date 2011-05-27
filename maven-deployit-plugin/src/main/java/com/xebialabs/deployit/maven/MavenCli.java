@@ -43,6 +43,7 @@ public class MavenCli {
 	private boolean failIfNoStepsAreGenerated = false;
 
 	public MavenCli(String serverAddress, int port, String username, String password, Log log) {
+		setLogger(log);
 		options = new CliOptions();
 		if (StringUtils.isNotBlank(serverAddress))
 			options.setHost(serverAddress);
@@ -53,13 +54,12 @@ public class MavenCli {
 		options.setPassword(StringUtils.isBlank(password) ? "admin" : password);
 		client = getAuthenticatingHttpClient();
 
+		attemptToConnectToServer();
+
 		proxies = new Proxies(options, client);
 		factory = new ObjectFactory(proxies);
 		repositoryClient = new RepositoryClient(proxies);
 		deployitClient = new DeployitClient(proxies);
-		setLogger(log);
-
-		attemptToConnectToServer();
 	}
 
 

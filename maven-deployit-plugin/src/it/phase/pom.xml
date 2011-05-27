@@ -47,6 +47,7 @@
 				</executions>
 				<configuration>
 					<testmode>true</testmode>
+					<environmentId>Environments/it-${project.artifactId}</environmentId>
 					<environment>
 						<ConfigurationItem>
 							<type>Host</type>
@@ -68,14 +69,6 @@
 						</ConfigurationItem>
 					</environment>
 				</configuration>
-
-				<dependencies>
-					<dependency>
-						<groupId>com.xebialabs.deployit</groupId>
-						<artifactId>jbossas-plugin</artifactId>
-						<version>${deployitPluginVersion}</version>
-					</dependency>
-				</dependencies>
 			</plugin>
 		</plugins>
 	</build>
