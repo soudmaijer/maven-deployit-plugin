@@ -45,7 +45,7 @@
 
 					<deletePreviouslyDeployedDar>true</deletePreviouslyDeployedDar>
 					<serverAddress>localhost</serverAddress>
-					<explicitMappings>true</explicitMappings>
+					<explicitMappings>false</explicitMappings>
 
 					<deployableArtifacts>
 						<DeployableArtifactItem>
