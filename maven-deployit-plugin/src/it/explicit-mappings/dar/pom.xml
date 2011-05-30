@@ -1,0 +1,151 @@
+<?xml  version="1.0"  encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0  http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<parent>
+		<groupId>com.xebialabs.deployit</groupId>
+		<artifactId>maven-deployit-plugin-integration-test</artifactId>
+		<relativePath>../../pom.xml</relativePath>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>nl.beinformed.bi.test.server.beslissing</groupId>
+	<artifactId>explicit-mapping-deploy-nl</artifactId>
+	<version>1.0.1</version>
+	<packaging>dar</packaging>
+	<name>The Deployement Project using DAR</name>
+
+	<properties>
+		<jboss.home>/opt/jboss</jboss.home>
+		<jboss.server.name>myJboss</jboss.server.name>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>com.xebialabs.deployit</groupId>
+				<artifactId>maven-deployit-plugin</artifactId>
+				<version>${deployitMavenPluginVersion}</version>
+				<extensions>true</extensions>
+				<executions>
+					<execution>
+						<id>deploy-id</id>
+						<phase>install</phase>
+						<goals>
+							<goal>deploy</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+          <testmode>true</testmode>
+          <explicitMappings>false</explicitMappings>
+					<environmentId>Environments/it-${project.artifactId}</environmentId>
+					<environment>
+						<ConfigurationItem>
+							<type>Host</type>
+							<label>Infrastructure/JBoss Host</label>
+							<address>jboss-51</address>
+							<username>root</username>
+							<password>centos</password>
+							<operatingSystemFamily>UNIX</operatingSystemFamily>
+							<accessMethod>SSH_SFTP</accessMethod>
+						</ConfigurationItem>
+						<ConfigurationItem>
+							<type>JbossasServer</type>
+							<label>Infrastructure/JBoss Host/JBoss server</label>
+							<host>Infrastructure/JBoss Host</host>
+							<home>/opt/jboss/5.1.0.GA</home>
+							<version>JBOSSAS_50</version>
+							<name>itest</name>
+							<startCommand>bin/start.sh</startCommand>
+						</ConfigurationItem>
+					</environment>
+
+					<deployableArtifacts>
+
+						<DeployableArtifactItem>
+							<type>ConfigurationFiles</type>
+							<location>package/resources.dir</location>
+							<name>resources.dir</name>
+						</DeployableArtifactItem>
+
+						<DeployableArtifactItem>
+							<type>Libraries</type>
+							<location>package/database.drivers</location>
+							<name>database.drivers</name>
+						</DeployableArtifactItem>
+
+						<DeployableArtifactItem>
+							<type>Libraries</type>
+							<location>package/platform.libraries.jboss4</location>
+							<name>platform.libraries.jboss4</name>
+						</DeployableArtifactItem>
+
+						<DeployableArtifactItem>
+							<type>Ear</type>
+							<location>com.xebialabs.deployit.maven.integrationtests:aSimpleEar</location>
+							<name>simpleEar</name>
+						</DeployableArtifactItem>
+
+					</deployableArtifacts>
+
+					<mappings>
+						<MappingItem>
+							<type>com.xebialabs.deployit.ci.artifact.mapping.ConfigurationFilesMapping</type>
+							<source>Applications/${project.artifactId}/${project.version}/resources.dir</source>
+							<target>Infrastructure/JBoss Host</target>
+							<keyValuePairs>
+								<pair>
+									<k>remote.host</k>
+									<v>www.demomaven.com</v>
+								</pair>
+							</keyValuePairs>
+							<targetDirectory>/data/autotest</targetDirectory>
+						</MappingItem>
+
+						<MappingItem>
+							<type>com.xebialabs.deployit.ci.artifact.mapping.LibrariesMapping</type>
+							<source>Applications/${project.artifactId}/${project.version}/database.drivers</source>
+							<target>Infrastructure/JBoss Host</target>
+							<targetDirectory>${jboss.home}server/${jboss.server.name}/lib</targetDirectory>
+							<shared>true</shared>
+						</MappingItem>
+
+						<MappingItem>
+							<type>com.xebialabs.deployit.ci.artifact.mapping.LibrariesMapping</type>
+							<source>Applications/${project.artifactId}/${project.version}/platform.libraries.jboss4</source>
+							<target>Infrastructure/JBoss Host</target>
+							<targetDirectory>${jboss.home}server/${jboss.server.name}/lib</targetDirectory>
+							<shared>true</shared>
+            </MappingItem>
+
+            <MappingItem>
+              <type>com.xebialabs.deployit.plugin.jbossas.ci.JbossasEarMapping</type>
+              <source>simpleEar</source>
+              <target>Infrastructure/JBoss Host/JBoss server</target>
+            </MappingItem>
+
+					</mappings>
+
+				</configuration>
+			</plugin>
+
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.xebialabs.deployit.maven.integrationtests</groupId>
+			<artifactId>aSimpleEar</artifactId>
+			<type>ear</type>
+			<version>1.2.3</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+
+</project>
+
+
+
+
