@@ -1,5 +1,6 @@
 package com.xebialabs.deployit.maven;
 
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.xebialabs.deployit.cli.CliOptions;
@@ -23,6 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.google.common.collect.Collections2.filter;
+import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 
 /**
@@ -41,6 +43,7 @@ public class MavenCli {
 
 	private boolean testMode = false;
 	private boolean failIfNoStepsAreGenerated = false;
+	private boolean explicitMappings = false;
 
 	public MavenCli(String serverAddress, int port, String username, String password, Log log) {
 		setLogger(log);
@@ -104,7 +107,7 @@ public class MavenCli {
 
 	public void delete(String id) {
 		try {
-			logger.debug("Delete "+id);
+			logger.debug("Delete " + id);
 			getRepositoryClient().delete(id);
 		} catch (Exception e) {
 			logger.debug(format("delete fails %s", id));
@@ -137,8 +140,11 @@ public class MavenCli {
 	 * @return the id of the previous deployed package (or null) if not found.
 	 */
 	public String deployAndWait(String source, String target, List<MappingItem> mappings) {
+		if (mappings == null) {
+			mappings = newArrayList();
+		}
 
-		final RepositoryObject[] generatedMappings = generateMappings(source, target, mappings);
+		final RepositoryObject[] generatedMappings = generateMappings(source, target, mappings).toArray(new RepositoryObject[]{});
 		target = computeRealTarget(source, target);
 		logger.info("  real target is " + target);
 		String previousDeployedPackage = getPreviousDeployedPackage(target);
@@ -226,12 +232,14 @@ public class MavenCli {
 		deployAndWait(source, null, null);
 	}
 
-	private RepositoryObject[] generateMappings(String source, String target, List<MappingItem> mappings) {
+	private List<RepositoryObject> generateMappings(final String source, final String target, final List<MappingItem> mappings) {
 		if (target == null)
-			return null;
+			return Collections.emptyList();
 
-		if (mappings == null)
-			mappings = Lists.newArrayList();
+		if (explicitMappings) {
+			logger.info("using explicit mappings");
+			return generateExplicitMappings(source, target, mappings);
+		}
 
 		final RepositoryObject dp = getRepositoryClient().read(source);
 		final Map<String, Object> values = dp.getValues();
@@ -251,36 +259,54 @@ public class MavenCli {
 
 		logger.info(format("generate mappings %s - %s", source, target));
 		final RepositoryObject[] generatedMappings = getDeployitClient().generateMappings(deployableArtifacts, target);
-		for (RepositoryObject repositoryObjectMapping : generatedMappings) {
-			logger.info("  process generated mapping " + repositoryObjectMapping.getId());
-			logger.debug("   mapping id ->" + repositoryObjectMapping.getId());
-			final Map<String, Object> mappingValues = repositoryObjectMapping.getValues();
-
-			final MappingItem configuredMapping = searchCandidateMapping(mappings, mappingValues);
-			if (configuredMapping == null)
-				continue;
-
-			logger.debug("   found a configured mapping " + configuredMapping);
-			//Manage Lamda properties
-			for (Map.Entry<String, Object> entry : configuredMapping.getProperties().entrySet()) {
-				final String key = entry.getKey();
-				final Object value = entry.getValue();
-				logger.debug("Key " + key);
-				logger.debug("Value " + value);
-				logger.debug(format("%s %s with %s", (mappings.contains(key) ? "overwrite" : "set"), key, value));
-				mappingValues.put(key, value);
-			}
-			//Manage K,V pairs
-			final List<Map<String, String>> configuredMappingKeyValuePairs = configuredMapping.getKeyValuePairs();
-			if (configuredMappingKeyValuePairs != null) {
-				//TODO: check the key from generated mappings before override it.
-				final Object keyValuePairsFromMapping = mappingValues.get("keyValuePairs");
-				logger.debug("replace kvPair " + keyValuePairsFromMapping + " by " + configuredMappingKeyValuePairs);
-				mappingValues.put("keyValuePairs", configuredMappingKeyValuePairs);
-			}
-			logger.info("   modified mapping  " + repositoryObjectMapping);
+		if (generatedMappings == null) {
+			return Collections.emptyList();
 		}
-		return generatedMappings;
+		return Lists.transform(Lists.newArrayList(generatedMappings), new Function<RepositoryObject, RepositoryObject>() {
+			@Override
+			public RepositoryObject apply(RepositoryObject from) {
+				logger.info("  process generated mapping " + from.getId());
+				logger.debug("   mapping id ->" + from.getId());
+				final Map<String, Object> mappingValues = from.getValues();
+
+				final MappingItem configuredMapping = searchCandidateMapping(mappings, mappingValues);
+				if (configuredMapping == null)
+					return from;
+
+				logger.debug("   found a configured mapping " + configuredMapping);
+				//Manage Lamda properties
+				for (Map.Entry<String, Object> entry : configuredMapping.getProperties().entrySet()) {
+					final String key = entry.getKey();
+					final Object value = entry.getValue();
+					logger.debug("      Key " + key);
+					logger.debug("      Value " + value);
+					logger.debug(format("      %s %s with %s", (mappings.contains(key) ? "overwrite" : "set"), key, value));
+					mappingValues.put(key, value);
+				}
+				//Manage K,V pairs
+				final List<Map<String, String>> configuredMappingKeyValuePairs = configuredMapping.getKeyValuePairs();
+				if (configuredMappingKeyValuePairs != null) {
+					//TODO: check the key from generated mappings before override it.
+					final Object keyValuePairsFromMapping = mappingValues.get("keyValuePairs");
+					logger.debug("      replace kvPair " + keyValuePairsFromMapping + " by " + configuredMappingKeyValuePairs);
+					mappingValues.put("keyValuePairs", configuredMappingKeyValuePairs);
+				}
+				logger.info("   modified mapping  " + from);
+				return from;
+			}
+		});
+	}
+
+	private List<RepositoryObject> generateExplicitMappings(String source, String target, List<MappingItem> mappings) {
+		return Lists.transform(mappings, new Function<MappingItem, RepositoryObject>() {
+			@Override
+			public RepositoryObject apply(MappingItem from) {
+				logger.debug("generateExplicitMappings from "+from);
+				final RepositoryObject repositoryObject = from.toRepositoryObject();
+				logger.debug("generateExplicitMappings to   "+repositoryObject);
+				return repositoryObject;
+			}
+		});
 	}
 
 	private MappingItem searchCandidateMapping(List<MappingItem> mappings, Map<String, Object> mappingValues) {
@@ -353,7 +379,6 @@ public class MavenCli {
 	}
 
 
-
 	public void setFailIfNoStepsAreGenerated(boolean failIfNoStepsAreGenerated) {
 		this.failIfNoStepsAreGenerated = failIfNoStepsAreGenerated;
 	}
@@ -382,5 +407,7 @@ public class MavenCli {
 		return deployitClient;
 	}
 
-
+	public void setExplicitMappings(boolean explicitMappings) {
+		this.explicitMappings = explicitMappings;
+	}
 }

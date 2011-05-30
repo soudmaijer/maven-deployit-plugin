@@ -45,6 +45,7 @@
 
 					<deletePreviouslyDeployedDar>true</deletePreviouslyDeployedDar>
 					<serverAddress>localhost</serverAddress>
+					<explicitMappings>true</explicitMappings>
 
 					<deployableArtifacts>
 						<DeployableArtifactItem>
@@ -97,7 +98,20 @@
 					<mappings>
 
 						<MappingItem>
-							<type>TomcatWarMapping</type>
+							<type>com.xebialabs.deployit.plugin.tomcat.ci.TomcatWarMapping</type>
+							<source>PetClinic.war</source>
+							<target>Infrastructure/tomcat6.vm/tomcat6-1</target>
+						</MappingItem>
+
+						<MappingItem>
+							<type>com.xebialabs.deployit.plugin.tomcat.ci.TomcatWarMapping</type>
+							<source>PetClinic.war</source>
+							<target>Infrastructure/tomcat6.vm/tomcat6-2</target>
+						</MappingItem>
+
+
+						<MappingItem>
+							<type>com.xebialabs.deployit.plugin.tomcat.ci.TomcatConfigurationFilesMapping</type>
 							<source>config</source>
 							<target>Infrastructure/tomcat6.vm/tomcat6-1</target>
 							<keyValuePairs>
@@ -106,10 +120,11 @@
 									<v>Deployment From Maven</v>
 								</pair>
 							</keyValuePairs>
+							<targetDirectory>/tmp/lib1</targetDirectory>
 						</MappingItem>
 
 						<MappingItem>
-							<type>TomcatWarMapping</type>
+							<type>com.xebialabs.deployit.plugin.tomcat.ci.TomcatConfigurationFilesMapping</type>
 							<source>config</source>
 							<target>Infrastructure/tomcat6.vm/tomcat6-2</target>
 							<keyValuePairs>
@@ -118,10 +133,11 @@
 									<v>Deployment From Maven</v>
 								</pair>
 							</keyValuePairs>
+							<targetDirectory>/tmp/lib2</targetDirectory>
 						</MappingItem>
 
 						<MappingItem>
-							<type>ModJkApacheModuleConfigurationMapping</type>
+							<type>com.xebialabs.deployit.plugin.apache.modjk.ci.ModJkApacheModuleConfigurationMapping</type>
 							<label>ModJkApacheModuleConfiguration pocweb</label>
 							<source>LoadBalancingConfigurationResource</source>
 							<target>Infrastructure/apache2.vm/Apache2WebServer</target>

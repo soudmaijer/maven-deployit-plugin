@@ -182,9 +182,17 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 	protected boolean deletePreviouslyDeployedDar;
 
 
+	/**
+	 * With explicitMappings true, the mappings are not generated but completly loaded from the pluging configuration
+	 *
+	 * @parameter default-value=false
+	 */
+	protected boolean explicitMappings;
+
 	protected ManifestPackager packager;
 
 	protected MavenCli client;
+
 
 	private boolean isServerStarted() {
 		getLog().debug("Check if the server is started on port " + port);
@@ -204,6 +212,7 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 		if (client == null) {
 			client = new MavenCli(serverAddress, port, username, password, getLog());
 			client.setSkipStepsMode(testmode);
+			client.setExplicitMappings(explicitMappings);
 			client.setFailIfNoStepsAreGenerated(failIfNoStepsAreGenerated);
 		}
 		return client;

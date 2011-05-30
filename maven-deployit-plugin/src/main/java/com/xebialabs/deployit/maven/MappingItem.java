@@ -18,6 +18,8 @@
 package com.xebialabs.deployit.maven;
 
 import com.google.common.collect.Lists;
+import com.xebialabs.deployit.core.api.dto.RepositoryObject;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -75,6 +77,34 @@ public class MappingItem extends ConfigurationItem {
 
 	@Override
 	public String toString() {
-		return String.format("MappingItem(%s,%s,%s)", source, target, getProperties().toString());
+		return String.format("MappingItem(%s,%s,%s,%s)", source, target, type, getProperties().toString());
+	}
+
+
+	public RepositoryObject toRepositoryObject() {
+		RepositoryObject repositoryObject = new com.xebialabs.deployit.core.api.dto.ConfigurationItem(type);
+		repositoryObject.setId(getId());
+
+		repositoryObject.setProperty("source",source);
+		repositoryObject.setProperty("target", target);
+		for (Map.Entry<String, Object> entry : getProperties().entrySet()) {
+			final String key = entry.getKey();
+			final Object value = entry.getValue();
+			repositoryObject.setProperty(key, value);
+		}
+
+		if (keyValuePairs != null && !keyValuePairs.isEmpty()) {
+			repositoryObject.setProperty("keyValuePairs", keyValuePairs);
+		}
+		return repositoryObject;
+	}
+
+	//Source    Applications/wls/1.2.2/wls-1.2.2.ear
+	//Target    Infrastructure/Domain WLS Petshop/Petshop Server 1
+	//Id        Infrastructure/Domain WLS Petshop/Petshop Server 1/wls
+	private String getId() {
+		final String[] split = StringUtils.split(source, "/");
+		final String applicationName = split[1];
+		return getTarget() + "/" + applicationName;
 	}
 }

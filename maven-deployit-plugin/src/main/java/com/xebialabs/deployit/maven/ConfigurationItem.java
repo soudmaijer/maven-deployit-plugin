@@ -26,7 +26,7 @@ import static java.lang.String.format;
 
 public class ConfigurationItem {
 
-	private String type;
+	protected String type;
 	private String label;
 	private boolean addedToEnvironment = true;
 
@@ -59,6 +59,7 @@ public class ConfigurationItem {
 		}
 
 		if ("type".equals(name)) {
+			//TODO: add a check 'type contains at least a dot'
 			setType(value.toString());
 			return;
 		}
