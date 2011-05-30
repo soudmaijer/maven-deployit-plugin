@@ -181,9 +181,8 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 	 */
 	protected boolean deletePreviouslyDeployedDar;
 
-
 	/**
-	 * With explicitMappings true, the mappings are not generated but completly loaded from the pluging configuration
+	 * With explicitMappings true, the mappings are not generated but fully loaded from the pluging configuration, <MappingItem></MappingItem>
 	 *
 	 * @parameter default-value=false
 	 */
@@ -256,7 +255,7 @@ public abstract class AbstractDeployitMojo extends AbstractMojo {
 				final String source = mappingItem.getSource();
 				if (!source.startsWith("Applications")) {
 					mappingItem.setSource(format("%s/%s/%s", application, version, source));
-					getLog().info(" mapping translation " + source + " --> " + mappingItem.getSource());
+					getLog().debug(" mapping translation " + source + " --> " + mappingItem.getSource());
 				}
 				return mappingItem;
 			}

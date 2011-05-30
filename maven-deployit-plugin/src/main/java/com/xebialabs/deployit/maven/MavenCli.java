@@ -146,7 +146,7 @@ public class MavenCli {
 
 		final RepositoryObject[] generatedMappings = generateMappings(source, target, mappings).toArray(new RepositoryObject[]{});
 		target = computeRealTarget(source, target);
-		logger.info("  real target is " + target);
+		logger.debug("  real target is " + target);
 		String previousDeployedPackage = getPreviousDeployedPackage(target);
 		String taskId = null;
 		try {
@@ -183,7 +183,11 @@ public class MavenCli {
 			mappingsDto.setObjects(Arrays.asList(mappings));
 		}
 
-		// validate the mappings
+		logger.info("validate the mappings");
+		for (RepositoryObject ro : mappings) {
+			logger.info(String.format("  %s\t%s", ro.getValues().get("source"), ro.getValues().get("target")));
+		}
+
 		final ResponseExtractor responseExtractor = new ResponseExtractor(getProxies().getDeployment().validate(source, target, mappingsDto));
 		if (responseExtractor.isValidResponse()) {
 			// prepare the deployment
@@ -219,7 +223,7 @@ public class MavenCli {
 	private String computeRealTarget(String source, String target) {
 		//target = "Environments/DefaultEnvironment/deployit-petclinic";
 		String deployedApplicationId = target + "/" + StringUtils.split(source, "/")[1];
-		logger.info("  deployedApplicationId " + deployedApplicationId);
+		logger.debug("  deployedApplicationId " + deployedApplicationId);
 		for (String d : getRepositoryClient().search("Deployment")) {
 			if (d.equals(deployedApplicationId))
 				return deployedApplicationId;
